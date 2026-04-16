@@ -1,4 +1,5 @@
 using System;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 // スキルに関するクラス
@@ -24,10 +25,7 @@ public class Skill
 
     [Header("スキルのサブ属性")]
     public Element eSubElement;
-}
 
-[CreateAssetMenu(fileName = "New Skill", menuName = "ScriptableObjects/Skill")]
-public class SkillSO : ScriptableObject
-{
-    public Skill[] skill;
+    [Header("付与する状態効果(バフ/デバフ/毒など)")]
+    public StatusEffect[] applyStatusEffects;
 }

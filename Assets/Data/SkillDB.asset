@@ -21,10 +21,9 @@ MonoBehaviour:
       nDamageAmount: 10
     eMainElement:
       eElementType: 1
-      nDuration: 0
     eSubElement:
       eElementType: 0
-      nDuration: 0
+    applyStatusEffects: []
   - strName: "\u30DE\u30B8\u30C3\u30AF\u30D0\u30EC\u30C3\u30C8"
     strDescription: "\u7121\u5C5E\u6027\u306E\u57FA\u672C\u9B54\u6CD5\u653B\u6483"
     nManaCost: 10
@@ -33,10 +32,9 @@ MonoBehaviour:
       nDamageAmount: 10
     eMainElement:
       eElementType: 1
-      nDuration: 0
     eSubElement:
       eElementType: 0
-      nDuration: 0
+    applyStatusEffects: []
   - strName: "\u30D5\u30A1\u30A4\u30A2\u30FC\u30DC\u30FC\u30EB"
     strDescription: "\u706B\u5C5E\u6027\u306E\u57FA\u672C\u9B54\u6CD5\u653B\u6483"
     nManaCost: 20
@@ -45,10 +43,9 @@ MonoBehaviour:
       nDamageAmount: 20
     eMainElement:
       eElementType: 2
-      nDuration: 0
     eSubElement:
       eElementType: 0
-      nDuration: 0
+    applyStatusEffects: []
   - strName: "\u30A6\u30A9\u30FC\u30BF\u30FC\u30DC\u30FC\u30EB"
     strDescription: "\u6C34\u5C5E\u6027\u306E\u57FA\u672C\u9B54\u6CD5\u653B\u6483"
     nManaCost: 20
@@ -57,10 +54,9 @@ MonoBehaviour:
       nDamageAmount: 20
     eMainElement:
       eElementType: 3
-      nDuration: 0
     eSubElement:
       eElementType: 0
-      nDuration: 0
+    applyStatusEffects: []
   - strName: "\u30E9\u30A4\u30C8\u30CB\u30F3\u30B0\u30DC\u30FC\u30EB"
     strDescription: "\u96F7\u5C5E\u6027\u306E\u57FA\u672C\u9B54\u6CD5\u653B\u6483"
     nManaCost: 20
@@ -69,10 +65,9 @@ MonoBehaviour:
       nDamageAmount: 20
     eMainElement:
       eElementType: 6
-      nDuration: 0
     eSubElement:
       eElementType: 0
-      nDuration: 0
+    applyStatusEffects: []
   - strName: "\u30A6\u30A3\u30F3\u30C9\u30AB\u30C3\u30BF\u30FC"
     strDescription: "\u98A8\u5C5E\u6027\u306E\u57FA\u672C\u9B54\u6CD5\u653B\u6483"
     nManaCost: 20
@@ -81,10 +76,9 @@ MonoBehaviour:
       nDamageAmount: 20
     eMainElement:
       eElementType: 7
-      nDuration: 0
     eSubElement:
       eElementType: 0
-      nDuration: 0
+    applyStatusEffects: []
   - strName: "\u30DB\u30FC\u30EA\u30FC\u30EC\u30A4"
     strDescription: "\u5149\u5C5E\u6027\u306E\u57FA\u672C\u9B54\u6CD5\u653B\u6483"
     nManaCost: 20
@@ -93,10 +87,9 @@ MonoBehaviour:
       nDamageAmount: 20
     eMainElement:
       eElementType: 8
-      nDuration: 0
     eSubElement:
       eElementType: 0
-      nDuration: 0
+    applyStatusEffects: []
   - strName: "\u30C0\u30FC\u30AF\u30DC\u30FC\u30EB"
     strDescription: "\u95C7\u5C5E\u6027\u306E\u57FA\u672C\u9B54\u6CD5\u653B\u6483"
     nManaCost: 20
@@ -105,10 +98,9 @@ MonoBehaviour:
       nDamageAmount: 20
     eMainElement:
       eElementType: 9
-      nDuration: 0
     eSubElement:
       eElementType: 0
-      nDuration: 0
+    applyStatusEffects: []
   - strName: "\u6BD2\u91DD"
     strDescription: "\u6BD2\u5C5E\u6027\u306E\u57FA\u672C\u9B54\u6CD5\u653B\u6483"
     nManaCost: 20
@@ -117,10 +109,9 @@ MonoBehaviour:
       nDamageAmount: 5
     eMainElement:
       eElementType: 10
-      nDuration: 3
     eSubElement:
       eElementType: 0
-      nDuration: 0
+    applyStatusEffects: []
   - strName: "\u920D\u5316\u306E\u546A\u3044"
     strDescription: "\u901F\u5EA6\u30C7\u30D0\u30D5\u306E\u546A\u3044"
     nManaCost: 20
@@ -129,7 +120,16 @@ MonoBehaviour:
       nDamageAmount: 0
     eMainElement:
       eElementType: 11
-      nDuration: 3
     eSubElement:
       eElementType: 0
-      nDuration: 0
+    applyStatusEffects:
+    - sName: "\u920D\u5316"
+      eKind: 0
+      eTargetType: 6
+      eEffectType: 1
+      fEffectValue: -0.1
+      eTickTiming: 0
+      nTickDamage: 0
+      eStackPolicy: 1
+      nMaxStacks: 5
+      nBaseDuration: 3

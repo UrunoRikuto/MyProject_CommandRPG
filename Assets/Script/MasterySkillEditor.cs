@@ -359,14 +359,18 @@ public sealed class MasterySkillEditor : EditorWindow
 
         var selectedSkill = _skillDatabase.skill[_selectedIndex];
 
-        // 呼び出し元へ返す（ここでキャラにセットするのではなく、呼び出し元が行う）
+        if (selectedSkill == null)
+        {
+            Debug.LogError("Skill is null!");
+            return;
+        }
+
         try
         {
             _onSelected?.Invoke(selectedSkill);
         }
         finally
         {
-            // 例外があってもウィンドウが残らないよう close
             Close();
         }
     }

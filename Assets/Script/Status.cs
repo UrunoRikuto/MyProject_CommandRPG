@@ -5,108 +5,151 @@ using UnityEngine;
 // ステータスに関するクラス
 public class Status : MonoBehaviour
 {
-    // 体力
-    private int nHp;             // 現在の体力
-    private int nMaxHp;          // 最大体力
+    //体力
+    private int nHp; // 現在の体力
+    private int nMaxHp; // 最大体力
 
     // マナ(スキルコスト)
-    private int nMp;             // 現在のマナ
-    private int nMaxMp;          // 最大マナ
+    private int nMp; // 現在のマナ
+    private int nMaxMp; // 最大マナ
 
     // 攻撃力
-    private int nPhysicalAttack; // 物理攻撃力
-    private int nMagicAttack;    // 魔法攻撃力
+    private int nPhysicalAttack; //物理攻撃力
+    private int nMagicAttack; // 魔法攻撃力
 
     // 防御力(ダメージ軽減率)
-    private int nPhysicalDefense;// 物理防御力
-    private int nMagicDefense;   // 魔法防御力
+    private int nPhysicalDefense;//物理防御力
+    private int nMagicDefense; // 魔法防御力
 
     // 素早さ(行動順)
-    private int nSpeed;          // 素早さ
+    private int nSpeed; // 素早さ
 
     // 属性
-    private Element eElement;    // 属性(装備品やスキルによって変化する可能性がある)
+    private Element eElement; // 属性(装備品やスキルによって変化する可能性がある)
 
     // 所持スキル
     [SerializeField]
     private List<Skill> skills; // キャラクターが習得しているスキルのリスト
 
-    // ステータス効果
-    private List<StatusEffect> statusEffects; // バフやデバフなどのステータス効果のリスト
-    private bool IsCalcedEffectiveStatus;            // バフデバフ適応後のステータスが計算されているかどうか(ターンごとに計算する)
-    //--- ステータス効果適応済み変数 ---//
-    /* バフデバフ適応後の最大体力   */[NonSerialized] public int nEffectiveMaxHp;
-    /* バフデバフ適応後の最大マナ   */[NonSerialized] public int nEffectiveMaxMp;
-    /* バフデバフ適応後の物理攻撃力 */[NonSerialized] public int nEffectivePhysicalAttack;
-    /* バフデバフ適応後の魔法攻撃力 */[NonSerialized] public int nEffectiveMagicAttack;
-    /* バフデバフ適応後の物理防御力 */[NonSerialized] public int nEffectivePhysicalDefense;
-    /* バフデバフ適応後の魔法防御力 */[NonSerialized] public int nEffectiveMagicDefense;
-    /* バフデバフ適応後の素早さ     */[NonSerialized] public int nEffectiveSpeed;             
+    // ステータス効果（ランタイム状態）
+    [SerializeField]
+    private List<StatusEffectInstance> statusEffects; // バフやデバフなどのステータス効果のリスト
 
+    private bool IsCalcedEffectiveStatus; // バフデバフ適応後のステータスが計算されているかどうか(必要な時に再計算)
+
+    //--- ステータス効果適応済み変数 ---//
+    /* バフデバフ適応後の最大体力 */
+    [NonSerialized] public int nEffectiveMaxHp;
+    /* バフデバフ適応後の最大マナ */
+    [NonSerialized] public int nEffectiveMaxMp;
+    /* バフデバフ適応後の物理攻撃力 */
+    [NonSerialized] public int nEffectivePhysicalAttack;
+    /* バフデバフ適応後の魔法攻撃力 */
+    [NonSerialized] public int nEffectiveMagicAttack;
+    /* バフデバフ適応後の物理防御力 */
+    [NonSerialized] public int nEffectivePhysicalDefense;
+    /* バフデバフ適応後の魔法防御力 */
+    [NonSerialized] public int nEffectiveMagicDefense;
+    /* バフデバフ適応後の素早さ */
+    [NonSerialized] public int nEffectiveSpeed;
+
+    // ======================
+    // StatusEffect付与/更新
+    // ======================
+
+    // ステータス効果を追加する処理（定義からインスタンス化して保持する）
+    public void AddStatusEffect(StatusEffect effect)
+    {
+        if (effect == null) return;
+        if (statusEffects == null) statusEffects = new List<StatusEffectInstance>();
+
+        // 同名（同定義）の重複処理
+        var existing = statusEffects.Find(x => x != null && x.def == effect);
+        if (existing != null)
+        {
+            switch (effect.eStackPolicy)
+            {
+                case StatusEffect.StackPolicy.RefreshDuration:
+                    existing.remainingTurns = effect.nBaseDuration;
+                    break;
+                case StatusEffect.StackPolicy.Replace:
+                    existing.remainingTurns = effect.nBaseDuration;
+                    existing.stacks = 1;
+                    break;
+                case StatusEffect.StackPolicy.AddStack:
+                    existing.stacks = Mathf.Clamp(existing.stacks + 1, 1, Mathf.Max(1, effect.nMaxStacks));
+                    existing.remainingTurns = effect.nBaseDuration;
+                    break;
+            }
+        }
+        else
+        {
+            statusEffects.Add(new StatusEffectInstance(effect));
+        }
+
+        IsCalcedEffectiveStatus = false;
+        RecalculateEffectiveStatus();
+    }
 
     // 指定ステータスごとにバフデバフ倍率を計算
-    private Dictionary<StatusEffect.TargetType, Dictionary<StatusEffect.EffectType,float>> BuffDebuffMultiplier()
+    private Dictionary<StatusEffect.TargetType, Dictionary<StatusEffect.EffectType, float>> BuffDebuffMultiplier()
     {
-        // 効果の種類ごとに倍率を格納する辞書を初期化
         Dictionary<StatusEffect.TargetType, Dictionary<StatusEffect.EffectType, float>> multipliers = new Dictionary<StatusEffect.TargetType, Dictionary<StatusEffect.EffectType, float>>();
-        foreach (StatusEffect.TargetType targetType in System.Enum.GetValues(typeof(StatusEffect.TargetType)))
+        foreach (StatusEffect.TargetType targetType in Enum.GetValues(typeof(StatusEffect.TargetType)))
         {
             multipliers[targetType] = new Dictionary<StatusEffect.EffectType, float>()
             {
-                { StatusEffect.EffectType.Flat, 0.0f },
-                { StatusEffect.EffectType.Percent, 0.0f }
+                { StatusEffect.EffectType.Flat,0.0f },
+                { StatusEffect.EffectType.Percent,0.0f }
             };
         }
 
-        // ステータス効果のリストをループして、指定された効果タイプに一致するものを見つける
-        foreach (var effect in statusEffects)
+        if (statusEffects == null) return multipliers;
+
+        // StatusModifier のみ集計
+        foreach (var inst in statusEffects)
         {
-            switch (effect.eEffectType) // 効果の種類に応じて倍率を計算
+            if (inst?.def == null) continue;
+            if (inst.def.eKind != StatusEffect.Kind.StatusModifier) continue;
+
+            float value = inst.def.fEffectValue;
+            int stacks = Mathf.Max(1, inst.stacks);
+
+            switch (inst.def.eEffectType)
             {
-                case StatusEffect.EffectType.Flat: // フラット値の場合はそのまま加算
-                    multipliers[effect.eTargetType][StatusEffect.EffectType.Flat] += effect.fEffectValue;
+                case StatusEffect.EffectType.Flat:
+                    multipliers[inst.def.eTargetType][StatusEffect.EffectType.Flat] += value * stacks;
                     break;
-                case StatusEffect.EffectType.Percent: // パーセント値の場合は割合として加算
-                    multipliers[effect.eTargetType][StatusEffect.EffectType.Percent] += effect.fEffectValue;
+                case StatusEffect.EffectType.Percent:
+                    multipliers[inst.def.eTargetType][StatusEffect.EffectType.Percent] += value * stacks;
                     break;
             }
         }
 
-        // パーセント値の合計値を最終倍率に変換（p = -1.0〜1.0 → 倍率 = 0〜2）
+        // パーセント値の合計値を最終倍率に変換（p = -1.0〜1.0 → 倍率 =0〜2）
         foreach (var targetType in multipliers.Keys)
         {
             float p = multipliers[targetType][StatusEffect.EffectType.Percent];
-            float percentMultiplier = 1.0f + p;
-            multipliers[targetType][StatusEffect.EffectType.Percent] = percentMultiplier;
+            multipliers[targetType][StatusEffect.EffectType.Percent] = 1.0f + p;
         }
 
-        return multipliers; // 計算された倍率の辞書を返す
+        return multipliers;
     }
 
     // 指定ステータスタイプごとに、フラット値とパーセント値の倍率を適用して有効なステータスを計算
     private int CalcEffecticeStatus(int baseValue, StatusEffect.TargetType targetType, Dictionary<StatusEffect.TargetType, Dictionary<StatusEffect.EffectType, float>> multipliers)
     {
-        // フラット値
-        float flatMultiplier = multipliers[targetType][StatusEffect.EffectType.Flat];
-        // パーセント倍率
-        float percentMultiplier = multipliers[targetType][StatusEffect.EffectType.Percent];
-
-        // 基本値にフラット値を加算し、さらにパーセント倍率を掛けて最終的なステータスを計算
-        return Mathf.RoundToInt((baseValue + flatMultiplier) * percentMultiplier);
+        float flat = multipliers[targetType][StatusEffect.EffectType.Flat];
+        float percent = multipliers[targetType][StatusEffect.EffectType.Percent];
+        return Mathf.RoundToInt((baseValue + flat) * percent);
     }
 
-    // バフデバフによるステータスの変化を更新する処理
-    public void UpdateStatusEffects()
+    // バフデバフ適用後ステータスを再計算（副作用：計算のみ）
+    public void RecalculateEffectiveStatus()
     {
-        // バフデバフが存在しない場合
-        if (statusEffects == null || statusEffects.Count == 0) return; // 処理を終了
+        if (IsCalcedEffectiveStatus) return;
 
-        // 計算済みかどうかをチェック
-        if (IsCalcedEffectiveStatus) return; // すでに計算されている場合は処理を終了
-
-        // ステータスごとにバフデバフ倍率を計算
-        Dictionary<StatusEffect.TargetType, Dictionary<StatusEffect.EffectType, float>> multipliers =　BuffDebuffMultiplier();
-        // 各ステータスに対して、フラット値とパーセント値の倍率を適用して有効なステータスを計算
+        var multipliers = BuffDebuffMultiplier();
         nEffectiveMaxHp = CalcEffecticeStatus(nMaxHp, StatusEffect.TargetType.Hp, multipliers);
         nEffectiveMaxMp = CalcEffecticeStatus(nMaxMp, StatusEffect.TargetType.Mp, multipliers);
         nEffectivePhysicalAttack = CalcEffecticeStatus(nPhysicalAttack, StatusEffect.TargetType.PhysicalAttack, multipliers);
@@ -115,66 +158,139 @@ public class Status : MonoBehaviour
         nEffectiveMagicDefense = CalcEffecticeStatus(nMagicDefense, StatusEffect.TargetType.MagicDefense, multipliers);
         nEffectiveSpeed = CalcEffecticeStatus(nSpeed, StatusEffect.TargetType.Speed, multipliers);
 
-        // ステータス効果のリストをループして、継続ターン数を減らす
+        IsCalcedEffectiveStatus = true;
+    }
+
+    // ======================
+    // ターン経過処理（毒など）
+    // ======================
+
+    public void OnTurnStart()
+    {
+        TickStatusEffects(StatusEffect.TickTiming.OnTurnStart);
+    }
+
+    public void OnTurnEnd()
+    {
+        TickStatusEffects(StatusEffect.TickTiming.OnTurnEnd);
+
+        // 継続ターン減算/解除
+        DecrementAndRemoveExpiredEffects();
+
+        // ステータス再計算
+        IsCalcedEffectiveStatus = false;
+        RecalculateEffectiveStatus();
+    }
+
+    private void TickStatusEffects(StatusEffect.TickTiming timing)
+    {
+        if (statusEffects == null || statusEffects.Count == 0) return;
+
+        foreach (var inst in statusEffects)
+        {
+            if (inst?.def == null) continue;
+            if (inst.def.eKind != StatusEffect.Kind.DamageOverTime) continue;
+            if (inst.def.eTickTiming != timing) continue;
+
+            int ticks = Mathf.Max(1, inst.stacks);
+            int dmg = Mathf.Max(0, inst.def.nTickDamage) * ticks;
+            if (dmg > 0) ApplyDamageDirect(dmg);
+        }
+    }
+
+    private void DecrementAndRemoveExpiredEffects()
+    {
+        if (statusEffects == null) return;
+
         for (int i = statusEffects.Count - 1; i >= 0; i--)
         {
-            statusEffects[i].nDuration--; // 継続ターン数を減らす
-            if (statusEffects[i].nDuration <= 0) // 継続ターン数が0以下になった場合は効果を解除
+            var inst = statusEffects[i];
+            if (inst?.def == null)
             {
-                statusEffects.RemoveAt(i); // 効果をリストから削除
+                statusEffects.RemoveAt(i);
+                continue;
+            }
+
+            inst.remainingTurns--;
+            if (inst.remainingTurns <= 0)
+            {
+                statusEffects.RemoveAt(i);
             }
         }
-
-        IsCalcedEffectiveStatus = true; // バフデバフ適応後のステータスが計算されたことを示すフラグを立てる
     }
+
+    // ======================
+    // ダメージ処理
+    // ======================
 
     // ダメージ軽減率計算
-    // ダメージ軽減率 = (防御力) / (防御力 + 100)
-    // 最大値1.0f、最小値0.0f
+    // ダメージ軽減率 = (防御力) / (防御力 +100)
     private float CalcDamageReduction(Damage.Type damageType)
     {
-        switch(damageType)// ダメージの種類に応じて軽減率を計算
+        // effective を使う（バフデバフ反映済み）
+        RecalculateEffectiveStatus();
+
+        switch (damageType)
         {
-            case Damage.Type.Physical:// 物理ダメージの軽減率を計算
-                return (float)nPhysicalDefense / (nPhysicalDefense + 100);
-            case Damage.Type.Magical: // 魔法ダメージの軽減率を計算
-                return (float)nMagicDefense / (nMagicDefense + 100);
+            case Damage.Type.Physical:
+                return (float)nEffectivePhysicalDefense / (nEffectivePhysicalDefense + 100);
+            case Damage.Type.Magical:
+                return (float)nEffectiveMagicDefense / (nEffectiveMagicDefense + 100);
         }
 
-        return 0.0f;// 軽減率0%
+        return 0.0f;
     }
 
-    // ダメージを受ける処理
-    // 引数: ダメージの情報
-    public void TakeDamage(Skill skill)
+    //直接HPを減らす（DoT等で利用）
+    private void ApplyDamageDirect(int amount)
     {
-        // ダメージ軽減率を計算
-        float damageReduction = CalcDamageReduction(skill.damage.eDamageType);
-        // メイン属性によるダメージ倍率を計算
-        float elementMultiplier = skill.eMainElement.CalcElementModfier(eElement.eElementType);
-        // サブ属性がある場合はサブ属性によるダメージ倍率も計算
-        if (skill.eSubElement.eElementType != Element.Type.None)
-        {
-            // サブ属性によるダメージ倍率を計算
-            float subElementMultiplier = skill.eSubElement.CalcElementModfier(eElement.eElementType);
-
-            // メイン属性とサブ属性のダメージ倍率を掛け合わせる
-            elementMultiplier *= subElementMultiplier;
-        }
-
-        // 実際のダメージ量を計算
-        int actualDamage = Mathf.RoundToInt(skill.damage.nDamageAmount * (1.0f - damageReduction) * elementMultiplier);
-
-        // ダメージ量が0未満にならないようにする
-        if (actualDamage < 0) actualDamage = 0;
-
-        // 体力を減らす
-        nHp -= actualDamage;
-        // 体力が0以下になった場合は0にする
+        if (amount < 0) amount = 0;
+        nHp -= amount;
         if (nHp < 0) nHp = 0;
     }
 
+    // スキルによる被ダメ処理（このStatusが「受け手」）
+    public void TakeDamage(Skill skill)
+    {
+        if (skill == null || skill.damage == null) return;
 
+        float damageReduction = CalcDamageReduction(skill.damage.eDamageType);
+
+        float elementMultiplier = 1.0f;
+        if (skill.eMainElement != null)
+        {
+            elementMultiplier *= skill.eMainElement.CalcElementModfier(eElement.eElementType);
+        }
+        if (skill.eSubElement != null && skill.eSubElement.eElementType != Element.Type.None)
+        {
+            elementMultiplier *= skill.eSubElement.CalcElementModfier(eElement.eElementType);
+        }
+
+        int actualDamage = Mathf.RoundToInt(skill.damage.nDamageAmount * (1.0f - damageReduction) * elementMultiplier);
+        if (actualDamage < 0) actualDamage = 0;
+
+        ApplyDamageDirect(actualDamage);
+    }
+
+    //使う側（攻撃側）から呼ぶ簡易実行：ダメージ + 状態異常付与
+    public void ExecuteSkillToTarget(Skill skill, Status target)
+    {
+        if (skill == null || target == null) return;
+
+        // TODO: 消費MP等を入れるならここ
+
+        // ダメージ
+        target.TakeDamage(skill);
+
+        //付与効果（毒/バフ/デバフ）
+        if (skill.applyStatusEffects != null)
+        {
+            foreach (var e in skill.applyStatusEffects)
+            {
+                target.AddStatusEffect(e);
+            }
+        }
+    }
 
     //※※※※※※※※※※※※
     // デバッグ用
@@ -203,8 +319,7 @@ public class Status : MonoBehaviour
     }
 
     [ContextMenu("Debug/ステータス効果の付与")]
-    private void AddStatusEffect()
+    private void AddStatusEffectDebug()
     {
-
     }
 }

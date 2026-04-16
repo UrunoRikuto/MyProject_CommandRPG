@@ -97,8 +97,4 @@ public class Element
 
         return NomalModfier; // 補正なし
     }
-
-    // 呪いや毒などの継続ターン数
-    [Header("継続ターン数(※呪いや毒に使用)")]
-    public int nDuration = 0;
 }
