@@ -1,10 +1,12 @@
-using System.Collections;
 using System.Collections.Generic;
+using System;
 using UnityEngine;
 
-
-class Element
+// 属性に関するクラス
+[Serializable]
+public class Element
 {
+    // 属性の種類
     public enum Type
     {
         None,       // なし
@@ -20,7 +22,8 @@ class Element
         Poison,     // 毒
         Curse,      // 呪
     }
-    public Type eElementType = Type.None; // 属性の種類
+    [Header("属性の種類")]
+    public Type eElementType = Type.None;
 
 
     // 属性相性の倍率表(攻撃->防御)
@@ -37,6 +40,8 @@ class Element
     static float WeakModfier = 2.0f; // 弱点倍率
     static float NomalModfier = 1.0f; // 通常倍率
     static float ResistModfier = 0.5f; // 耐性倍率
+
+    // 属性相性の倍率表
     private static readonly Dictionary<(Type atk, Type def), float> elementTable = new Dictionary<(Type atk, Type def), float>
     {
         // 火
@@ -81,6 +86,7 @@ class Element
     };
 
     // 属性相性によるダメージ補正
+    // 引数：防御側の属性、対象の属性
     // 戻り値：2.0f、1.0f、0.5f
     public float CalcElementModfier(Element.Type targetType)
     {
@@ -91,52 +97,8 @@ class Element
 
         return NomalModfier; // 補正なし
     }
-}
 
-struct Damage
-{
-    enum Type
-    {
-        Physical,   // 物理ダメージ
-        Magical     // 魔法ダメージ
-    }
-    Type eDamageType; // ダメージの種類
-
-    int nDamageAmount; // ダメージ量
-}
-
-/// <summary>
-/// プレイヤーのステータスを管理するクラス
-/// </summary>
-public class PlayerStatus
-{
-    // 体力
-    public int nHp;             // 現在の体力
-    public int nMaxHp;          // 最大体力
-
-    // マナ(スキルコスト)
-    public int nMp;             // 現在のマナ
-    public int nMaxMp;          // 最大マナ
-
-    // 攻撃力
-    public int nPhysicalAttack; // 物理攻撃力
-    public int nMagicAttack;    // 魔法攻撃力
-
-    // 防御力(ダメージ軽減率)
-    // ダメージ軽減率 = (防御力) / (防御力 + 100)
-    public int nPhysicalDefense;// 物理防御力
-    public int nMagicDefense;   // 魔法防御力
-
-    // 素早さ(行動順)
-    public int nSpeed;          // 素早さ
-
-    // ダメージ軽減率計算
-    // ダメージ軽減率 = (防御力) / (防御力 + 100)
-    // 最大値1.0f、最小値0.0f
-    private float CalcDamageReduction()
-    {
-
-
-        return 0.0f;// 軽減率0%
-    }
+    // 呪いや毒などの継続ターン数
+    [Header("継続ターン数(※呪いや毒に使用)")]
+    public int nDuration = 0;
 }
