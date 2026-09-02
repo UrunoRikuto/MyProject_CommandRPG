@@ -5,7 +5,7 @@ using System.Linq;
 /// <summary>
 /// 登録された変数をリアルタイムで表示するエディタウィンドウ
 /// </summary>
-public class CS_ValueObserverWindow : EditorWindow
+public class CSED_ValueObserverWindow : EditorWindow
 {
     private Vector2 _scrollPosition = Vector2.zero;
     private double _lastUpdateTime = 0;
@@ -19,7 +19,7 @@ public class CS_ValueObserverWindow : EditorWindow
     [MenuItem("Tools/Value Observer")]
     public static void ShowWindow()
     {
-        EditorWindow window = GetWindow(typeof(CS_ValueObserverWindow));
+        EditorWindow window = GetWindow(typeof(CSED_ValueObserverWindow));
         window.titleContent = new GUIContent("Value Observer");
         window.minSize = new Vector2(550, 300);
     }
