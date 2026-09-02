@@ -1,5 +1,3 @@
-using UnityEngine;
-
 public interface IBattleState
 {
     void Enter(CS_BattleContext context, CS_BattleStateMachine machine);
