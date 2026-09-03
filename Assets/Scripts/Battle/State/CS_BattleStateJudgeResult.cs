@@ -5,24 +5,32 @@ public class CS_BattleStateJudgeResult : IBattleState
 {
     public void Enter(CS_BattleContext context, CS_BattleStateMachine machine)
     {
-        bool allEnemysDead = false;
+        bool allEnemysDead = true;
         foreach (var enemy in context.enemyParty)
         {
-            // 敵が全滅しているかどうかを確認
-            if (!enemy.isDead) allEnemysDead = false;
+            if (!enemy.isDead)
+            {
+                allEnemysDead = false;
+                break;
+            }
         }
+
         if (allEnemysDead)
         {
             context.result = CSE_BattleResult.Win;
         }
         else
         {
-            bool allPlayersDead = false;
+            bool allPlayersDead = true;
             foreach (var player in context.playerParty)
             {
-                // プレイヤーが全滅しているかどうかを確認
-                if (!player.isDead) allPlayersDead = false;
+                if (!player.isDead)
+                {
+                    allPlayersDead = false;
+                    break;
+                }
             }
+
             if (allPlayersDead)
             {
                 context.result = CSE_BattleResult.Lose;
@@ -38,7 +46,6 @@ public class CS_BattleStateJudgeResult : IBattleState
             machine.ChangeState(new CS_BattleStateEnd());
         }
     }
-
     public void Update(CS_BattleContext context, CS_BattleStateMachine machine) { }
     public void Exit(CS_BattleContext context, CS_BattleStateMachine machine) { }
 }
