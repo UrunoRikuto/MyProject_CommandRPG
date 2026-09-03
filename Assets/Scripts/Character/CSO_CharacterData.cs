@@ -18,6 +18,11 @@ public class CSO_CharacterData : ScriptableObject
     private int _baseAttack;
     public int baseAttack => _baseAttack;
 
+    [Header("Šî‘b–hŒä—Í")]
+    [SerializeField]
+    private int _baseDefense;
+    public int baseDefense => _baseDefense;
+
     [Header("Šî‘b‘¬“x")]
     [SerializeField]
     private int _baseSpeed;

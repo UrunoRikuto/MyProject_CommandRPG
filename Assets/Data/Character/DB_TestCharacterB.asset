@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: DB_TestCharacterB
   m_EditorClassIdentifier: Assembly-CSharp::CSO_CharacterData
   _characterName: TestB
-  _baseHealth: 12
-  _baseAttack: 2
+  _baseHealth: 50
+  _baseAttack: 10
+  _baseDefense: 0
   _baseSpeed: 1
