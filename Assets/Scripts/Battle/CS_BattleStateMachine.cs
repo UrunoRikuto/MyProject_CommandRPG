@@ -8,6 +8,9 @@ public class CS_BattleStateMachine : MonoBehaviour
     [SerializeField] 
     private CSO_CharacterData _enemyData;
 
+    [SerializeField] private CS_CommandButtonInput _commandButtonInput;
+    public CS_CommandButtonInput commandButtonInput => _commandButtonInput;
+
     private CS_BattleContext _context;
     private IBattleState _currentState;
 
