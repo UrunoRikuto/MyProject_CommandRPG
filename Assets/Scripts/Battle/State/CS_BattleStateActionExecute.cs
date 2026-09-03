@@ -1,7 +1,3 @@
-/// <summary>
-/// 行動キューを順番に実行する。
-/// 既に倒れているキャラクターの行動はスキップする。
-/// </summary>
 public class CS_BattleStateActionExecute : IBattleState
 {
     public void Enter(CS_BattleContext context, CS_BattleStateMachine machine)
@@ -11,7 +7,14 @@ public class CS_BattleStateActionExecute : IBattleState
             CS_BattleActionEntry entry = context.actionQueue.Dequeue();
             if (entry.actor.isDead) continue;
 
-            entry.command.Execute(context, entry.actor, entry.target);
+            CS_CharacterState target = entry.target;
+            if (target.isDead)
+            {
+                target = context.PickRandomLivingTarget(context.GetOpposingParty(entry.actor));
+                if (target == null) continue; // 相手が全滅していたらこの行動はキャンセル
+            }
+
+            entry.command.Execute(context, entry.actor, target);
 
             if (context.result != CSE_BattleResult.None) break;
         }

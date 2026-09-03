@@ -5,13 +5,28 @@ public class CS_BattleStateJudgeResult : IBattleState
 {
     public void Enter(CS_BattleContext context, CS_BattleStateMachine machine)
     {
-        if (context.enemyState.isDead)
+        bool allEnemysDead = false;
+        foreach (var enemy in context.enemyParty)
+        {
+            // 敵が全滅しているかどうかを確認
+            if (!enemy.isDead) allEnemysDead = false;
+        }
+        if (allEnemysDead)
         {
             context.result = CSE_BattleResult.Win;
         }
-        else if (context.playerState.isDead)
+        else
         {
-            context.result = CSE_BattleResult.Lose;
+            bool allPlayersDead = false;
+            foreach (var player in context.playerParty)
+            {
+                // プレイヤーが全滅しているかどうかを確認
+                if (!player.isDead) allPlayersDead = false;
+            }
+            if (allPlayersDead)
+            {
+                context.result = CSE_BattleResult.Lose;
+            }
         }
 
         if (context.result == CSE_BattleResult.None)

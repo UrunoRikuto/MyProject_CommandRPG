@@ -38,4 +38,31 @@ public class CSO_CharacterData : ScriptableObject
     [SerializeField]
     private List<CSO_SkillData> _initialSkills;
     public IReadOnlyList<CSO_SkillData> initialSkills => _initialSkills;
+
+    [Header("AIが「たたかう」を選ぶ重み")]
+    [SerializeField] private float _attackWeight = 1f;
+    public float attackWeight => _attackWeight;
+    [Header("AIが各スキルを選ぶ重み")]
+    [SerializeField] private List<float> _skillWeights;
+    public IReadOnlyList<float> skillWeights => _skillWeights;
+
+    void OnValidate()
+    {
+        // スキルの数と重みの数が一致するように調整
+        if (_skillWeights.Count != _initialSkills.Count)
+        {
+            int diff = _initialSkills.Count - _skillWeights.Count;
+            if (diff > 0)
+            {
+                for (int i = 0; i < diff; i++)
+                {
+                    _skillWeights.Add(0.0f); // デフォルトの重みを追加
+                }
+            }
+            else
+            {
+                _skillWeights.RemoveRange(_skillWeights.Count + diff, -diff); // 余分な重みを削除
+            }
+        }
+    }
 }
