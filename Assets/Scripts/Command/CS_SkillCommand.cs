@@ -10,7 +10,7 @@ public class CS_SkillCommand : IBattleCommand
         _skillIndex = skillIndex;
     }
 
-    public void Execute(CS_CharacterState user, CS_CharacterState target)
+    public void Execute(CS_BattleContext context, CS_CharacterState user, CS_CharacterState target)
     {
         // スキルのインデックスが有効か確認
         if (_skillIndex < 0 || _skillIndex >= user.currentSkills.Count) return;

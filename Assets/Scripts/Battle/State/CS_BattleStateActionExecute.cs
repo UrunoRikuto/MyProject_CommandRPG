@@ -11,7 +11,9 @@ public class CS_BattleStateActionExecute : IBattleState
             CS_BattleActionEntry entry = context.actionQueue.Dequeue();
             if (entry.actor.isDead) continue;
 
-            entry.command.Execute(entry.actor, entry.target);
+            entry.command.Execute(context, entry.actor, entry.target);
+
+            if (context.result != CSE_BattleResult.None) break;
         }
 
         machine.ChangeState(new CS_BattleStateJudgeResult());

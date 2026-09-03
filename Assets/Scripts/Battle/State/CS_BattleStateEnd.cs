@@ -5,7 +5,12 @@ public class CS_BattleStateEnd : IBattleState
 {
     public void Enter(CS_BattleContext context, CS_BattleStateMachine machine)
     {
-        string message = context.result == CSE_BattleResult.Win ? "Ÿ—˜!" : "”s–k...";
+        string message = context.result switch
+        {
+            CSE_BattleResult.Win => "Ÿ—˜!",
+            CSE_BattleResult.Escape => "‚É‚°‚«‚Á‚½!",
+            _ => "”s–k..."
+        };
         Debug.Log($"í“¬I—¹: {message}");
     }
 
