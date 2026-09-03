@@ -12,6 +12,9 @@ public class CS_SkillCommand : IBattleCommand
 
     public void Execute(CS_CharacterState user, CS_CharacterState target)
     {
+        // スキルのインデックスが有効か確認
+        if (_skillIndex < 0 || _skillIndex >= user.currentSkills.Count) return;
+
         // 使用するスキルのデータを取得
         CSO_SkillData useSkillData = user.currentSkills[_skillIndex];
 
@@ -19,7 +22,7 @@ public class CS_SkillCommand : IBattleCommand
         if (!user.TryUseMP(useSkillData.cost)) return;
 
         // スキルのダメージを計算
-        int damage = (int)(user.currentAttack * (int)useSkillData.damageRate);
+        int damage = (int)(user.currentAttack * useSkillData.damageRate);
 
         // ダメージを与える
         target.TakeDamage(damage);
