@@ -649,8 +649,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 793b359a66b96d648af3578ba9ac9fc2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CS_BattleStateMachine
-  _playerData: {fileID: 11400000, guid: 57394e2f4eb2ce240b0c5681984f3a96, type: 2}
-  _enemyData: {fileID: 11400000, guid: c482a5af52d2b7e4ea0044b43fb032e2, type: 2}
+  _playerPartyData:
+  - {fileID: 11400000, guid: 57394e2f4eb2ce240b0c5681984f3a96, type: 2}
+  - {fileID: 11400000, guid: 57394e2f4eb2ce240b0c5681984f3a96, type: 2}
+  _enemyPartyData:
+  - {fileID: 11400000, guid: c482a5af52d2b7e4ea0044b43fb032e2, type: 2}
+  - {fileID: 11400000, guid: c482a5af52d2b7e4ea0044b43fb032e2, type: 2}
   _commandButtonInput: {fileID: 182769735}
 --- !u!4 &720499943
 Transform:

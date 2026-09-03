@@ -1,12 +1,13 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class CS_BattleStateMachine : MonoBehaviour
 {
     [SerializeField] 
-    private CSO_CharacterData _playerData;
+    private List<CSO_CharacterData> _playerPartyData;
 
     [SerializeField] 
-    private CSO_CharacterData _enemyData;
+    private List<CSO_CharacterData> _enemyPartyData;
 
     [SerializeField] private CS_CommandButtonInput _commandButtonInput;
     public CS_CommandButtonInput commandButtonInput => _commandButtonInput;
@@ -18,13 +19,17 @@ public class CS_BattleStateMachine : MonoBehaviour
 
     private void Awake()
     {
-        CS_CharacterState player = new CS_CharacterState(_playerData);
-        CS_CharacterState enemy = new CS_CharacterState(_enemyData);
-        _context = new CS_BattleContext(player, enemy);
-
-        // Tools > Value Observer ‚ÅHP‚Ì•Ï‰»‚ðƒŠƒAƒ‹ƒ^ƒCƒ€ŠÄŽ‹
-        CS_ValueObserver.Instance.Register(gameObject, this, "playerHP", () => _context.playerState.currentHealth);
-        CS_ValueObserver.Instance.Register(gameObject, this, "enemyHP", () => _context.enemyState.currentHealth);
+        List<CS_CharacterState> playerParty = new List<CS_CharacterState>();
+        foreach (var playerData in _playerPartyData)
+        {
+            playerParty.Add(new CS_CharacterState(playerData));
+        }
+        List<CS_CharacterState> enemyParty = new List<CS_CharacterState>();
+        foreach (var enemyData in _enemyPartyData)
+        {
+            enemyParty.Add(new CS_CharacterState(enemyData));
+        }
+        _context = new CS_BattleContext(playerParty, enemyParty);
     }
 
     private void Start()

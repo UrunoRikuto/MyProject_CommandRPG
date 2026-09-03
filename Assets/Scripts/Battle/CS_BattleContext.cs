@@ -3,12 +3,16 @@ using System.Collections.Generic;
 public class CS_BattleContext
 {
     // プレイヤーの状態
-    private readonly CS_CharacterState _playerState;
-    public CS_CharacterState playerState => _playerState;
+    private readonly List<CS_CharacterState> _playerParty;
+    public IReadOnlyList<CS_CharacterState> playerParty => _playerParty;
+    // ※ひとまず一番前のプレイヤーのみ取得させるようにする
+    public CS_CharacterState playerState => _playerParty.Count > 0 ? _playerParty[0] : null;
 
     // 敵の状態
-    private readonly CS_CharacterState _enemyState;
-    public CS_CharacterState enemyState => _enemyState;
+    private readonly List<CS_CharacterState> _enemyParty;
+    public IReadOnlyList<CS_CharacterState> enemyParty => _enemyParty;
+    // ※ひとまず一番前の敵のみ取得させるようにする
+    public CS_CharacterState enemyState => _enemyParty.Count > 0 ? _enemyParty[0] : null;
 
     // 行動順キュー
     private readonly Queue<CS_BattleActionEntry> _actionQueue = new Queue<CS_BattleActionEntry>();
@@ -21,9 +25,9 @@ public class CS_BattleContext
     // 戦闘結果
     public CSE_BattleResult result { get; set; } = CSE_BattleResult.None;
 
-    public CS_BattleContext(CS_CharacterState playerState, CS_CharacterState enemyState)
+    public CS_BattleContext(List<CS_CharacterState> playerParty, List<CS_CharacterState> enemyParty)
     {
-        _playerState = playerState;
-        _enemyState = enemyState;
+        _playerParty = playerParty;
+        _enemyParty = enemyParty;
     }
 }
