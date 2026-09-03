@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class CS_CharacterState
@@ -14,10 +15,16 @@ public class CS_CharacterState
     // 最大体力
     private int _maxHealth;
     public int maxHealth => _maxHealth;
-
     // 現在の体力
     private int _currentHealth;
     public int currentHealth => _currentHealth;
+
+    // 最大MP
+    private int _maxMP;
+    public int maxMP => _maxMP;
+    // 現在のMP
+    private int _currentMP;
+    public int currentMP => _currentMP;
 
     // 現在の攻撃力
     private int _currentAttack;
@@ -31,6 +38,10 @@ public class CS_CharacterState
     private int _currentSpeed;
     public int currentSpeed => _currentSpeed;
 
+    // 現在のスキルリスト
+    private List<CSO_SkillData> _currentSkills;
+    public IReadOnlyList<CSO_SkillData> currentSkills => _currentSkills;
+
     public CS_CharacterState(CSO_CharacterData data)
     {
         _characterData = data;
@@ -38,6 +49,10 @@ public class CS_CharacterState
         // 体力の初期化
         _maxHealth = _characterData.baseHealth;
         _currentHealth = _maxHealth;
+
+        // MPの初期化
+        _maxMP = _characterData.baseMP;
+        _currentMP = _maxMP;
 
         // 攻撃力の初期化
         _currentAttack = _characterData.baseAttack;
@@ -47,6 +62,9 @@ public class CS_CharacterState
 
         // 速度の初期化
         _currentSpeed = _characterData.baseSpeed;
+
+        // スキルリストの初期化
+        _currentSkills = new List<CSO_SkillData>(_characterData.initialSkills);
     }
 
     /// <summary>
@@ -64,6 +82,22 @@ public class CS_CharacterState
 
         // 現在の体力を減少させる
         _currentHealth = Mathf.Max(_currentHealth - effectiveDamage, 0);
-        Debug.Log(characterName + "がダメージを受けた: " + effectiveDamage + " 現在の体力: " + _currentHealth);
+    }
+
+    /// <summary>
+    /// MPを消費する処理
+    /// </summary>
+    /// <param name="amount">消費するMP量</param>
+    /// <returns>コストを消費できたかどうか</returns>
+    public bool TryUseMP(int amount)
+    {
+        // MPが足りる場合のみ消費する
+        if (_currentMP >= amount)
+        {
+            _currentMP -= amount;
+            return true;
+        }
+
+        return false;
     }
 }

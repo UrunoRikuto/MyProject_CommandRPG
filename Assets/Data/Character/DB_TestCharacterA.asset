@@ -14,6 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CSO_CharacterData
   _characterName: TestA
   _baseHealth: 50
+  _baseMP: 100
   _baseAttack: 10
   _baseDefense: 5
   _baseSpeed: 5
+  _initialSkills:
+  - {fileID: 11400000, guid: c44b685962f960a42b7ca4be2dd535f7, type: 2}
