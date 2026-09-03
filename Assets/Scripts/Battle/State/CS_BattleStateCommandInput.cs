@@ -1,32 +1,30 @@
+using System.Collections.Generic;
+
 public class CS_BattleStateCommandInput : IBattleState
 {
-    private CS_BattleContext _context;
-    private CS_BattleStateMachine _machine;
-
     public void Enter(CS_BattleContext context, CS_BattleStateMachine machine)
     {
-        _context = context;
-        _machine = machine;
+        // 6-3で操作キャラクター(playerParty[0])の入力に置き換えるまでは全員AI
+        DecideActionsForParty(context, context.playerParty);
+        DecideActionsForParty(context, context.enemyParty);
 
-        machine.commandButtonInput.SetAvailableSkills(context.playerState.currentSkills);
-        machine.commandButtonInput.onCommandDecided += HandleCommandDecided;
+        machine.ChangeState(new CS_BattleStateActionOrder());
     }
 
-    public void Update(CS_BattleContext context, CS_BattleStateMachine machine)
+    private void DecideActionsForParty(CS_BattleContext context, IReadOnlyList<CS_CharacterState> party)
     {
-        // ボタン入力待ちなので、ここでは何もしなくてよい
-        // (キー入力のInput.GetKeyDown判定はまるごと不要になる)
+        foreach (var actor in party)
+        {
+            if (actor.isDead) continue;
+
+            IBattleCommand command = CS_BattleAI.DecideCommand(actor);
+            CS_CharacterState target = context.PickRandomLivingTarget(context.GetOpposingParty(actor));
+            if (target == null) continue; // 相手が全滅していたら行動なし
+
+            context.actionQueue.Enqueue(new CS_BattleActionEntry(actor, target, command));
+        }
     }
 
-    public void Exit(CS_BattleContext context, CS_BattleStateMachine machine)
-    {
-        machine.commandButtonInput.onCommandDecided -= HandleCommandDecided;
-    }
-
-    private void HandleCommandDecided(IBattleCommand playerCommand)
-    {
-        _context.playerCommand = playerCommand;
-        _context.enemyCommand = new CS_AttackCommand(); // 簡易AI:常にたたかう
-        _machine.ChangeState(new CS_BattleStateActionOrder());
-    }
+    public void Update(CS_BattleContext context, CS_BattleStateMachine machine) { }
+    public void Exit(CS_BattleContext context, CS_BattleStateMachine machine) { }
 }

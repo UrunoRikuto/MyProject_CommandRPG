@@ -1,23 +1,17 @@
-/// <summary>
-/// 素早さを比較して行動順を決定し、行動キューを作成する。
-/// 同速の場合はプレイヤーを先に行動させる。
-/// </summary>
+using System.Collections.Generic;
+using System.Linq;
+
 public class CS_BattleStateActionOrder : IBattleState
 {
     public void Enter(CS_BattleContext context, CS_BattleStateMachine machine)
     {
-        bool playerFirst = context.playerState.currentSpeed >= context.enemyState.currentSpeed;
+        List<CS_BattleActionEntry> sorted = context.actionQueue
+            .OrderByDescending(e => e.actor.currentSpeed)
+            .ThenByDescending(e => context.playerParty.Contains(e.actor)) // 同速はプレイヤー側優先
+            .ToList();
 
-        if (playerFirst)
-        {
-            context.actionQueue.Enqueue(new CS_BattleActionEntry(context.playerState, context.enemyState, context.playerCommand));
-            context.actionQueue.Enqueue(new CS_BattleActionEntry(context.enemyState, context.playerState, context.enemyCommand));
-        }
-        else
-        {
-            context.actionQueue.Enqueue(new CS_BattleActionEntry(context.enemyState, context.playerState, context.enemyCommand));
-            context.actionQueue.Enqueue(new CS_BattleActionEntry(context.playerState, context.enemyState, context.playerCommand));
-        }
+        context.actionQueue.Clear();
+        foreach (var entry in sorted) context.actionQueue.Enqueue(entry);
 
         machine.ChangeState(new CS_BattleStateActionExecute());
     }

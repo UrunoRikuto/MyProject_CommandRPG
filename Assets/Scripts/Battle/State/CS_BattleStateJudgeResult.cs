@@ -5,13 +5,36 @@ public class CS_BattleStateJudgeResult : IBattleState
 {
     public void Enter(CS_BattleContext context, CS_BattleStateMachine machine)
     {
-        if (context.enemyState.isDead)
+        bool allEnemysDead = true;
+        foreach (var enemy in context.enemyParty)
+        {
+            if (!enemy.isDead)
+            {
+                allEnemysDead = false;
+                break;
+            }
+        }
+
+        if (allEnemysDead)
         {
             context.result = CSE_BattleResult.Win;
         }
-        else if (context.playerState.isDead)
+        else
         {
-            context.result = CSE_BattleResult.Lose;
+            bool allPlayersDead = true;
+            foreach (var player in context.playerParty)
+            {
+                if (!player.isDead)
+                {
+                    allPlayersDead = false;
+                    break;
+                }
+            }
+
+            if (allPlayersDead)
+            {
+                context.result = CSE_BattleResult.Lose;
+            }
         }
 
         if (context.result == CSE_BattleResult.None)
@@ -23,7 +46,6 @@ public class CS_BattleStateJudgeResult : IBattleState
             machine.ChangeState(new CS_BattleStateEnd());
         }
     }
-
     public void Update(CS_BattleContext context, CS_BattleStateMachine machine) { }
     public void Exit(CS_BattleContext context, CS_BattleStateMachine machine) { }
 }

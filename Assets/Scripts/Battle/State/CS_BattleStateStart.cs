@@ -7,7 +7,6 @@ public class CS_BattleStateStart : IBattleState
 {
     public void Enter(CS_BattleContext context, CS_BattleStateMachine machine)
     {
-        Debug.Log($"í“¬ŠJn! {context.playerState.characterName} vs {context.enemyState.characterName}");
         machine.ChangeState(new CS_BattleStateCommandInput());
     }
 

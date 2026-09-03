@@ -17,6 +17,11 @@ public class CS_BattleStateMachine : MonoBehaviour
 
     public CS_BattleContext context => _context;
 
+    private bool _isChangingState;
+    private IBattleState _pendingNextState;
+    private bool _hasPendingNextState;
+
+
     private void Awake()
     {
         List<CS_CharacterState> playerParty = new List<CS_CharacterState>();
@@ -42,11 +47,34 @@ public class CS_BattleStateMachine : MonoBehaviour
         _currentState?.Update(_context, this);
     }
 
-    /// <summary>状態を切り替える。呼び出し元は各ステートクラス自身。</summary>
+    /// <summary>
+    /// 状態を切り替える
+    /// </summary>
     public void ChangeState(IBattleState nextState)
     {
-        _currentState?.Exit(_context, this);
-        _currentState = nextState;
-        _currentState.Enter(_context, this);
+        // 既にChangeState実行中なら、次の遷移先を予約するだけ
+        if (_isChangingState)
+        {
+            _pendingNextState = nextState;
+            _hasPendingNextState = true;
+            return;
+        }
+
+        _isChangingState = true;
+
+        IBattleState stateToEnter = nextState;
+        while (stateToEnter != null)
+        {
+            _currentState?.Exit(_context, this);
+            _currentState = stateToEnter;
+
+            _hasPendingNextState = false;
+            _pendingNextState = null;
+            _currentState.Enter(_context, this);
+
+            stateToEnter = _hasPendingNextState ? _pendingNextState : null;
+        }
+
+        _isChangingState = false;
     }
 }

@@ -1,3 +1,5 @@
+using UnityEngine;
+
 public class CS_SkillCommand : IBattleCommand
 {
     public string commandName => "スキル使用";
@@ -23,6 +25,8 @@ public class CS_SkillCommand : IBattleCommand
 
         // スキルのダメージを計算
         int damage = (int)(user.currentAttack * useSkillData.damageRate);
+
+        Debug.Log($"{user.characterName}は{useSkillData.skillName}を使用！ {target.characterName}に{damage}のダメージを与えた！");
 
         // ダメージを与える
         target.TakeDamage(damage);

@@ -1,3 +1,5 @@
+using UnityEngine;
+
 public class CS_AttackCommand : IBattleCommand
 {
     public string commandName => "‚½‚½‚©‚¤";
@@ -6,6 +8,8 @@ public class CS_AttackCommand : IBattleCommand
     {
         // UŒ‚—Í‚ğæ“¾
         int damage = user.currentAttack;
+
+        Debug.Log($"{user.characterName}‚Í{target.characterName}‚ÉUŒ‚‚µ‚½I");
 
         // ƒ_ƒ[ƒW‚ğ—^‚¦‚é
         target.TakeDamage(damage);

@@ -42,6 +42,10 @@ public class CS_CharacterState
     private List<CSO_SkillData> _currentSkills;
     public IReadOnlyList<CSO_SkillData> currentSkills => _currentSkills;
 
+    // CS_CharacterState.cs ‚É’Ç‰Á
+    public float attackWeight => _characterData.attackWeight;
+    public IReadOnlyList<float> skillWeights => _characterData.skillWeights;
+
     public CS_CharacterState(CSO_CharacterData data)
     {
         _characterData = data;
