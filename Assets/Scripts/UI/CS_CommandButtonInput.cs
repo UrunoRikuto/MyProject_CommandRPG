@@ -33,7 +33,7 @@ public class CS_CommandButtonInput : MonoBehaviour
 
     public void OnEscapeButtonClicked()
     {
-        //onCommandDecided?.Invoke(new CS_EscapeCommand());
+        onCommandDecided?.Invoke(new CS_EscapeCommand());
     }
 
     private void HandleSkillSelected(int skillIndex)

@@ -13,5 +13,10 @@ public enum CSE_BattleResult
     /// <summary>
     /// ƒvƒŒƒCƒ„[‘¤‚Ì”s–k
     /// </summary>
-    Lose
+    Lose,
+
+    /// <summary>
+    /// “¦‘–
+    /// </summary>
+    Escape
 }
