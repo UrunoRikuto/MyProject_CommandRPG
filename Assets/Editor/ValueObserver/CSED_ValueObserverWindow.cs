@@ -149,7 +149,7 @@ public class CSED_ValueObserverWindow : EditorWindow
                 "    Script/\n" +
                 "      CS_ValueObserver.cs        // 監視システム本体\n" +
                 "    Editor/\n" +
-                "      CS_ValueObserverWindow.cs  // エディタウィンドウ\n");
+                "      CSED_ValueObserverWindow.cs  // エディタウィンドウ\n");
 
 
         DrawHelpSection("📊 ウィンドウの機能",

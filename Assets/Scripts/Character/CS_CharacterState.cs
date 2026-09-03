@@ -3,8 +3,6 @@ using UnityEngine;
 public class CS_CharacterState
 {
     // キャラクターの基礎データ
-    [Header("キャラクターの基礎データ")]
-    [SerializeField]
     private CSO_CharacterData _characterData;
 
     // キャラクターが死亡しているかどうか

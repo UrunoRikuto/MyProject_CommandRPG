@@ -1,5 +1,3 @@
-using UnityEngine;
-
 public class CS_AttackCommand : IBattleCommand
 {
     public string commandName => "‚½‚½‚©‚¤";
