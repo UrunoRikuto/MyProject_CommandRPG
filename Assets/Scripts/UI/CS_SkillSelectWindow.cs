@@ -21,7 +21,7 @@ public class CS_SkillSelectWindow : MonoBehaviour
         {
             int capturedIndex = i;
             Button button = Instantiate(_skillButtonPrefab, _buttonParent);
-            button.GetComponentInChildren<TextMeshProUGUI>().text = skills[i].skillName;
+            button.GetComponentInChildren<TextMeshProUGUI>().text = skills[i].skillName + $" (Cost: {skills[i].cost})";
             button.onClick.AddListener(() => Select(capturedIndex));
         }
 

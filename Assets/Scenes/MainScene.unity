@@ -465,7 +465,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 600, y: 1000}
+  m_SizeDelta: {x: 1000, y: 1000}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &328588585
 MonoBehaviour:
@@ -1123,10 +1123,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CS_BattleStateMachine
   _playerPartyData:
   - {fileID: 11400000, guid: 57394e2f4eb2ce240b0c5681984f3a96, type: 2}
-  - {fileID: 11400000, guid: 57394e2f4eb2ce240b0c5681984f3a96, type: 2}
+  - {fileID: 11400000, guid: 8fe17fc5d6e8c784e9cf364dc90184b4, type: 2}
   _enemyPartyData:
   - {fileID: 11400000, guid: c482a5af52d2b7e4ea0044b43fb032e2, type: 2}
-  - {fileID: 11400000, guid: c482a5af52d2b7e4ea0044b43fb032e2, type: 2}
+  - {fileID: 11400000, guid: ff9dc18772e2ff2448b116ad22ed533a, type: 2}
   _commandButtonInput: {fileID: 182769735}
 --- !u!4 &720499943
 Transform:
@@ -1687,7 +1687,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 600, y: 1000}
+  m_SizeDelta: {x: 1000, y: 1000}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1132363648
 MonoBehaviour:
@@ -1975,7 +1975,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 600, y: 1000}
+  m_SizeDelta: {x: 1000, y: 1000}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1396374774
 MonoBehaviour:
@@ -2919,7 +2919,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 600, y: 1000}
+  m_SizeDelta: {x: 1000, y: 1000}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1890139403
 MonoBehaviour:

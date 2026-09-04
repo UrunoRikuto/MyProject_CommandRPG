@@ -23,7 +23,7 @@ public class CS_TargetSelectWindow : MonoBehaviour
 
             CS_CharacterState capturedTarget = candidate;
             Button button = Instantiate(_targetButtonPrefab, _buttonParent);
-            button.GetComponentInChildren<TextMeshProUGUI>().text = candidate.characterName;
+            button.GetComponentInChildren<TextMeshProUGUI>().text = candidate.characterName + $" (HP: {candidate.currentHealth}/{candidate.maxHealth})";
             button.onClick.AddListener(() => Select(capturedTarget));
         }
 
