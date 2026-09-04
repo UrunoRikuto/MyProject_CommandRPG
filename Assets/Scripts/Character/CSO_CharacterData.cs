@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "DB_CharacterData", menuName = "Scriptable Objects/DB_CharacterData")]
+[CreateAssetMenu(fileName = "DB_", menuName = "Scriptable Objects/DB_CharacterData")]
 public class CSO_CharacterData : ScriptableObject
 {
     [Header("–¼‘O")]

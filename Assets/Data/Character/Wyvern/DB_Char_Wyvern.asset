@@ -10,16 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6e0bb5039f0cb154aafc1ed75534c028, type: 3}
-  m_Name: DB_TestCharacterC
+  m_Name: DB_Char_Wyvern
   m_EditorClassIdentifier: Assembly-CSharp::CSO_CharacterData
-  _characterName: TestC
+  _characterName: Wyvern
   _baseHealth: 100
   _baseMP: 100
-  _baseAttack: 5
-  _baseDefense: 5
-  _baseSpeed: 4
+  _baseAttack: 30
+  _baseDefense: 30
+  _baseSpeed: 30
   _initialSkills:
-  - {fileID: 11400000, guid: d5017ec8764199f4fb7b40a387e24be6, type: 2}
+  - {fileID: 11400000, guid: be628395a962df946a66753b2128d4a9, type: 2}
+  - {fileID: 11400000, guid: 9d530d8d0755a334b903445c2a7b23b6, type: 2}
   _attackWeight: 1
   _skillWeights:
-  - 3
+  - 1
+  - 0.5

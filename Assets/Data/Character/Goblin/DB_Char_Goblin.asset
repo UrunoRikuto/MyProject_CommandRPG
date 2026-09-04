@@ -10,16 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6e0bb5039f0cb154aafc1ed75534c028, type: 3}
-  m_Name: DB_TestCharacterB
+  m_Name: DB_Char_Goblin
   m_EditorClassIdentifier: Assembly-CSharp::CSO_CharacterData
-  _characterName: TestB
-  _baseHealth: 50
-  _baseMP: 100
-  _baseAttack: 10
+  _characterName: Goblin
+  _baseHealth: 10
+  _baseMP: 0
+  _baseAttack: 5
   _baseDefense: 0
-  _baseSpeed: 1
-  _initialSkills:
-  - {fileID: 11400000, guid: f41e220b4ee540a4cbe9ff00870378cc, type: 2}
+  _baseSpeed: 5
+  _initialSkills: []
   _attackWeight: 1
-  _skillWeights:
-  - 0.5
+  _skillWeights: []
