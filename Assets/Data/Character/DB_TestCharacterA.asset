@@ -20,3 +20,6 @@ MonoBehaviour:
   _baseSpeed: 5
   _initialSkills:
   - {fileID: 11400000, guid: c44b685962f960a42b7ca4be2dd535f7, type: 2}
+  _attackWeight: 1
+  _skillWeights:
+  - 1
