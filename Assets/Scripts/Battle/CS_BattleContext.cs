@@ -4,10 +4,12 @@ using UnityEngine;
 public class CS_BattleContext
 {
     // プレイヤーの状態
-    private readonly List<CS_CharacterState> _playerParty;
-    public IReadOnlyList<CS_CharacterState> playerParty => _playerParty;
+    private readonly List<CS_CharacterState> _allyParty;
+    public IReadOnlyList<CS_CharacterState> allyParty => _allyParty;
     // プレイヤーが操作するキャラクターの状態
-    public CS_CharacterState playerState => _playerParty.Count > 0 ? _playerParty[0] : null;
+    public CS_CharacterState playerState => _allyParty.Count > 0 ? _allyParty[0] : null;
+    // プレイヤー以外の味方キャラクターの状態
+    public IReadOnlyList<CS_CharacterState> allyPartyWithoutPlayer => _allyParty.Count > 1 ? _allyParty.GetRange(1, _allyParty.Count - 1) : new List<CS_CharacterState>();
 
     // 敵の状態
     private readonly List<CS_CharacterState> _enemyParty;
@@ -17,10 +19,10 @@ public class CS_BattleContext
     private readonly Queue<CS_BattleActionEntry> _actionQueue = new Queue<CS_BattleActionEntry>();
     public Queue<CS_BattleActionEntry> actionQueue => _actionQueue;
 
-
+    // 指定したキャラクターの所属するパーティーの相手側のパーティーを返す
     public IReadOnlyList<CS_CharacterState> GetOpposingParty(CS_CharacterState actor)
     {
-        return _playerParty.Contains(actor) ? (IReadOnlyList<CS_CharacterState>)_enemyParty : _playerParty;
+        return _allyParty.Contains(actor) ? (IReadOnlyList<CS_CharacterState>)_enemyParty : _allyParty;
     }
 
     public CS_CharacterState PickRandomLivingTarget(IReadOnlyList<CS_CharacterState> party)
@@ -38,7 +40,7 @@ public class CS_BattleContext
 
     public CS_BattleContext(List<CS_CharacterState> playerParty, List<CS_CharacterState> enemyParty)
     {
-        _playerParty = playerParty;
+        _allyParty = playerParty;
         _enemyParty = enemyParty;
     }
 }

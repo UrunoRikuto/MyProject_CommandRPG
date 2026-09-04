@@ -22,7 +22,7 @@ public class CS_BattleStateJudgeResult : IBattleState
         else
         {
             bool allPlayersDead = true;
-            foreach (var player in context.playerParty)
+            foreach (var player in context.allyParty)
             {
                 if (!player.isDead)
                 {

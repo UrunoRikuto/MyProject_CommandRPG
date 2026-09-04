@@ -4,8 +4,7 @@ public class CS_BattleStateCommandInput : IBattleState
 {
     public void Enter(CS_BattleContext context, CS_BattleStateMachine machine)
     {
-        // 6-3で操作キャラクター(playerParty[0])の入力に置き換えるまでは全員AI
-        DecideActionsForParty(context, context.playerParty);
+        DecideActionsForParty(context, context.allyPartyWithoutPlayer);
         DecideActionsForParty(context, context.enemyParty);
 
         machine.ChangeState(new CS_BattleStateActionOrder());
