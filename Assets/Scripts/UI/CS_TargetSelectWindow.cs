@@ -29,7 +29,7 @@ public class CS_TargetSelectWindow : MonoBehaviour
 
         Canvas.ForceUpdateCanvases();
         LayoutRebuilder.ForceRebuildLayoutImmediate(_buttonParent.GetComponent<RectTransform>());
-        _scrollRect.horizontalNormalizedPosition = 0f;
+        _scrollRect.verticalNormalizedPosition = 1f;
     }
 
     private void Select(CS_CharacterState target)
