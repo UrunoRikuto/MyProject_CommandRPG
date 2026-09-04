@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e0bb5039f0cb154aafc1ed75534c028, type: 3}
   m_Name: DB_Char_Slime
   m_EditorClassIdentifier: Assembly-CSharp::CSO_CharacterData
-  _characterName: 
-  _baseHealth: 0
+  _characterName: Slime
+  _baseHealth: 10
   _baseMP: 0
-  _baseAttack: 0
+  _baseAttack: 5
   _baseDefense: 0
-  _baseSpeed: 0
+  _baseSpeed: 5
   _initialSkills: []
   _attackWeight: 1
   _skillWeights: []
