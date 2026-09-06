@@ -112,13 +112,18 @@ Assets/Scripts/Battle/State/CS_BattleStateEnd.cs   # Win/Lose/Escapeでログ出
 Assets/Scripts/UI/CS_CommandButtonInput.cs      # onCommandDecided(command, target)。たたかう/スキルはターゲット選択を挟む。CanvasGroupで選択中は無効化。Show/Hide
 Assets/Scripts/UI/CS_SkillSelectWindow.cs       # スキル一覧を動的ボタン生成、縦スクロール(RectMask2D)
 Assets/Scripts/UI/CS_TargetSelectWindow.cs      # 生存している敵の一覧を動的ボタン生成、縦スクロール(RectMask2D)。CS_SkillSelectWindowと同構造
+Assets/Editor/CharacterData/CSED_CharacterDataWindow.cs  # Tools > Character Data Table。CSO_CharacterDataを表形式で一覧・直接編集。新規キャラクター/新規スキル作成、スキル自体(名前/コスト/倍率)の編集、列幅ドラッグ調整+EditorPrefs保存に対応
 Assets/Prefabs/SkillButtonPrefab.prefab
 Assets/Prefabs/EnemyTargetButtonPrefab.prefab
-Assets/Data/Character/DB_TestCharacterA〜D.asset
-Assets/Data/Skill/DB_TestA.asset / DB_TestB.asset
+Assets/Data/Character/Slime/DB_Char_Slime.asset      # 最弱、たたかうのみ
+Assets/Data/Character/Goblin/DB_Char_Goblin.asset    # Slime比で全ステータス2倍、たたかうのみ
+Assets/Data/Character/Skeleton/DB_Char_Skeleton.asset + DB_Skill_Skeleton_BoneSlash.asset  # バランス型、attackWeight/skillWeight半々
+Assets/Data/Character/Golem/DB_Char_Golem.asset      # 高HP高防御の低速タンク、スキルなし
+Assets/Data/Character/Wyvern/DB_Char_Wyvern.asset + DB_Skill_Wyvern_BlazeBreath.asset / DB_Skill_Wyvern_ClawRush.asset  # 最強格、スキル比重高め
+Assets/Data/Test/                                    # 旧DB_TestCharacterA〜D・DB_TestA〜Dの退避先(削除はしていない)
 ```
 
-シーン(`MainScene`)の`BattleStateMachine`は`Player Party Data`にA(操作キャラクター)・D、`Enemy Party Data`にB・Cを登録した2vs2のテスト編成。
+シーン(`MainScene`)の`BattleStateMachine`は`Player Party Data`にWyvern(操作キャラクター)・Slime、`Enemy Party Data`にGolem・Goblin・Skeletonを登録した2vs3のテスト編成(タスク7での動作確認用)。
 
 ## 既知の割り切り・未解決事項
 
@@ -139,18 +144,32 @@ Assets/Data/Skill/DB_TestA.asset / DB_TestB.asset
    - 6-2 行動順序・AI(重み付き個性)のパーティ対応
    - 6-3 操作キャラクターのコマンド入力+クリックターゲティング(UI)
    - 6-4 勝敗判定のパーティ対応(全滅判定)
-7. **[進行中]** 敵データの追加とバランスの土台作り
-   - 難易度違いの敵キャラクターデータ(`CSO_CharacterData`、`DB_`接頭辞)を3〜5体新規作成する
-   - HP/攻撃力/防御力/素早さに難易度差をつける
-   - 少なくとも1〜2体はスキルを持たせ、`attackWeight`/`skillWeights`で行動の個性(たたかう寄り/スキル寄り)を表現する
-   - 既存の`DB_TestA`/`DB_TestB`スキルを再利用してもよいし、新しいスキルデータを追加してもよい
-   - シーンの`Enemy Party Data`に新しい敵データを組み合わせて配置し、実際に戦闘が最後まで問題なく動作することを確認する
-   - 敵キャラクター名の候補(英語名5案): Slime(最弱、たたかうのみ)/ Goblin(素早さ重視、attackWeight高め)/ Skeleton(バランス型、スキル半々)/ Golem(高HP高防御の低速タンク)/ Wyvern(最強、スキル(高倍率技)を積極使用)
+7. **[完了]** 敵データの追加とバランスの土台作り
+   - Slime/Goblin/Skeleton/Golem/Wyvernの5体を新規作成。HP/攻撃力/防御力/素早さに難易度差をつけ、Skeleton・Wyvernにはスキルを持たせて`attackWeight`/`skillWeights`で個性(スキル寄り)を表現した
+   - 副産物として`Tools > Character Data Table`(`CSED_CharacterDataWindow`)を新規作成し、キャラクター/スキルデータの一覧・直接編集ができるようにした
+   - シーンの`Enemy Party Data`に組み合わせて配置し、戦闘が最後まで問題なく動作することを確認済み
 8. **[完了]** Editorスクリプトの命名規則統一(`CS_ValueObserverWindow`→`CSED_ValueObserverWindow`)
+9. **[進行中]** マップ/探索機能の実装(フィールド移動・エンカウント・戦闘への遷移)。フィールドは2Dトップダウン(Tilemap)で作る方針
+   - 9-1 **[進行中]** フィールド用シーンとプレイヤー移動
+     - 新規シーン`FieldScene`を作成し、Grid+Tilemapで仮の地形を配置(`Tilemap Collider 2D`で壁判定)
+     - プレイヤー用スプライト+`Rigidbody2D`+`CS_PlayerMove`で上下左右に移動できるようにする
+     - 受け入れ条件: `FieldScene`再生でプレイヤーが壁に当たりつつ上下左右に移動できる
+   - 9-2 **[未着手]** エンカウント判定の実装
+     - フィールド上にエンカウント用のシンボル(接触で発生)を配置できる仕組みを用意
+     - エンカウントごとの敵パーティを定義する`CSO_EncounterData`(仮称)を新設し、`CSO_CharacterData`のリストを持たせる
+     - 受け入れ条件: シンボルに接触するとエンカウント発生・使用する敵パーティがログで確認できる(この段階では戦闘には入らなくてよい)
+   - 9-3 **[未着手]** 戦闘システムの外部起動対応(既存コードのリファクタ)
+     - 現状`CS_BattleStateMachine`は`Awake`/`Start`でInspector固定の2パーティから自動的に戦闘開始する作りのため、外部(マップ側)から任意のパーティを渡して戦闘を開始できるメソッドを追加
+     - 戦闘終了時の結果(`CSE_BattleResult`)を呼び出し元に通知するイベントを追加
+     - 受け入れ条件: 既存の`MainScene`の動作(2vs3固定戦闘)を壊さずに、外部から任意パーティでも戦闘を開始できることを確認
+   - 9-4 **[未着手]** マップ→戦闘→マップの遷移実装
+     - エンカウント発生時に戦闘へ遷移し、9-3のメソッドでエンカウントデータの敵パーティを渡して開始
+     - 勝利/逃走時はフィールドへ復帰(敗北時の扱いは仮でよく、別途ゲームオーバー等は将来タスク)
+     - シーンをまたぐ際のパーティ状態の扱い方針を決める(簡易実装可)
+     - 受け入れ条件: フィールドでシンボルに接触→戦闘開始→勝利/逃走でフィールド復帰、が一通り動作する
 
-## 今後の候補(タスク7以降、未着手)
+## 今後の候補(タスク9以降、未着手)
 
-- マップ/探索(フィールド移動、エンカウント、戦闘への遷移)
 - セーブ/ロード(パーティ状態・進行状況の永続化)
 - HP/MPの画面表示(キャラクター素材上のHPバー)
 - アイテムのマスタデータ設計
