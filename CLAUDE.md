@@ -113,14 +113,18 @@ Assets/Scripts/UI/CS_CommandButtonInput.cs      # onCommandDecided(command, targ
 Assets/Scripts/UI/CS_SkillSelectWindow.cs       # スキル一覧を動的ボタン生成、縦スクロール(RectMask2D)
 Assets/Scripts/UI/CS_TargetSelectWindow.cs      # 生存している敵の一覧を動的ボタン生成、縦スクロール(RectMask2D)。CS_SkillSelectWindowと同構造
 Assets/Editor/CharacterData/CSED_CharacterDataWindow.cs  # Tools > Character Data Table。CSO_CharacterDataを表形式で一覧・直接編集。新規キャラクター/新規スキル作成、スキル自体(名前/コスト/倍率)の編集、列幅ドラッグ調整+EditorPrefs保存に対応
-Assets/Prefabs/SkillButtonPrefab.prefab
-Assets/Prefabs/EnemyTargetButtonPrefab.prefab
+Assets/Scripts/Field/CS_PlayerMove.cs           # フィールド移動。Rigidbody2D.MovePositionで上下左右に自由移動(Input.GetAxisRaw)
+Assets/Prefabs/Battle/SkillButtonPrefab.prefab
+Assets/Prefabs/Battle/EnemyTargetButtonPrefab.prefab
+Assets/Prefabs/Field/Player.prefab              # SpriteRenderer+Rigidbody2D+Collider2D+CS_PlayerMove
 Assets/Data/Character/Slime/DB_Char_Slime.asset      # 最弱、たたかうのみ
 Assets/Data/Character/Goblin/DB_Char_Goblin.asset    # Slime比で全ステータス2倍、たたかうのみ
 Assets/Data/Character/Skeleton/DB_Char_Skeleton.asset + DB_Skill_Skeleton_BoneSlash.asset  # バランス型、attackWeight/skillWeight半々
 Assets/Data/Character/Golem/DB_Char_Golem.asset      # 高HP高防御の低速タンク、スキルなし
 Assets/Data/Character/Wyvern/DB_Char_Wyvern.asset + DB_Skill_Wyvern_BlazeBreath.asset / DB_Skill_Wyvern_ClawRush.asset  # 最強格、スキル比重高め
 Assets/Data/Test/                                    # 旧DB_TestCharacterA〜D・DB_TestA〜Dの退避先(削除はしていない)
+Assets/Scenes/FieldScene.unity                  # フィールド検証用シーン。Grid+Tilemap(Tilemap Collider 2D)+Player
+Assets/Tiles/Square.asset                       # 壁タイル(Assets/Sprites/TestSprite.pngベース)
 ```
 
 シーン(`MainScene`)の`BattleStateMachine`は`Player Party Data`にWyvern(操作キャラクター)・Slime、`Enemy Party Data`にGolem・Goblin・Skeletonを登録した2vs3のテスト編成(タスク7での動作確認用)。
@@ -130,7 +134,7 @@ Assets/Data/Test/                                    # 旧DB_TestCharacterA〜D�
 - HP/MPの画面表示は未実装(タスク4で方針変更)。将来的にキャラクター素材の上に重ねるHPバーとして別途実装予定
 - `Tools > Value Observer`へのHP監視登録(`CS_ValueObserver.Instance.Register`)はパーティ対応のリファクタ時に削除済み。デバッグ用ツールなので復活は必須ではない
 - 両者が同ターンで倒れた場合、敵の撃破判定を優先して「勝利」扱いになる(仕様として割り切り)
-- `Assets/_Recovery/`にUnityのクラッシュ復旧用シーンファイルが誤ってコミットされている。`Assets/TextMesh Pro/Examples & Extras/`とあわせて`.gitignore`対象にすることを推奨(未対応、ブロッカーではない)
+- `Assets/_Recovery/`のクラッシュ復旧用シーンファイルは削除済み。`Assets/TextMesh Pro/Examples & Extras/`は引き続きリポジトリに残っており、`.gitignore`対象にすることを推奨(未対応、ブロッカーではない)
 
 ## 進捗状況(タスク一覧)
 
@@ -150,10 +154,9 @@ Assets/Data/Test/                                    # 旧DB_TestCharacterA〜D�
    - シーンの`Enemy Party Data`に組み合わせて配置し、戦闘が最後まで問題なく動作することを確認済み
 8. **[完了]** Editorスクリプトの命名規則統一(`CS_ValueObserverWindow`→`CSED_ValueObserverWindow`)
 9. **[進行中]** マップ/探索機能の実装(フィールド移動・エンカウント・戦闘への遷移)。フィールドは2Dトップダウン(Tilemap)で作る方針
-   - 9-1 **[進行中]** フィールド用シーンとプレイヤー移動
-     - 新規シーン`FieldScene`を作成し、Grid+Tilemapで仮の地形を配置(`Tilemap Collider 2D`で壁判定)
-     - プレイヤー用スプライト+`Rigidbody2D`+`CS_PlayerMove`で上下左右に移動できるようにする
-     - 受け入れ条件: `FieldScene`再生でプレイヤーが壁に当たりつつ上下左右に移動できる
+   - 9-1 **[完了]** フィールド用シーンとプレイヤー移動
+     - `FieldScene`を作成し、Grid+Tilemap(`Tilemap Collider 2D`)+Tile Paletteで壁タイルを配置
+     - `Player.prefab`(SpriteRenderer+Rigidbody2D+Collider2D+`CS_PlayerMove`)で上下左右に移動、壁で衝突して止まることを確認済み
    - 9-2 **[未着手]** エンカウント判定の実装
      - フィールド上にエンカウント用のシンボル(接触で発生)を配置できる仕組みを用意
      - エンカウントごとの敵パーティを定義する`CSO_EncounterData`(仮称)を新設し、`CSO_CharacterData`のリストを持たせる
