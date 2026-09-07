@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class CS_GameManager : MonoBehaviour
@@ -9,18 +10,121 @@ public class CS_GameManager : MonoBehaviour
     private GameObject _player;
     private GameObject _fieldEnvironment;
 
+    private List<CS_PartyMemberState> _partyState;
+    private Vector3? _pendingPlayerPosition;
+
     void Awake()
     {
-        // ƒVƒ“ƒOƒ‹ƒgƒ“‚ÌƒCƒ“ƒXƒ^ƒ“ƒX‚ğì¬‚·‚é
+        // ã‚·ãƒ³ã‚°ãƒ«ãƒˆãƒ³ã®ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã‚’ä½œæˆã™ã‚‹
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject); // ƒV[ƒ“‚ªØ‚è‘Ö‚í‚Á‚Ä‚à”jŠü‚³‚ê‚È‚¢‚æ‚¤‚É‚·‚é
+            DontDestroyOnLoad(gameObject); // ã‚·ãƒ¼ãƒ³ãŒåˆ‡ã‚Šæ›¿ã‚ã£ã¦ã‚‚ç ´æ£„ã•ã‚Œãªã„ã‚ˆã†ã«ã™ã‚‹
+
+            LoadGameOnStartup();
         }
         else
         {
-            Destroy(gameObject); // Šù‚ÉƒCƒ“ƒXƒ^ƒ“ƒX‚ª‘¶İ‚·‚éê‡‚Í”jŠü‚·‚é
+            Destroy(gameObject); // æ—¢ã«ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ãŒå­˜åœ¨ã™ã‚‹å ´åˆã¯ç ´æ£„ã™ã‚‹
         }
+    }
+
+    private void Start()
+    {
+        if (!_pendingPlayerPosition.HasValue)
+        {
+            return;
+        }
+
+        var player = GameObject.FindAnyObjectByType<CS_PlayerMove>();
+        if (player != null)
+        {
+            player.transform.position = _pendingPlayerPosition.Value;
+        }
+
+        _pendingPlayerPosition = null;
+    }
+
+    /// <summary>
+    /// èµ·å‹•æ™‚ã«ã‚»ãƒ¼ãƒ–ãƒ‡ãƒ¼ã‚¿ãŒã‚ã‚Œã°èª­ã¿è¾¼ã¿ã€ãƒ‘ãƒ¼ãƒ†ã‚£çŠ¶æ…‹ã¨ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ä½ç½®ã‚’å¾©å…ƒã™ã‚‹
+    /// </summary>
+    private void LoadGameOnStartup()
+    {
+        CS_SaveData saveData = CS_SaveManager.Instance.Load();
+        if (saveData == null)
+        {
+            return;
+        }
+
+        _partyState = saveData.partyState;
+        _pendingPlayerPosition = saveData.playerPosition;
+    }
+
+    /// <summary>
+    /// å‘³æ–¹ãƒ‘ãƒ¼ãƒ†ã‚£ã®ç¾åœ¨HP/MPã‚’å–å¾—ã™ã‚‹ã€‚æœªç”Ÿæˆãªã‚‰åˆæœŸå€¤ã‹ã‚‰ãƒ•ãƒ«ç”Ÿæˆã™ã‚‹
+    /// </summary>
+    public List<CS_PartyMemberState> GetOrInitializePartyState(List<CSO_CharacterData> defaultPartyData)
+    {
+        if (_partyState == null)
+        {
+            _partyState = new List<CS_PartyMemberState>();
+            foreach (var data in defaultPartyData)
+            {
+                _partyState.Add(new CS_PartyMemberState
+                {
+                    characterName = data.characterName,
+                    currentHealth = data.baseHealth,
+                    currentMP = data.baseMP
+                });
+            }
+        }
+
+        return _partyState;
+    }
+
+    public bool HasSaveData()
+    {
+        return CS_SaveManager.Instance.HasSaveData();
+    }
+
+    /// <summary>
+    /// ã€Œã¯ã˜ã‚ã‹ã‚‰ã€ç”¨ã€‚ä¿æŒä¸­ã®ãƒ‘ãƒ¼ãƒ†ã‚£çŠ¶æ…‹ãƒ»ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ä½ç½®ã‚’ãƒªã‚»ãƒƒãƒˆã™ã‚‹ã€‚
+    /// ã‚»ãƒ¼ãƒ–ãƒ•ã‚¡ã‚¤ãƒ«è‡ªä½“ã¯ã“ã“ã§ã¯æ¶ˆã•ãšã€æ¬¡ã«ãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰ã¸æˆ»ã£ãŸéš›ã®è‡ªå‹•ä¿å­˜ã§ä¸Šæ›¸ãã™ã‚‹
+    /// </summary>
+    public void StartNewGame()
+    {
+        _partyState = null;
+        _pendingPlayerPosition = null;
+    }
+
+    /// <summary>
+    /// æˆ¦é—˜å¾Œã®å‘³æ–¹ã®ç¾åœ¨HP/MPã‚’æ°¸ç¶šçŠ¶æ…‹ã¸æ›¸ãæˆ»ã™
+    /// </summary>
+    public void UpdatePartyState(IReadOnlyList<CS_CharacterState> allyParty)
+    {
+        if (_partyState == null || _partyState.Count != allyParty.Count)
+        {
+            return;
+        }
+
+        for (int i = 0; i < allyParty.Count; i++)
+        {
+            _partyState[i].currentHealth = allyParty[i].currentHealth;
+            _partyState[i].currentMP = allyParty[i].currentMP;
+        }
+    }
+
+    /// <summary>
+    /// ç¾åœ¨ã®ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ä½ç½®ã¨ãƒ‘ãƒ¼ãƒ†ã‚£çŠ¶æ…‹ã‚’ã‚»ãƒ¼ãƒ–ãƒ‡ãƒ¼ã‚¿ã¨ã—ã¦ä¿å­˜ã™ã‚‹
+    /// </summary>
+    private void SaveGame()
+    {
+        var saveData = new CS_SaveData
+        {
+            playerPosition = _player != null ? _player.transform.position : Vector3.zero,
+            partyState = _partyState
+        };
+        CS_SaveManager.Instance.Save(saveData);
     }
 
     public void RequestBattle(CSO_EncounterData encounterData)
@@ -34,13 +138,13 @@ public class CS_GameManager : MonoBehaviour
 
         CS_SceneManager.Instance.LoadSceneAdditive("BattleScene", () =>
         {
-            // BattleScene‚ªƒ[ƒh‚³‚ê‚½Œã‚Ìˆ—
-            Debug.Log("BattleScene‚ªƒ[ƒh‚³‚ê‚Ü‚µ‚½B");
+            // BattleSceneãŒãƒ­ãƒ¼ãƒ‰ã•ã‚ŒãŸå¾Œã®å‡¦ç†
+            Debug.Log("BattleSceneãŒãƒ­ãƒ¼ãƒ‰ã•ã‚Œã¾ã—ãŸã€‚");
 
-            // ƒvƒŒƒCƒ„[‚ÆƒJƒƒ‰‚ğ”ñ•\¦‚É‚·‚é
+            // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã¨ã‚«ãƒ¡ãƒ©ã‚’éè¡¨ç¤ºã«ã™ã‚‹
             if (_player != null)
-                _player.SetActive(false); // ƒvƒŒƒCƒ„[‚ÌˆÚ“®‚ğ–³Œø‰»‚·‚é
-            // ƒtƒB[ƒ‹ƒhŠÂ‹«‚ğ”ñ•\¦‚É‚·‚é
+                _player.SetActive(false); // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®ç§»å‹•ã‚’ç„¡åŠ¹åŒ–ã™ã‚‹
+            // ãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰å´ã‚’éè¡¨ç¤ºã«ã™ã‚‹
             if (_fieldEnvironment != null)
                 _fieldEnvironment.SetActive(false);
         });
@@ -49,7 +153,7 @@ public class CS_GameManager : MonoBehaviour
     public CSO_EncounterData ConsumePendingEncounter()
     {
         var encounterData = _currentEncounterData;
-        _currentEncounterData = null; // Á”ï‚µ‚½‚çnull‚É‚·‚é
+        _currentEncounterData = null; // æ¶ˆåŒ–ã—ãŸã‚‰nullã«ã™ã‚‹
         return encounterData;
     }
 
@@ -57,15 +161,17 @@ public class CS_GameManager : MonoBehaviour
     {
         CS_SceneManager.Instance.UnloadSceneAdditive("BattleScene", () =>
         {
-            // BattleScene‚ªƒAƒ“ƒ[ƒh‚³‚ê‚½Œã‚Ìˆ—
-            Debug.Log("BattleScene‚ªƒAƒ“ƒ[ƒh‚³‚ê‚Ü‚µ‚½B");
+            // BattleSceneãŒã‚¢ãƒ³ãƒ­ãƒ¼ãƒ‰ã•ã‚ŒãŸå¾Œã®å‡¦ç†
+            Debug.Log("BattleSceneãŒã‚¢ãƒ³ãƒ­ãƒ¼ãƒ‰ã•ã‚Œã¾ã—ãŸã€‚");
 
-            // ƒvƒŒƒCƒ„[‚ÆƒJƒƒ‰‚ğÄ•\¦‚·‚é
+            // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã¨ã‚«ãƒ¡ãƒ©ã‚’å†è¡¨ç¤ºã™ã‚‹
             if (_player != null)
                 _player.SetActive(true);
-            // ƒtƒB[ƒ‹ƒhŠÂ‹«‚ğ”ñ•\¦‚É‚·‚é
+            // ãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰å´ã‚’å†è¡¨ç¤ºã«ã™ã‚‹
             if (_fieldEnvironment != null)
                 _fieldEnvironment.SetActive(true);
+
+            SaveGame();
         });
     }
 
@@ -73,18 +179,19 @@ public class CS_GameManager : MonoBehaviour
     {
         CS_SceneManager.Instance.UnloadSceneAdditive("BattleScene", () =>
         {
-            // BattleScene‚ªƒAƒ“ƒ[ƒh‚³‚ê‚½Œã‚Ìˆ—
-            Debug.Log("BattleScene‚ªƒAƒ“ƒ[ƒh‚³‚ê‚Ü‚µ‚½B");
+            // BattleSceneãŒã‚¢ãƒ³ãƒ­ãƒ¼ãƒ‰ã•ã‚ŒãŸå¾Œã®å‡¦ç†
+            Debug.Log("BattleSceneãŒã‚¢ãƒ³ãƒ­ãƒ¼ãƒ‰ã•ã‚Œã¾ã—ãŸã€‚");
 
-            // ƒvƒŒƒCƒ„[‚ÆƒJƒƒ‰‚ğÄ•\¦‚·‚é
+            // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã¨ã‚«ãƒ¡ãƒ©ã‚’å†è¡¨ç¤ºã™ã‚‹
             if (_player != null)
                 _player.SetActive(true);
-            // ƒtƒB[ƒ‹ƒhŠÂ‹«‚ğ”ñ•\¦‚É‚·‚é
+            // ãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰å´ã‚’å†è¡¨ç¤ºã«ã™ã‚‹
             if (_fieldEnvironment != null)
                 _fieldEnvironment.SetActive(true);
 
-            // ‚±‚±‚Å’¬‚ÉˆÚ“®‚³‚¹‚é‚·‚éˆ—‚ğ’Ç‰Á‚·‚é
+            // ã“ã“ã§å®¿å±‹ã«ç§»å‹•ã•ã›ã‚‹å‡¦ç†ã‚’è¿½åŠ ã™ã‚‹
 
+            SaveGame();
         });
     }
 }

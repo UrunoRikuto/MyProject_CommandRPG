@@ -107,4 +107,13 @@ public class CS_CharacterState
 
         return false;
     }
+
+    /// <summary>
+    /// 保存されていた現在HP/MPを反映する(セーブデータ復元用)
+    /// </summary>
+    public void SetCurrentStats(int health, int mp)
+    {
+        _currentHealth = Mathf.Clamp(health, 0, _maxHealth);
+        _currentMP = Mathf.Clamp(mp, 0, _maxMP);
+    }
 }

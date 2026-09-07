@@ -64,10 +64,17 @@ public class CS_BattleStateMachine : MonoBehaviour
 
     private void BuildContext(List<CSO_CharacterData> playerPartyData, IReadOnlyList<CSO_CharacterData> enemyPartyData)
     {
+        List<CS_PartyMemberState> partyState = CS_GameManager.Instance.GetOrInitializePartyState(playerPartyData);
+
         List<CS_CharacterState> playerParty = new List<CS_CharacterState>();
-        foreach (var playerData in playerPartyData)
+        for (int i = 0; i < playerPartyData.Count; i++)
         {
-            playerParty.Add(new CS_CharacterState(playerData));
+            CS_CharacterState characterState = new CS_CharacterState(playerPartyData[i]);
+            if (i < partyState.Count)
+            {
+                characterState.SetCurrentStats(partyState[i].currentHealth, partyState[i].currentMP);
+            }
+            playerParty.Add(characterState);
         }
         List<CS_CharacterState> enemyParty = new List<CS_CharacterState>();
         foreach (var enemyData in enemyPartyData)

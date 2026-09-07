@@ -10,6 +10,8 @@ public class CS_BattleResultHandler : MonoBehaviour
 
     private void HandleBattleEnd(CSE_BattleResult result)
     {
+        CS_GameManager.Instance.UpdatePartyState(_battleStateMachine.context.allyParty);
+
         switch (result)
         {
             case CSE_BattleResult.Win:
