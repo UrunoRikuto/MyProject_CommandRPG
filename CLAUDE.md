@@ -116,9 +116,13 @@ Assets/Editor/CharacterData/CSED_CharacterDataWindow.cs  # Tools > Character Dat
 Assets/Scripts/Field/CS_PlayerMove.cs           # フィールド移動。Rigidbody2D.MovePositionで上下左右に自由移動(Input.GetAxisRaw)
 Assets/Scripts/Field/CSO_EncounterData.cs       # エンカウント定義(出現する敵パーティのリスト)。DB_接頭辞でAssets/Data/EncounterData/に配置
 Assets/Scripts/Field/CS_EncounterSymbol.cs      # エンカウントシンボル。接触判定+確率+クールタイムで発生を制御し、複数のCSO_EncounterDataからランダム抽選。成立するとCS_GameManager.RequestBattleを呼ぶ
-Assets/Scripts/CS_GameManager.cs                # シーンをまたぐ橋渡し役(DontDestroyOnLoadシングルトン)。RequestBattle/ConsumePendingEncounter/ReturnToField/ReturnTownでフィールド⇔戦闘を仲介
-Assets/Scripts/CS_SceneManager.cs               # SceneManagerのAdditiveロード/アンロードをコールバック付きでラップする薄いシングルトン
-Assets/Scripts/CS_BattleResultHandler.cs        # BattleSceneに配置。CS_BattleStateMachine.onBattleEndを購読し、Win/Escape→ReturnToField、Lose→ReturnTownに分岐
+Assets/Scripts/CS_GameManager.cs                # シーンをまたぐ橋渡し役(DontDestroyOnLoadシングルトン)。RequestBattle/ConsumePendingEncounter/ReturnToField/ReturnTownでフィールド⇔戦闘を仲介。味方パーティの現在HP/MP(GetOrInitializePartyState/UpdatePartyState)とセーブ/ロード(起動時LoadGameOnStartup、ReturnToField/ReturnTown末尾でSaveGame)も担う。HasSaveData/StartNewGameはタイトル画面用
+Assets/Scripts/CS_SceneManager.cs               # SceneManagerをラップする薄いシングルトン。LoadScene(Single)とLoadSceneAdditive/UnloadSceneAdditive(コールバック付き)
+Assets/Scripts/CS_BattleResultHandler.cs        # BattleSceneに配置。CS_BattleStateMachine.onBattleEndを購読し、CS_GameManager.UpdatePartyStateで書き戻してからWin/Escape→ReturnToField、Lose→ReturnTownに分岐
+Assets/Scripts/Save/CS_PartyMemberState.cs      # パーティメンバー1人分の現在HP/MP(CS_GameManagerの保持・セーブデータ共用)
+Assets/Scripts/Save/CS_SaveData.cs              # セーブ1件分(プレイヤー位置+パーティ状態リスト)
+Assets/Scripts/Save/CS_SaveManager.cs           # セーブファイルの読み書き(JsonUtility、Application.persistentDataPath、スロット1つ)
+Assets/Scripts/Title/CS_TitleController.cs      # TitleSceneのボタン処理。はじめから/つづきからでFieldSceneへ遷移、セーブ有無でつづきからボタンの活性を切り替え
 Assets/Scripts/UI/CS_CharacterUI.cs             # キャラアイコン1体分。HP/MPバーのfillAmountを毎フレーム反映。SetTeamSide(isEnemy)で敵側はバーをアイコン下側に反転配置
 Assets/Scripts/UI/CS_CharacterUIWindow.cs       # CreateCharacterUI(allyParty, enemyParty)でCS_CharacterIconを人数分生成・中央揃え配置
 Assets/Prefabs/Battle/CharacterIcon.prefab      # Image(アイコン)+CS_CharacterUI+HPBarBackground/MPBarBackground(各Fill子オブジェクト)
@@ -133,6 +137,7 @@ Assets/Data/Character/Wyvern/DB_Char_Wyvern.asset + DB_Skill_Wyvern_BlazeBreath.
 Assets/Data/Test/                                    # 旧DB_TestCharacterA〜D・DB_TestA〜Dの退避先(削除はしていない)
 Assets/Scenes/FieldScene.unity                  # フィールド検証用シーン。Grid+Tilemap(Tilemap Collider 2D)+Player+CS_GameManager。Player/Main Camera以外(Grid、エンカウントシンボル)は`FieldEnvironment`配下にまとめてある
 Assets/Scenes/BattleScene.unity                 # 戦闘シーン(旧MainSceneをリネーム)。BattleStateMachine+CS_BattleResultHandlerを配置。FieldSceneにAdditiveで重ねてロードされる
+Assets/Scenes/TitleScene.unity                  # タイトル画面。Build Settingsの先頭(起動時に最初にロードされる)。Canvas+はじめから/つづきからボタン+CS_TitleController+CS_GameManager
 Assets/Tiles/Square.asset                       # 壁タイル(Assets/Sprites/TestSprite.pngベース)
 ```
 
@@ -189,20 +194,20 @@ Assets/Tiles/Square.asset                       # 壁タイル(Assets/Sprites/Te
     - `CS_CharacterUI.SetTeamSide(isEnemy)`で敵側はHP/MPバーをアイコンの下側(画面中央向き)に反転配置。反転時はHP/MPのY座標を入れ替えてから符号反転することで、敵・味方どちらでもHPが常にMPより上に来るようにしている
     - 詰まった点: (1) `Image.Type.Filled`はSprite未設定だと`fillAmount`を無視して常に全面表示になる仕様があり、当初ハマった。ビルトインの角丸スプライト(`fileID:10907`)ではなく境界のないフラットなスプライト(`TestSprite.png`の`Square`)を割り当てて解決 (2) 中央揃えの計算が整数除算で偶数人数のときズレていたのを`(i - (count - 1) / 2f)`に修正
     - 受け入れ条件: 戦闘開始時に味方・敵の人数分キャラクターが表示され、ダメージ/MP消費に応じてHP/MPバーが変化することを確認済み
-11. **[進行中]** セーブ/ロード(パーティ状態・進行状況の永続化)。タスク9-4で割り切った「戦闘のたびにHP/MPが全回復する」問題もここで解消する。自動保存・起動時自動ロード・セーブスロット1つの方針
-    - 11-1 **[未着手]** 常駐するパーティ状態(`CS_GameManager`拡張)
-      - `CS_GameManager`に味方パーティ各メンバーの現在HP/MPを保持させる(初回は`CSO_CharacterData`の初期値からフル生成)
-      - `CS_BattleStateMachine`は味方側だけこの永続データから`CS_CharacterState`を復元して戦闘を開始する(敵側は従来通り毎回フル生成)
-      - 戦闘終了時(`onBattleEnd`)に味方の戦闘後HP/MPを`CS_GameManager`へ書き戻す
-    - 11-2 **[未着手]** セーブデータのファイル入出力
-      - `CS_SaveData`(プレイヤーのフィールド上位置+パーティ各メンバーの現在HP/MP)、`CS_SaveManager`(`CS_SceneManager`と同様の静的クラス。`JsonUtility`+`Application.persistentDataPath`、スロット1つ)
-      - 自動保存: `CS_GameManager.ReturnToField()`/`ReturnToTown()`でフィールドに戻るタイミング
-    - 11-3 **[未着手]** 起動時の自動ロード
-      - `CS_GameManager.Awake()`でセーブデータの有無を確認し、あれば復元(パーティHP/MP+プレイヤー位置)、なければ初期状態
-    - 受け入れ条件: 戦闘でダメージを受けた状態のままフィールドに戻り、Unity(ゲーム)を再Playしても、そのHP/MPとプレイヤー位置が復元されている。初回起動時は従来通りの初期状態で始まる
-    - スコープ外: エンカウントシンボルのクールタイム等の永続化、複数セーブスロット、セーブ/ロードUI画面
+11. **[完了]** セーブ/ロード(パーティ状態・進行状況の永続化)。タスク9-4で割り切った「戦闘のたびにHP/MPが全回復する」問題を解消。自動保存・起動時自動ロード・セーブスロット1つの方針
+    - 11-1 常駐するパーティ状態: `CS_GameManager.GetOrInitializePartyState`/`UpdatePartyState`(`CS_PartyMemberState`のリスト)。`CS_BattleStateMachine.BuildContext`が味方側だけこの永続データから`CS_CharacterState.SetCurrentStats`で復元、`CS_BattleResultHandler`が戦闘終了時に書き戻す
+    - 11-2 セーブデータのファイル入出力: `CS_SaveData`(プレイヤー位置+パーティ状態)、`CS_SaveManager`(`JsonUtility`+`Application.persistentDataPath`、スロット1つ)。自動保存は`CS_GameManager.ReturnToField()`/`ReturnToTown()`の最後
+    - 11-3 起動時の自動ロード: `CS_GameManager.Awake()`でロードし、`Start()`でプレイヤー位置を復元
+    - 受け入れ条件を確認済み(ダメージを受けたままフィールドに戻り再度エンカウントしてもHP据え置き、Unity再Playでも位置・HP/MPが復元、初回起動時は初期状態)
+12. **[進行中]** タイトル画面の作成。「はじめから」/「つづきから」を選べるようにする
+    - 新規`TitleScene.unity`(Build Settingsの先頭に配置)。Canvas+2ボタン+`CS_TitleController`
+    - `CS_TitleController`: 「はじめから」→`CS_GameManager.StartNewGame()`(保持中のパーティ状態・プレイヤー位置をリセット、セーブファイル自体は次の自動保存で上書き)してから`FieldScene`へ。「つづきから」→そのまま`FieldScene`へ(起動時に`CS_GameManager.Awake()`が既存セーブを読み込み済み)。セーブデータが無ければ「つづきから」を非活性化
+    - `CS_GameManager`に`HasSaveData()`を追加。`CS_SceneManager`に通常の`LoadScene(sceneName)`(Singleモード)を追加(既存のAdditive系とは別)
+    - `TitleScene`にも`CS_GameManager`を配置(`FieldScene`側は開発時の単体テスト用にそのまま残している。シングルトンなので重複は自動解消)
+    - 実装済み、Unityでの動作確認待ち
+    - スコープ外: タイトル画面の装飾・BGM・アニメーション、セーブデータ削除UI
 
-## 今後の候補(タスク11以降、未着手)
+## 今後の候補(タスク12以降、未着手)
 
 - アイテムのマスタデータ設計
 - 装備・成長(レベル/経験値)システム
