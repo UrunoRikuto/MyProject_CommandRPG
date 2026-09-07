@@ -90,8 +90,8 @@ Start → CommandInput → ActionOrder → ActionExecute → JudgeResult →(継
 ### 実装済みスクリプト一覧
 
 ```
-Assets/Scripts/Character/CSO_CharacterData.cs   # キャラ定義(名前/HP/MP/攻撃力/防御力/素早さ/初期スキル/attackWeight/skillWeights)。OnValidateでskillWeightsの数をinitialSkillsに自動調整
-Assets/Scripts/Character/CS_CharacterState.cs   # 実行時状態(現在HP/MP、ダメージ計算・適用、MP消費、現在スキルリスト、attackWeight/skillWeightsの読み取り専用プロパティ)
+Assets/Scripts/Character/CSO_CharacterData.cs   # キャラ定義(名前/アイコン/HP/MP/攻撃力/防御力/素早さ/初期スキル/attackWeight/skillWeights)。OnValidateでskillWeightsの数をinitialSkillsに自動調整
+Assets/Scripts/Character/CS_CharacterState.cs   # 実行時状態(現在HP/MP、ダメージ計算・適用、MP消費、現在スキルリスト、attackWeight/skillWeights・characterIconの読み取り専用プロパティ)
 Assets/Scripts/Command/IBattleCommand.cs        # Execute(context, user, target)
 Assets/Scripts/Command/CS_AttackCommand.cs      # たたかう。Debug.Logで誰が誰を攻撃したか出力
 Assets/Scripts/Command/CS_SkillCommand.cs       # スキル(インデックス指定、範囲チェックあり)。Debug.Logで使用スキル名とダメージを出力
@@ -119,6 +119,9 @@ Assets/Scripts/Field/CS_EncounterSymbol.cs      # エンカウントシンボル
 Assets/Scripts/CS_GameManager.cs                # シーンをまたぐ橋渡し役(DontDestroyOnLoadシングルトン)。RequestBattle/ConsumePendingEncounter/ReturnToField/ReturnTownでフィールド⇔戦闘を仲介
 Assets/Scripts/CS_SceneManager.cs               # SceneManagerのAdditiveロード/アンロードをコールバック付きでラップする薄いシングルトン
 Assets/Scripts/CS_BattleResultHandler.cs        # BattleSceneに配置。CS_BattleStateMachine.onBattleEndを購読し、Win/Escape→ReturnToField、Lose→ReturnTownに分岐
+Assets/Scripts/UI/CS_CharacterUI.cs             # キャラアイコン1体分。HP/MPバーのfillAmountを毎フレーム反映。SetTeamSide(isEnemy)で敵側はバーをアイコン下側に反転配置
+Assets/Scripts/UI/CS_CharacterUIWindow.cs       # CreateCharacterUI(allyParty, enemyParty)でCS_CharacterIconを人数分生成・中央揃え配置
+Assets/Prefabs/Battle/CharacterIcon.prefab      # Image(アイコン)+CS_CharacterUI+HPBarBackground/MPBarBackground(各Fill子オブジェクト)
 Assets/Prefabs/Battle/SkillButtonPrefab.prefab
 Assets/Prefabs/Battle/EnemyTargetButtonPrefab.prefab
 Assets/Prefabs/Field/Player.prefab              # SpriteRenderer+Rigidbody2D(Interpolate)+Collider2D+CS_PlayerMove。子にMain Camera(追従用、FieldScene用)
@@ -179,13 +182,13 @@ Assets/Tiles/Square.asset                       # 壁タイル(Assets/Sprites/Te
      - パーティのHP/MPは毎回`CSO_CharacterData`の初期値から組み直す簡易方式(Additive方式によりフィールド側の状態=位置・クールタイムは保持されるが、パーティのHP/MP自体は戦闘のたびにフルリセットされる。恒久的な引き継ぎは将来のセーブ/ロードタスクで対応)
      - 受け入れ条件: フィールドでシンボルに接触→`BattleScene`が重なって表示され戦闘開始→勝利/逃走/敗北いずれでも`FieldScene`(位置・クールタイム維持)に戻る、を確認済み
 
-10. **[進行中]** HP/MPの画面表示
-    - `BattleScene`に味方・敵のキャラクタースプライトが存在しないため、まず仮スプライトを配置してからHPバーを重ねる方針(スプライト無しのUIパネル一覧表示ではなく、キャラクター素材上に重ねる元々の想定を採用)
-    - 10-1 **[未着手]** 仮キャラクタースプライトの配置(表示スロットを最大数分用意し、実際のパーティ人数分だけ使う方式)
-    - 10-2 **[未着手]** `CS_CharacterView`でキャラクター状態(`CS_CharacterState`)とスプライトを紐付け、戦闘開始時に空きスロットへ割り当て
-    - 10-3 **[未着手]** 各キャラクターの子にWorld Space CanvasでHP/MPバー(Slider等)を配置
-    - 10-4 **[未着手]** `CS_CharacterView.Update()`でのポーリングによるバー更新
-    - 受け入れ条件: 戦闘開始時に味方・敵の人数分キャラクターが表示され、ダメージ/MP消費に応じてHP/MPバーが変化する
+10. **[完了]** HP/MPの画面表示
+    - 当初案(World Space Canvas + SpriteRenderer)ではなく、既存のCommandPanel等と同じScreen Space OverlayのUI Imageで統一する方式で実装
+    - `CharacterIcon.prefab`(Image+`CS_CharacterUI`)に`HPBarBackground`/`MPBarBackground`(それぞれ子に`HPBarFill`/`MPBarFill`、`Image.Type=Filled`)を追加。`CS_CharacterUIWindow.CreateCharacterUI`が`CS_BattleContext.allyParty`/`enemyParty`(実行時の`CS_CharacterState`)を渡してアイコンを生成し、`CS_CharacterUI.Update()`でHP/MPを毎フレーム反映(ポーリング)
+    - `CSO_CharacterData`に`characterIcon`(Sprite)、`CS_CharacterState`に`characterIcon`の透過プロパティを追加
+    - `CS_CharacterUI.SetTeamSide(isEnemy)`で敵側はHP/MPバーをアイコンの下側(画面中央向き)に反転配置。反転時はHP/MPのY座標を入れ替えてから符号反転することで、敵・味方どちらでもHPが常にMPより上に来るようにしている
+    - 詰まった点: (1) `Image.Type.Filled`はSprite未設定だと`fillAmount`を無視して常に全面表示になる仕様があり、当初ハマった。ビルトインの角丸スプライト(`fileID:10907`)ではなく境界のないフラットなスプライト(`TestSprite.png`の`Square`)を割り当てて解決 (2) 中央揃えの計算が整数除算で偶数人数のときズレていたのを`(i - (count - 1) / 2f)`に修正
+    - 受け入れ条件: 戦闘開始時に味方・敵の人数分キャラクターが表示され、ダメージ/MP消費に応じてHP/MPバーが変化することを確認済み
 11. **[未着手]** セーブ/ロード(パーティ状態・進行状況の永続化)。タスク9-4で割り切った「戦闘のたびにHP/MPが全回復する」問題もここで解消する想定
 
 ## 今後の候補(タスク11以降、未着手)
