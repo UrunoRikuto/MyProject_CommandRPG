@@ -8,9 +8,12 @@ public class CS_PauseMenu : MonoBehaviour
     [SerializeField]
     private GameObject _menuPanel;
 
+    private CS_PlayerMove _playerMove;
+
     private void Start()
     {
         _menuPanel.SetActive(false);
+        _playerMove = GameObject.FindAnyObjectByType<CS_PlayerMove>();
     }
 
     private void Update()
@@ -21,9 +24,18 @@ public class CS_PauseMenu : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// メニューの開閉に合わせてプレイヤーの移動も止める(開いている間に歩いてエンカウントしてしまうのを防ぐ)
+    /// </summary>
     private void TogglePauseMenu()
     {
-        _menuPanel.SetActive(!_menuPanel.activeSelf);
+        bool isOpening = !_menuPanel.activeSelf;
+        _menuPanel.SetActive(isOpening);
+
+        if (_playerMove != null)
+        {
+            _playerMove.enabled = !isOpening;
+        }
     }
 
     public void OnReturnToTitleButtonClicked()

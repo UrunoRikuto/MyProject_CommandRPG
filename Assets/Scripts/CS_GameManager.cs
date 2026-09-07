@@ -9,6 +9,7 @@ public class CS_GameManager : MonoBehaviour
 
     private GameObject _player;
     private GameObject _fieldEnvironment;
+    private GameObject _pauseMenu;
 
     private List<CS_PartyMemberState> _partyState;
     private Vector3? _pendingPlayerPosition;
@@ -146,6 +147,8 @@ public class CS_GameManager : MonoBehaviour
             _player = GameObject.FindAnyObjectByType<CS_PlayerMove>().gameObject;
         if (_fieldEnvironment == null)
             _fieldEnvironment = GameObject.Find("FieldEnvironment");
+        if (_pauseMenu == null)
+            _pauseMenu = GameObject.Find("PauseMenuController");
 
         CS_SceneManager.Instance.LoadSceneAdditive("BattleScene", () =>
         {
@@ -158,6 +161,9 @@ public class CS_GameManager : MonoBehaviour
             // フィールド側を非表示にする
             if (_fieldEnvironment != null)
                 _fieldEnvironment.SetActive(false);
+            // 戦闘中はポーズメニューを開けないようにする
+            if (_pauseMenu != null)
+                _pauseMenu.SetActive(false);
         });
     }
 
@@ -181,6 +187,9 @@ public class CS_GameManager : MonoBehaviour
             // フィールド側を再表示にする
             if (_fieldEnvironment != null)
                 _fieldEnvironment.SetActive(true);
+            // ポーズメニューを再度開けるようにする
+            if (_pauseMenu != null)
+                _pauseMenu.SetActive(true);
 
             SaveGame();
         });
@@ -199,6 +208,9 @@ public class CS_GameManager : MonoBehaviour
             // フィールド側を再表示にする
             if (_fieldEnvironment != null)
                 _fieldEnvironment.SetActive(true);
+            // ポーズメニューを再度開けるようにする
+            if (_pauseMenu != null)
+                _pauseMenu.SetActive(true);
 
             // ここで宿屋に移動させる処理を追加する
 
