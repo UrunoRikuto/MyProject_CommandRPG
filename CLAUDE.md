@@ -100,7 +100,7 @@ Assets/Scripts/Skill/CSO_SkillData.cs           # スキル定義(名前/MPコ�
 Assets/Scripts/Battle/CSE_BattleResult.cs       # None/Win/Lose/Escape
 Assets/Scripts/Battle/CS_BattleActionEntry.cs   # actor/target/commandを保持する行動順キューの1エントリ
 Assets/Scripts/Battle/CS_BattleContext.cs       # allyParty/enemyParty、actionQueue、result、GetOpposingParty、PickRandomLivingTarget
-Assets/Scripts/Battle/CS_BattleStateMachine.cs  # ステートマシン本体。ChangeStateは再入防止+ループ
+Assets/Scripts/Battle/CS_BattleStateMachine.cs  # ステートマシン本体。ChangeStateは再入防止+ループ。public StartBattle(playerPartyData, enemyPartyData)で外部から任意パーティで起動可能(_hasStartedで二重起動防止)。onBattleEnd(Action<CSE_BattleResult>)で結果を通知
 Assets/Scripts/Battle/CS_BattleAI.cs            # DecideCommand(actor)。重み付き抽選、リトライなし
 Assets/Scripts/Battle/State/IBattleState.cs
 Assets/Scripts/Battle/State/CS_BattleStateStart.cs
@@ -163,10 +163,10 @@ Assets/Tiles/Square.asset                       # 壁タイル(Assets/Sprites/Te
      - `CSO_EncounterData`(`_enemyDataList`)と`CS_EncounterSymbol`(`OnTriggerEnter2D`でプレイヤー判定)を新設
      - 要件を上回り、エンカウント確率(`_encounterRate`)・クールタイム(`_encounterCoolTime`)・複数エンカウントからのランダム抽選、および未設定データへのnullガードも実装済み
      - `FieldScene`にシンボルを配置し、接触時に敵パーティ名がログ出力されることを確認済み
-   - 9-3 **[未着手]** 戦闘システムの外部起動対応(既存コードのリファクタ)
-     - 現状`CS_BattleStateMachine`は`Awake`/`Start`でInspector固定の2パーティから自動的に戦闘開始する作りのため、外部(マップ側)から任意のパーティを渡して戦闘を開始できるメソッドを追加
-     - 戦闘終了時の結果(`CSE_BattleResult`)を呼び出し元に通知するイベントを追加
-     - 受け入れ条件: 既存の`MainScene`の動作(2vs3固定戦闘)を壊さずに、外部から任意パーティでも戦闘を開始できることを確認
+   - 9-3 **[完了]** 戦闘システムの外部起動対応(既存コードのリファクタ)
+     - `CS_BattleStateMachine`にパーティ構築処理を`BuildContext`として切り出し、`public StartBattle(playerPartyData, enemyPartyData)`を追加。`_hasStarted`フラグで`Start()`側の自動起動と外部からの`StartBattle`呼び出しが二重に走らないようガード
+     - `public event Action<CSE_BattleResult> onBattleEnd`と`NotifyBattleEnd(result)`を追加し、`CS_BattleStateEnd.Enter()`から結果を通知するようにした
+     - `MainScene`の2vs3自動戦闘の動作は維持したまま、外部からの任意パーティ起動にも対応
    - 9-4 **[未着手]** マップ→戦闘→マップの遷移実装
      - エンカウント発生時に戦闘へ遷移し、9-3のメソッドでエンカウントデータの敵パーティを渡して開始
      - 勝利/逃走時はフィールドへ復帰(敗北時の扱いは仮でよく、別途ゲームオーバー等は将来タスク)
