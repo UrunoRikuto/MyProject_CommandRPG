@@ -12,6 +12,8 @@ public class CS_BattleStateEnd : IBattleState
             _ => "”s–k..."
         };
         Debug.Log($"í“¬I—¹: {message}");
+
+        machine.NotifyBattleEnd(context.result);
     }
 
     public void Update(CS_BattleContext context, CS_BattleStateMachine machine) { }

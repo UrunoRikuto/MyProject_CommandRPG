@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -21,6 +22,25 @@ public class CS_BattleStateMachine : MonoBehaviour
     private IBattleState _pendingNextState;
     private bool _hasPendingNextState;
 
+    private bool _hasStarted = false;
+
+    public event Action<CSE_BattleResult> onBattleEnd;
+    public void NotifyBattleEnd(CSE_BattleResult result) => onBattleEnd?.Invoke(result);
+
+    private void Start()
+    {
+        if (_hasStarted) return;
+        StartBattle(_playerPartyData, _enemyPartyData);
+    }
+
+    public void StartBattle(List<CSO_CharacterData> playerPartyData, List<CSO_CharacterData> enemyPartyData)
+    {
+        BuildContext(playerPartyData, enemyPartyData);
+
+        ChangeState(new CS_BattleStateStart());
+
+        _hasStarted = true;
+    }
 
     private void BuildContext(List<CSO_CharacterData> playerPartyData, List<CSO_CharacterData> enemyPartyData)
     {
@@ -35,8 +55,6 @@ public class CS_BattleStateMachine : MonoBehaviour
             enemyParty.Add(new CS_CharacterState(enemyData));
         }
         _context = new CS_BattleContext(playerParty, enemyParty);
-
-        ChangeState(new CS_BattleStateStart());
     }
 
     private void Update()
