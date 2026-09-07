@@ -115,21 +115,25 @@ Assets/Scripts/UI/CS_TargetSelectWindow.cs      # 生存している敵の一覧
 Assets/Editor/CharacterData/CSED_CharacterDataWindow.cs  # Tools > Character Data Table。CSO_CharacterDataを表形式で一覧・直接編集。新規キャラクター/新規スキル作成、スキル自体(名前/コスト/倍率)の編集、列幅ドラッグ調整+EditorPrefs保存に対応
 Assets/Scripts/Field/CS_PlayerMove.cs           # フィールド移動。Rigidbody2D.MovePositionで上下左右に自由移動(Input.GetAxisRaw)
 Assets/Scripts/Field/CSO_EncounterData.cs       # エンカウント定義(出現する敵パーティのリスト)。DB_接頭辞でAssets/Data/EncounterData/に配置
-Assets/Scripts/Field/CS_EncounterSymbol.cs      # エンカウントシンボル。接触判定+確率+クールタイムで発生を制御し、複数のCSO_EncounterDataからランダム抽選(現状は結果をログ出力のみ)
+Assets/Scripts/Field/CS_EncounterSymbol.cs      # エンカウントシンボル。接触判定+確率+クールタイムで発生を制御し、複数のCSO_EncounterDataからランダム抽選。成立するとCS_GameManager.RequestBattleを呼ぶ
+Assets/Scripts/CS_GameManager.cs                # シーンをまたぐ橋渡し役(DontDestroyOnLoadシングルトン)。RequestBattle/ConsumePendingEncounter/ReturnToField/ReturnTownでフィールド⇔戦闘を仲介
+Assets/Scripts/CS_SceneManager.cs               # SceneManagerのAdditiveロード/アンロードをコールバック付きでラップする薄いシングルトン
+Assets/Scripts/CS_BattleResultHandler.cs        # BattleSceneに配置。CS_BattleStateMachine.onBattleEndを購読し、Win/Escape→ReturnToField、Lose→ReturnTownに分岐
 Assets/Prefabs/Battle/SkillButtonPrefab.prefab
 Assets/Prefabs/Battle/EnemyTargetButtonPrefab.prefab
-Assets/Prefabs/Field/Player.prefab              # SpriteRenderer+Rigidbody2D+Collider2D+CS_PlayerMove
+Assets/Prefabs/Field/Player.prefab              # SpriteRenderer+Rigidbody2D(Interpolate)+Collider2D+CS_PlayerMove。子にMain Camera(追従用、FieldScene用)
 Assets/Data/Character/Slime/DB_Char_Slime.asset      # 最弱、たたかうのみ
 Assets/Data/Character/Goblin/DB_Char_Goblin.asset    # Slime比で全ステータス2倍、たたかうのみ
 Assets/Data/Character/Skeleton/DB_Char_Skeleton.asset + DB_Skill_Skeleton_BoneSlash.asset  # バランス型、attackWeight/skillWeight半々
 Assets/Data/Character/Golem/DB_Char_Golem.asset      # 高HP高防御の低速タンク、スキルなし
 Assets/Data/Character/Wyvern/DB_Char_Wyvern.asset + DB_Skill_Wyvern_BlazeBreath.asset / DB_Skill_Wyvern_ClawRush.asset  # 最強格、スキル比重高め
 Assets/Data/Test/                                    # 旧DB_TestCharacterA〜D・DB_TestA〜Dの退避先(削除はしていない)
-Assets/Scenes/FieldScene.unity                  # フィールド検証用シーン。Grid+Tilemap(Tilemap Collider 2D)+Player
+Assets/Scenes/FieldScene.unity                  # フィールド検証用シーン。Grid+Tilemap(Tilemap Collider 2D)+Player+CS_GameManager。Player/Main Camera以外(Grid、エンカウントシンボル)は`FieldEnvironment`配下にまとめてある
+Assets/Scenes/BattleScene.unity                 # 戦闘シーン(旧MainSceneをリネーム)。BattleStateMachine+CS_BattleResultHandlerを配置。FieldSceneにAdditiveで重ねてロードされる
 Assets/Tiles/Square.asset                       # 壁タイル(Assets/Sprites/TestSprite.pngベース)
 ```
 
-シーン(`MainScene`)の`BattleStateMachine`は`Player Party Data`にWyvern(操作キャラクター)・Slime、`Enemy Party Data`にGolem・Goblin・Skeletonを登録した2vs3のテスト編成(タスク7での動作確認用)。
+`BattleScene`の`BattleStateMachine`は`Player Party Data`にWyvern(操作キャラクター)・Slime、`Enemy Party Data`にGolem・Goblin・Skeletonを登録した2vs3のテスト編成(タスク7での動作確認用のInspectorデフォルト値。フィールドのエンカウント経由で開始した場合は`CS_GameManager`から受け取った敵パーティで上書きされる)。
 
 ## 既知の割り切り・未解決事項
 
@@ -155,7 +159,7 @@ Assets/Tiles/Square.asset                       # 壁タイル(Assets/Sprites/Te
    - 副産物として`Tools > Character Data Table`(`CSED_CharacterDataWindow`)を新規作成し、キャラクター/スキルデータの一覧・直接編集ができるようにした
    - シーンの`Enemy Party Data`に組み合わせて配置し、戦闘が最後まで問題なく動作することを確認済み
 8. **[完了]** Editorスクリプトの命名規則統一(`CS_ValueObserverWindow`→`CSED_ValueObserverWindow`)
-9. **[進行中]** マップ/探索機能の実装(フィールド移動・エンカウント・戦闘への遷移)。フィールドは2Dトップダウン(Tilemap)で作る方針
+9. **[完了]** マップ/探索機能の実装(フィールド移動・エンカウント・戦闘への遷移)。フィールドは2Dトップダウン(Tilemap)で作成
    - 9-1 **[完了]** フィールド用シーンとプレイヤー移動
      - `FieldScene`を作成し、Grid+Tilemap(`Tilemap Collider 2D`)+Tile Paletteで壁タイルを配置
      - `Player.prefab`(SpriteRenderer+Rigidbody2D+Collider2D+`CS_PlayerMove`)で上下左右に移動、壁で衝突して止まることを確認済み
@@ -166,12 +170,14 @@ Assets/Tiles/Square.asset                       # 壁タイル(Assets/Sprites/Te
    - 9-3 **[完了]** 戦闘システムの外部起動対応(既存コードのリファクタ)
      - `CS_BattleStateMachine`にパーティ構築処理を`BuildContext`として切り出し、`public StartBattle(playerPartyData, enemyPartyData)`を追加。`_hasStarted`フラグで`Start()`側の自動起動と外部からの`StartBattle`呼び出しが二重に走らないようガード
      - `public event Action<CSE_BattleResult> onBattleEnd`と`NotifyBattleEnd(result)`を追加し、`CS_BattleStateEnd.Enter()`から結果を通知するようにした
-     - `MainScene`の2vs3自動戦闘の動作は維持したまま、外部からの任意パーティ起動にも対応
-   - 9-4 **[未着手]** マップ→戦闘→マップの遷移実装
-     - エンカウント発生時に戦闘へ遷移し、9-3のメソッドでエンカウントデータの敵パーティを渡して開始
-     - 勝利/逃走時はフィールドへ復帰(敗北時の扱いは仮でよく、別途ゲームオーバー等は将来タスク)
-     - シーンをまたぐ際のパーティ状態の扱い方針を決める(簡易実装可)
-     - 受け入れ条件: フィールドでシンボルに接触→戦闘開始→勝利/逃走でフィールド復帰、が一通り動作する
+     - `BattleScene`(旧`MainScene`)の2vs3自動戦闘の動作は維持したまま、外部からの任意パーティ起動にも対応
+   - 9-4 **[完了]** マップ→戦闘→マップの遷移実装
+     - `BattleScene`は`SceneManager.LoadSceneAsync(Additive)`で`FieldScene`に重ねてロードする方式に決定(Single方式だとFieldSceneが毎回作り直され、プレイヤー位置やエンカウントシンボルのクールタイムが戦闘のたびにリセットされる問題があったため)
+     - `CS_GameManager`が`_player`(Playerのroot GameObject)と`_fieldEnvironment`(Grid・エンカウントシンボルの親)をキャッシュし、戦闘中は`SetActive(false)`、終了後に`SetActive(true)`で一括休止/再開。Playerを個別のスクリプト単位で止めるのではなくGameObjectごと止めているが、Trigger再発火はエンカウントのクールタイムが凍結される(Updateごと止まる)ため実害なしと確認済み
+     - フィールド用のMain Cameraは`Player.prefab`の子オブジェクトにして追従させる方式に変更(`Rigidbody2D.Interpolate`も有効化し追従を滑らかに)。これにより`CS_GameManager`側でカメラを個別に制御する必要がなくなった
+     - 勝利/逃走→`ReturnToField()`、敗北→`ReturnTown()`(現状は中身が同じ`FieldScene`復帰。将来、町・宿屋シーンができたら`ReturnTown`側だけ差し替える想定)
+     - パーティのHP/MPは毎回`CSO_CharacterData`の初期値から組み直す簡易方式(Additive方式によりフィールド側の状態=位置・クールタイムは保持されるが、パーティのHP/MP自体は戦闘のたびにフルリセットされる。恒久的な引き継ぎは将来のセーブ/ロードタスクで対応)
+     - 受け入れ条件: フィールドでシンボルに接触→`BattleScene`が重なって表示され戦闘開始→勝利/逃走/敗北いずれでも`FieldScene`(位置・クールタイム維持)に戻る、を確認済み
 
 ## 今後の候補(タスク9以降、未着手)
 
