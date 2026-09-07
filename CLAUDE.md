@@ -114,6 +114,8 @@ Assets/Scripts/UI/CS_SkillSelectWindow.cs       # スキル一覧を動的ボタ
 Assets/Scripts/UI/CS_TargetSelectWindow.cs      # 生存している敵の一覧を動的ボタン生成、縦スクロール(RectMask2D)。CS_SkillSelectWindowと同構造
 Assets/Editor/CharacterData/CSED_CharacterDataWindow.cs  # Tools > Character Data Table。CSO_CharacterDataを表形式で一覧・直接編集。新規キャラクター/新規スキル作成、スキル自体(名前/コスト/倍率)の編集、列幅ドラッグ調整+EditorPrefs保存に対応
 Assets/Scripts/Field/CS_PlayerMove.cs           # フィールド移動。Rigidbody2D.MovePositionで上下左右に自由移動(Input.GetAxisRaw)
+Assets/Scripts/Field/CSO_EncounterData.cs       # エンカウント定義(出現する敵パーティのリスト)。DB_接頭辞でAssets/Data/EncounterData/に配置
+Assets/Scripts/Field/CS_EncounterSymbol.cs      # エンカウントシンボル。接触判定+確率+クールタイムで発生を制御し、複数のCSO_EncounterDataからランダム抽選(現状は結果をログ出力のみ)
 Assets/Prefabs/Battle/SkillButtonPrefab.prefab
 Assets/Prefabs/Battle/EnemyTargetButtonPrefab.prefab
 Assets/Prefabs/Field/Player.prefab              # SpriteRenderer+Rigidbody2D+Collider2D+CS_PlayerMove
@@ -157,10 +159,10 @@ Assets/Tiles/Square.asset                       # 壁タイル(Assets/Sprites/Te
    - 9-1 **[完了]** フィールド用シーンとプレイヤー移動
      - `FieldScene`を作成し、Grid+Tilemap(`Tilemap Collider 2D`)+Tile Paletteで壁タイルを配置
      - `Player.prefab`(SpriteRenderer+Rigidbody2D+Collider2D+`CS_PlayerMove`)で上下左右に移動、壁で衝突して止まることを確認済み
-   - 9-2 **[未着手]** エンカウント判定の実装
-     - フィールド上にエンカウント用のシンボル(接触で発生)を配置できる仕組みを用意
-     - エンカウントごとの敵パーティを定義する`CSO_EncounterData`(仮称)を新設し、`CSO_CharacterData`のリストを持たせる
-     - 受け入れ条件: シンボルに接触するとエンカウント発生・使用する敵パーティがログで確認できる(この段階では戦闘には入らなくてよい)
+   - 9-2 **[完了]** エンカウント判定の実装
+     - `CSO_EncounterData`(`_enemyDataList`)と`CS_EncounterSymbol`(`OnTriggerEnter2D`でプレイヤー判定)を新設
+     - 要件を上回り、エンカウント確率(`_encounterRate`)・クールタイム(`_encounterCoolTime`)・複数エンカウントからのランダム抽選、および未設定データへのnullガードも実装済み
+     - `FieldScene`にシンボルを配置し、接触時に敵パーティ名がログ出力されることを確認済み
    - 9-3 **[未着手]** 戦闘システムの外部起動対応(既存コードのリファクタ)
      - 現状`CS_BattleStateMachine`は`Awake`/`Start`でInspector固定の2パーティから自動的に戦闘開始する作りのため、外部(マップ側)から任意のパーティを渡して戦闘を開始できるメソッドを追加
      - 戦闘終了時の結果(`CSE_BattleResult`)を呼び出し元に通知するイベントを追加
