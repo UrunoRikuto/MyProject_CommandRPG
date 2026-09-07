@@ -30,10 +30,25 @@ public class CS_BattleStateMachine : MonoBehaviour
     private void Start()
     {
         if (_hasStarted) return;
+
+        var encounterData = CS_GameManager.Instance.ConsumePendingEncounter();
+        if (encounterData != null)
+        {
+            _enemyPartyData.Clear();
+            for (int i = 0; i < encounterData.enemyDataList.Count; i++)
+            {
+                var enemyData = encounterData.enemyDataList[i];
+                if (enemyData != null)
+                {
+                    _enemyPartyData.Add(enemyData);
+                }
+            }
+        }
+
         StartBattle(_playerPartyData, _enemyPartyData);
     }
 
-    public void StartBattle(List<CSO_CharacterData> playerPartyData, List<CSO_CharacterData> enemyPartyData)
+    public void StartBattle(List<CSO_CharacterData> playerPartyData, IReadOnlyList<CSO_CharacterData> enemyPartyData)
     {
         BuildContext(playerPartyData, enemyPartyData);
 
@@ -42,7 +57,7 @@ public class CS_BattleStateMachine : MonoBehaviour
         _hasStarted = true;
     }
 
-    private void BuildContext(List<CSO_CharacterData> playerPartyData, List<CSO_CharacterData> enemyPartyData)
+    private void BuildContext(List<CSO_CharacterData> playerPartyData, IReadOnlyList<CSO_CharacterData> enemyPartyData)
     {
         List<CS_CharacterState> playerParty = new List<CS_CharacterState>();
         foreach (var playerData in playerPartyData)

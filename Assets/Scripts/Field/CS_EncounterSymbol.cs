@@ -66,18 +66,8 @@ public class CS_EncounterSymbol : MonoBehaviour
                 // エンカウントデータをランダムに選択
                 CSO_EncounterData encounterData = _encounterData[Random.Range(0, _encounterData.Count)];
 
-                //---- エンカウント処理を実行（例: 戦闘シーンに遷移）----//
-                Debug.Log($"エンカウント！：");
-                for (int i = 0; i < encounterData.enemyDataList.Count; i++)
-                {
-                    if (encounterData.enemyDataList[i] == null)
-                    {
-                        Debug.LogWarning($"エンカウントデータの敵データが設定されていません。");
-                        continue;
-                    }
-                    Debug.Log($"敵{i + 1}：{encounterData.enemyDataList[i].characterName}");
-                }
-                // ----------------------------------------------------- //
+                // バトルをリクエスト
+                CS_GameManager.Instance.RequestBattle(encounterData);
 
                 // クールタイムをリセット
                 _currentCoolTime = _encounterCoolTime;
