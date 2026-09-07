@@ -13,6 +13,9 @@ public class CS_BattleStateMachine : MonoBehaviour
     [SerializeField] private CS_CommandButtonInput _commandButtonInput;
     public CS_CommandButtonInput commandButtonInput => _commandButtonInput;
 
+    [SerializeField] private CS_CharacterUIWindow _characterUIWindow;
+    public CS_CharacterUIWindow characterUIWindow => _characterUIWindow;
+
     private CS_BattleContext _context;
     private IBattleState _currentState;
 
@@ -52,6 +55,8 @@ public class CS_BattleStateMachine : MonoBehaviour
     {
         BuildContext(playerPartyData, enemyPartyData);
 
+        _characterUIWindow.CreateCharacterUI(_context.allyParty, _context.enemyParty);
+
         ChangeState(new CS_BattleStateStart());
 
         _hasStarted = true;
@@ -78,11 +83,11 @@ public class CS_BattleStateMachine : MonoBehaviour
     }
 
     /// <summary>
-    /// ó‘Ô‚ğØ‚è‘Ö‚¦‚é
+    /// ï¿½ï¿½Ô‚ï¿½Ø‚ï¿½Ö‚ï¿½ï¿½ï¿½
     /// </summary>
     public void ChangeState(IBattleState nextState)
     {
-        // Šù‚ÉChangeStateÀs’†‚È‚çAŸ‚Ì‘JˆÚæ‚ğ—\–ñ‚·‚é‚¾‚¯
+        // ï¿½ï¿½ï¿½ï¿½ChangeStateï¿½ï¿½ï¿½sï¿½ï¿½ï¿½È‚ï¿½Aï¿½ï¿½ï¿½Ì‘Jï¿½Úï¿½ï¿½\ï¿½ñ‚·‚é‚¾ï¿½ï¿½
         if (_isChangingState)
         {
             _pendingNextState = nextState;

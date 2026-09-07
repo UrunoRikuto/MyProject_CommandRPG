@@ -9,6 +9,11 @@ public class CSO_CharacterData : ScriptableObject
     private string _characterName;
     public string characterName => _characterName;
 
+    [Header("ƒAƒCƒRƒ“")]
+    [SerializeField]
+    private Sprite _characterIcon;
+    public Sprite characterIcon => _characterIcon;
+
     [Header("Šî‘b‘Ì—Í")]
     [SerializeField]
     private int _baseHealth;

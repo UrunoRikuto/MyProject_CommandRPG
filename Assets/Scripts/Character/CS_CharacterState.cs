@@ -3,46 +3,49 @@ using UnityEngine;
 
 public class CS_CharacterState
 {
-    // ƒLƒƒƒ‰ƒNƒ^[‚ÌŠî‘bƒf[ƒ^
+    // ï¿½Lï¿½ï¿½ï¿½ï¿½ï¿½Nï¿½^ï¿½[ï¿½ÌŠï¿½bï¿½fï¿½[ï¿½^
     private CSO_CharacterData _characterData;
 
-    // ƒLƒƒƒ‰ƒNƒ^[‚ª€–S‚µ‚Ä‚¢‚é‚©‚Ç‚¤‚©
+    // ï¿½Lï¿½ï¿½ï¿½ï¿½ï¿½Nï¿½^ï¿½[ï¿½ï¿½ï¿½ï¿½ï¿½Sï¿½ï¿½ï¿½Ä‚ï¿½ï¿½é‚©ï¿½Ç‚ï¿½ï¿½ï¿½
     public bool isDead => _currentHealth <= 0;
 
-    // ƒLƒƒƒ‰ƒNƒ^[–¼
+    // ï¿½Lï¿½ï¿½ï¿½ï¿½ï¿½Nï¿½^ï¿½[ï¿½ï¿½
     public string characterName => _characterData.characterName;
 
-    // Å‘å‘Ì—Í
+    // ï¿½Aï¿½Cï¿½Rï¿½ï¿½
+    public Sprite characterIcon => _characterData.characterIcon;
+
+    // ï¿½Å‘ï¿½Ì—ï¿½
     private int _maxHealth;
     public int maxHealth => _maxHealth;
-    // Œ»İ‚Ì‘Ì—Í
+    // ï¿½ï¿½ï¿½İ‚Ì‘Ì—ï¿½
     private int _currentHealth;
     public int currentHealth => _currentHealth;
 
-    // Å‘åMP
+    // ï¿½Å‘ï¿½MP
     private int _maxMP;
     public int maxMP => _maxMP;
-    // Œ»İ‚ÌMP
+    // ï¿½ï¿½ï¿½İ‚ï¿½MP
     private int _currentMP;
     public int currentMP => _currentMP;
 
-    // Œ»İ‚ÌUŒ‚—Í
+    // ï¿½ï¿½ï¿½İ‚ÌUï¿½ï¿½ï¿½ï¿½
     private int _currentAttack;
     public int currentAttack => _currentAttack;
 
-    // Œ»İ‚Ì–hŒä—Í
+    // ï¿½ï¿½ï¿½İ‚Ì–hï¿½ï¿½ï¿½
     private int _currentDefense;
     public int currentDefense => _currentDefense;
 
-    // Œ»İ‚Ì‘¬“x
+    // ï¿½ï¿½ï¿½İ‚Ì‘ï¿½ï¿½x
     private int _currentSpeed;
     public int currentSpeed => _currentSpeed;
 
-    // Œ»İ‚ÌƒXƒLƒ‹ƒŠƒXƒg
+    // ï¿½ï¿½ï¿½İ‚ÌƒXï¿½Lï¿½ï¿½ï¿½ï¿½ï¿½Xï¿½g
     private List<CSO_SkillData> _currentSkills;
     public IReadOnlyList<CSO_SkillData> currentSkills => _currentSkills;
 
-    // CS_CharacterState.cs ‚É’Ç‰Á
+    // CS_CharacterState.cs ï¿½É’Ç‰ï¿½
     public float attackWeight => _characterData.attackWeight;
     public IReadOnlyList<float> skillWeights => _characterData.skillWeights;
 
@@ -50,52 +53,52 @@ public class CS_CharacterState
     {
         _characterData = data;
 
-        // ‘Ì—Í‚Ì‰Šú‰»
+        // ï¿½Ì—Í‚Ìï¿½ï¿½ï¿½ï¿½ï¿½
         _maxHealth = _characterData.baseHealth;
         _currentHealth = _maxHealth;
 
-        // MP‚Ì‰Šú‰»
+        // MPï¿½Ìï¿½ï¿½ï¿½ï¿½ï¿½
         _maxMP = _characterData.baseMP;
         _currentMP = _maxMP;
 
-        // UŒ‚—Í‚Ì‰Šú‰»
+        // ï¿½Uï¿½ï¿½ï¿½Í‚Ìï¿½ï¿½ï¿½ï¿½ï¿½
         _currentAttack = _characterData.baseAttack;
 
-        // –hŒä—Í‚Ì‰Šú‰»
+        // ï¿½hï¿½ï¿½Í‚Ìï¿½ï¿½ï¿½ï¿½ï¿½
         _currentDefense = _characterData.baseDefense;
 
-        // ‘¬“x‚Ì‰Šú‰»
+        // ï¿½ï¿½ï¿½xï¿½Ìï¿½ï¿½ï¿½ï¿½ï¿½
         _currentSpeed = _characterData.baseSpeed;
 
-        // ƒXƒLƒ‹ƒŠƒXƒg‚Ì‰Šú‰»
+        // ï¿½Xï¿½Lï¿½ï¿½ï¿½ï¿½ï¿½Xï¿½gï¿½Ìï¿½ï¿½ï¿½ï¿½ï¿½
         _currentSkills = new List<CSO_SkillData>(_characterData.initialSkills);
     }
 
     /// <summary>
-    /// ƒ_ƒ[ƒW‚ğó‚¯‚éˆ—
+    /// ï¿½_ï¿½ï¿½ï¿½[ï¿½Wï¿½ï¿½ï¿½ó‚¯‚éˆï¿½ï¿½
     /// </summary>
-    /// <param name="damage">ó‚¯‚éƒ_ƒ[ƒW—Ê</param>
+    /// <param name="damage">ï¿½ó‚¯‚ï¿½_ï¿½ï¿½ï¿½[ï¿½Wï¿½ï¿½</param>
     public void TakeDamage(int damage)
     {
-        // –hŒä—Í‚ğl—¶‚µ‚½ÀÛ‚Ìƒ_ƒ[ƒW—Ê‚ğŒvZ
+        // ï¿½hï¿½ï¿½Í‚ï¿½ï¿½lï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Û‚Ìƒ_ï¿½ï¿½ï¿½[ï¿½Wï¿½Ê‚ï¿½ï¿½vï¿½Z
         int effectiveDamage = Mathf.Max(damage - _currentDefense, 1);
 
-        // —”‚ğ‰Á‚¦‚Äƒ_ƒ[ƒW—Ê‚ğ•Ï“®‚³‚¹‚éi—á: }10%‚Ì”ÍˆÍ‚Å•Ï“®j
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Äƒ_ï¿½ï¿½ï¿½[ï¿½Wï¿½Ê‚ï¿½Ï“ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½iï¿½ï¿½: ï¿½}10%ï¿½Ì”ÍˆÍ‚Å•Ï“ï¿½ï¿½j
         float randomFactor = Random.Range(0.9f, 1.1f);
         effectiveDamage = Mathf.RoundToInt(effectiveDamage * randomFactor);
 
-        // Œ»İ‚Ì‘Ì—Í‚ğŒ¸­‚³‚¹‚é
+        // ï¿½ï¿½ï¿½İ‚Ì‘Ì—Í‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         _currentHealth = Mathf.Max(_currentHealth - effectiveDamage, 0);
     }
 
     /// <summary>
-    /// MP‚ğÁ”ï‚·‚éˆ—
+    /// MPï¿½ï¿½ï¿½ï¿½ï¿½ï‚·ï¿½éˆï¿½ï¿½
     /// </summary>
-    /// <param name="amount">Á”ï‚·‚éMP—Ê</param>
-    /// <returns>ƒRƒXƒg‚ğÁ”ï‚Å‚«‚½‚©‚Ç‚¤‚©</returns>
+    /// <param name="amount">ï¿½ï¿½ï¿½ï‚·ï¿½ï¿½MPï¿½ï¿½</param>
+    /// <returns>ï¿½Rï¿½Xï¿½gï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Å‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç‚ï¿½ï¿½ï¿½</returns>
     public bool TryUseMP(int amount)
     {
-        // MP‚ª‘«‚è‚éê‡‚Ì‚İÁ”ï‚·‚é
+        // MPï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ê‡ï¿½Ì‚İï¿½ï¿½ï‚·ï¿½ï¿½
         if (_currentMP >= amount)
         {
             _currentMP -= amount;
