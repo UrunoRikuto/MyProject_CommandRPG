@@ -2,9 +2,9 @@ using UnityEngine;
 
 public class CS_SkillCommand : IBattleCommand
 {
-    public string commandName => "ƒXƒLƒ‹g—p";
+    public string commandName => "ã‚¹ã‚­ãƒ«ä½¿ç”¨";
 
-    // g—p‚·‚éƒXƒLƒ‹‚ÌƒCƒ“ƒfƒbƒNƒX
+    // ä½¿ç”¨ã™ã‚‹ã‚¹ã‚­ãƒ«ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹
     private int _skillIndex;
 
     public CS_SkillCommand(int skillIndex)
@@ -14,21 +14,21 @@ public class CS_SkillCommand : IBattleCommand
 
     public void Execute(CS_BattleContext context, CS_CharacterState user, CS_CharacterState target)
     {
-        // ƒXƒLƒ‹‚ÌƒCƒ“ƒfƒbƒNƒX‚ª—LŒø‚©Šm”F
+        // ã‚¹ã‚­ãƒ«ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãŒæœ‰åŠ¹ã‹ç¢ºèª
         if (_skillIndex < 0 || _skillIndex >= user.currentSkills.Count) return;
 
-        // g—p‚·‚éƒXƒLƒ‹‚Ìƒf[ƒ^‚ğæ“¾
+        // ä½¿ç”¨ã™ã‚‹ã‚¹ã‚­ãƒ«ã®ãƒ‡ãƒ¼ã‚¿ã‚’å–å¾—
         CSO_SkillData useSkillData = user.currentSkills[_skillIndex];
 
-        // ƒXƒLƒ‹‚ÌƒRƒXƒg‚ğÁ”ï‚Å‚«‚é‚©Šm”F
+        // ã‚¹ã‚­ãƒ«ã®ã‚³ã‚¹ãƒˆã‚’æ¶ˆè²»ã§ãã‚‹ã‹ç¢ºèª
         if (!user.TryUseMP(useSkillData.cost)) return;
 
-        // ƒXƒLƒ‹‚Ìƒ_ƒ[ƒW‚ğŒvZ
+        // ã‚¹ã‚­ãƒ«ã®ãƒ€ãƒ¡ãƒ¼ã‚¸ã‚’è¨ˆç®—
         int damage = (int)(user.currentAttack * useSkillData.damageRate);
 
-        Debug.Log($"{user.characterName}‚Í{useSkillData.skillName}‚ğg—pI {target.characterName}‚É{damage}‚Ìƒ_ƒ[ƒW‚ğ—^‚¦‚½I");
+        Debug.Log($"{user.characterName}ã¯{useSkillData.skillName}ã‚’ä½¿ç”¨ï¼ {target.characterName}ã«{damage}ã®ãƒ€ãƒ¡ãƒ¼ã‚¸ã‚’ä¸ãˆãŸï¼");
 
-        // ƒ_ƒ[ƒW‚ğ—^‚¦‚é
+        // ãƒ€ãƒ¡ãƒ¼ã‚¸ã‚’ä¸ãˆã‚‹
         target.TakeDamage(damage);
     }
 }

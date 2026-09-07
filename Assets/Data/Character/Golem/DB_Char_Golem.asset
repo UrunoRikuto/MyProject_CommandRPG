@@ -13,11 +13,17 @@ MonoBehaviour:
   m_Name: DB_Char_Golem
   m_EditorClassIdentifier: Assembly-CSharp::CSO_CharacterData
   _characterName: Golem
+  _characterIcon: {fileID: 0}
   _baseHealth: 100
   _baseMP: 50
   _baseAttack: 10
   _baseDefense: 10
   _baseSpeed: 5
+  _healthGrowth: 10
+  _mpGrowth: 5
+  _attackGrowth: 5
+  _defenseGrowth: 10
+  _speedGrowth: 1
   _initialSkills: []
   _attackWeight: 1
   _skillWeights: []

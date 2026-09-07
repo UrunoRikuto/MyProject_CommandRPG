@@ -13,11 +13,17 @@ MonoBehaviour:
   m_Name: DB_Char_Skeleton
   m_EditorClassIdentifier: Assembly-CSharp::CSO_CharacterData
   _characterName: Skeleton
+  _characterIcon: {fileID: 0}
   _baseHealth: 30
   _baseMP: 50
   _baseAttack: 15
   _baseDefense: 10
   _baseSpeed: 10
+  _healthGrowth: 5
+  _mpGrowth: 5
+  _attackGrowth: 5
+  _defenseGrowth: 5
+  _speedGrowth: 5
   _initialSkills:
   - {fileID: 11400000, guid: 968072fb37107b549949e2d956b91c51, type: 2}
   _attackWeight: 1

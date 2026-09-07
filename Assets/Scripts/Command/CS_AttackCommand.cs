@@ -2,16 +2,16 @@ using UnityEngine;
 
 public class CS_AttackCommand : IBattleCommand
 {
-    public string commandName => "‚½‚½‚©‚¤";
+    public string commandName => "ãŸãŸã‹ã†";
 
     public void Execute(CS_BattleContext context, CS_CharacterState user, CS_CharacterState target)
     {
-        // UŒ‚—Í‚ğæ“¾
+        // æ”»æ’ƒåŠ›ã‚’å–å¾—
         int damage = user.currentAttack;
 
-        Debug.Log($"{user.characterName}‚Í{target.characterName}‚ÉUŒ‚‚µ‚½I");
+        Debug.Log($"{user.characterName}ã¯{target.characterName}ã«æ”»æ’ƒã—ãŸï¼");
 
-        // ƒ_ƒ[ƒW‚ğ—^‚¦‚é
+        // ãƒ€ãƒ¡ãƒ¼ã‚¸ã‚’ä¸ãˆã‚‹
         target.TakeDamage(damage);
     }
 }

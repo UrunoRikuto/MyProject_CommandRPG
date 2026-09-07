@@ -4,38 +4,38 @@ using UnityEngine;
 [RequireComponent(typeof(Collider2D))]
 public class CS_EncounterSymbol : MonoBehaviour
 {
-    [Header("ƒGƒ“ƒJƒEƒ“ƒg‚·‚éŠm—¦")]
+    [Header("ã‚¨ãƒ³ã‚«ã‚¦ãƒ³ãƒˆã™ã‚‹ç¢ºç‡")]
     [SerializeField]
     [Range(0f, 1f)]
     private float _encounterRate = 0.1f;
 
-    [Header("ƒGƒ“ƒJƒEƒ“ƒgƒf[ƒ^ƒŠƒXƒg")]
+    [Header("ã‚¨ãƒ³ã‚«ã‚¦ãƒ³ãƒˆãƒ‡ãƒ¼ã‚¿ãƒªã‚¹ãƒˆ")]
     [SerializeField]
     private List<CSO_EncounterData> _encounterData;
 
-    [Header("ƒGƒ“ƒJƒEƒ“ƒgƒN[ƒ‹ƒ^ƒCƒ€")]
+    [Header("ã‚¨ãƒ³ã‚«ã‚¦ãƒ³ãƒˆã‚¯ãƒ¼ãƒ«ã‚¿ã‚¤ãƒ ")]
     [SerializeField]
     private float _encounterCoolTime = 5f;
 
-    private float _currentCoolTime = 0f;// Œ»İ‚ÌƒN[ƒ‹ƒ^ƒCƒ€
+    private float _currentCoolTime = 0f;// ç¾åœ¨ã®ã‚¯ãƒ¼ãƒ«ã‚¿ã‚¤ãƒ 
 
     private void Start()
     {
-        // ƒRƒ‰ƒCƒ_[‚ğƒgƒŠƒK[‚Éİ’è
+        // ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ã‚’ãƒˆãƒªã‚¬ãƒ¼ã«è¨­å®š
         Collider2D collider = GetComponent<Collider2D>();
         collider.isTrigger = true;
 
         if (_encounterData == null || _encounterData.Count == 0)
         {
-            Debug.LogWarning($"{name}‚ÌƒGƒ“ƒJƒEƒ“ƒgƒf[ƒ^‚ªİ’è‚³‚ê‚Ä‚¢‚Ü‚¹‚ñB");
+            Debug.LogWarning($"{name}ã®ã‚¨ãƒ³ã‚«ã‚¦ãƒ³ãƒˆãƒ‡ãƒ¼ã‚¿ãŒè¨­å®šã•ã‚Œã¦ã„ã¾ã›ã‚“ã€‚");
         }
 
-        CS_ValueObserver.Instance.Register(gameObject, this, name + "‚ÌƒN[ƒ‹ƒ^ƒCƒ€", () => _currentCoolTime);
+        CS_ValueObserver.Instance.Register(gameObject, this, name + "ã®ã‚¯ãƒ¼ãƒ«ã‚¿ã‚¤ãƒ ", () => _currentCoolTime);
     }
 
     private void Update()
     {
-        // ƒN[ƒ‹ƒ^ƒCƒ€‚ğŒ¸­‚³‚¹‚é
+        // ã‚¯ãƒ¼ãƒ«ã‚¿ã‚¤ãƒ ã‚’æ¸›å°‘ã•ã›ã‚‹
         if (_currentCoolTime > 0f)
         {
             _currentCoolTime -= Time.deltaTime;
@@ -47,29 +47,29 @@ public class CS_EncounterSymbol : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        // ƒvƒŒƒCƒ„[‚ªÚG‚µ‚½ê‡
+        // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ãŒæ¥è§¦ã—ãŸå ´åˆ
         if (collision.GetComponent<CS_PlayerMove>() != null)
         {
-            // ƒN[ƒ‹ƒ^ƒCƒ€’†‚ÍƒGƒ“ƒJƒEƒ“ƒg‚µ‚È‚¢
+            // ã‚¯ãƒ¼ãƒ«ã‚¿ã‚¤ãƒ ä¸­ã¯ã‚¨ãƒ³ã‚«ã‚¦ãƒ³ãƒˆã—ãªã„
             if (_currentCoolTime > 0f)
                 return;
 
             if (_encounterData == null || _encounterData.Count == 0)
             {
-                Debug.LogWarning($"{name}‚ÌƒGƒ“ƒJƒEƒ“ƒgƒf[ƒ^‚ªİ’è‚³‚ê‚Ä‚¢‚Ü‚¹‚ñB");
+                Debug.LogWarning($"{name}ã®ã‚¨ãƒ³ã‚«ã‚¦ãƒ³ãƒˆãƒ‡ãƒ¼ã‚¿ãŒè¨­å®šã•ã‚Œã¦ã„ã¾ã›ã‚“ã€‚");
                 return;
             }
 
-            // ƒGƒ“ƒJƒEƒ“ƒgŠm—¦‚ÉŠî‚Ã‚¢‚ÄƒGƒ“ƒJƒEƒ“ƒg”»’è
+            // ã‚¨ãƒ³ã‚«ã‚¦ãƒ³ãƒˆç¢ºç‡ã«åŸºã¥ã„ã¦ã‚¨ãƒ³ã‚«ã‚¦ãƒ³ãƒˆåˆ¤å®š
             if (Random.value < _encounterRate)
             {
-                // ƒGƒ“ƒJƒEƒ“ƒgƒf[ƒ^‚ğƒ‰ƒ“ƒ_ƒ€‚É‘I‘ğ
+                // ã‚¨ãƒ³ã‚«ã‚¦ãƒ³ãƒˆãƒ‡ãƒ¼ã‚¿ã‚’ãƒ©ãƒ³ãƒ€ãƒ ã«é¸æŠ
                 CSO_EncounterData encounterData = _encounterData[Random.Range(0, _encounterData.Count)];
 
-                // ƒoƒgƒ‹‚ğƒŠƒNƒGƒXƒg
+                // ãƒãƒˆãƒ«ã‚’ãƒªã‚¯ã‚¨ã‚¹ãƒˆ
                 CS_GameManager.Instance.RequestBattle(encounterData);
 
-                // ƒN[ƒ‹ƒ^ƒCƒ€‚ğƒŠƒZƒbƒg
+                // ã‚¯ãƒ¼ãƒ«ã‚¿ã‚¤ãƒ ã‚’ãƒªã‚»ãƒƒãƒˆ
                 _currentCoolTime = _encounterCoolTime;
             }
         }

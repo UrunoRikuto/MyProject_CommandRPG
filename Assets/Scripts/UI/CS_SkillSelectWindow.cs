@@ -25,11 +25,11 @@ public class CS_SkillSelectWindow : MonoBehaviour
             button.onClick.AddListener(() => Select(capturedIndex));
         }
 
-        // ‚±‚±‚ÅƒŒƒCƒAƒEƒg‚ÌÄŒvZ
+        // ã“ã“ã§ãƒ¬ã‚¤ã‚¢ã‚¦ãƒˆã®å†è¨ˆç®—
         Canvas.ForceUpdateCanvases();
         LayoutRebuilder.ForceRebuildLayoutImmediate(_buttonParent.GetComponent<RectTransform>());
 
-        // Šm’è‚µ‚½‚‚³‚ğŒ³‚ÉƒXƒNƒ[ƒ‹ˆÊ’u‚ğİ’è‚·‚é
+        // ç¢ºå®šã—ãŸé«˜ã•ã‚’å…ƒã«ã‚¹ã‚¯ãƒ­ãƒ¼ãƒ«ä½ç½®ã‚’è¨­å®šã™ã‚‹
         _scrollRect.verticalNormalizedPosition = 1f;
     }
 

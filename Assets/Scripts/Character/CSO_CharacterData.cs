@@ -4,56 +4,81 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "DB_", menuName = "Scriptable Objects/DB_CharacterData")]
 public class CSO_CharacterData : ScriptableObject
 {
-    [Header("–¼‘O")]
+    [Header("åå‰")]
     [SerializeField]
     private string _characterName;
     public string characterName => _characterName;
 
-    [Header("ƒAƒCƒRƒ“")]
+    [Header("ã‚¢ã‚¤ã‚³ãƒ³")]
     [SerializeField]
     private Sprite _characterIcon;
     public Sprite characterIcon => _characterIcon;
 
-    [Header("Šî‘b‘Ì—Í")]
+    [Header("åŸºç¤ä½“åŠ›")]
     [SerializeField]
     private int _baseHealth;
     public int baseHealth => _baseHealth;
 
-    [Header("Šî‘bMP")]
+    [Header("åŸºç¤MP")]
     [SerializeField]
     private int _baseMP;
     public int baseMP => _baseMP;
 
-    [Header("Šî‘bUŒ‚—Í")]
+    [Header("åŸºç¤æ”»æ’ƒåŠ›")]
     [SerializeField]
     private int _baseAttack;
     public int baseAttack => _baseAttack;
 
-    [Header("Šî‘b–hŒä—Í")]
+    [Header("åŸºç¤é˜²å¾¡åŠ›")]
     [SerializeField]
     private int _baseDefense;
     public int baseDefense => _baseDefense;
 
-    [Header("Šî‘b‘¬“x")]
+    [Header("åŸºç¤é€Ÿåº¦")]
     [SerializeField]
     private int _baseSpeed;
     public int baseSpeed => _baseSpeed;
 
-    [Header("‰Šú‚©‚çŠ‚µ‚Ä‚¢‚éƒXƒLƒ‹ƒŠƒXƒg")]
+    [Header("ãƒ¬ãƒ™ãƒ«ã‚¢ãƒƒãƒ—æ™‚ã®ä½“åŠ›ä¸Šæ˜‡å€¤")]
+    [SerializeField]
+    private int _healthGrowth;
+    public int healthGrowth => _healthGrowth;
+
+    [Header("ãƒ¬ãƒ™ãƒ«ã‚¢ãƒƒãƒ—æ™‚ã®MPä¸Šæ˜‡å€¤")]
+    [SerializeField]
+    private int _mpGrowth;
+    public int mpGrowth => _mpGrowth;
+
+    [Header("ãƒ¬ãƒ™ãƒ«ã‚¢ãƒƒãƒ—æ™‚ã®æ”»æ’ƒåŠ›ä¸Šæ˜‡å€¤")]
+    [SerializeField]
+    private int _attackGrowth;
+    public int attackGrowth => _attackGrowth;
+
+    [Header("ãƒ¬ãƒ™ãƒ«ã‚¢ãƒƒãƒ—æ™‚ã®é˜²å¾¡åŠ›ä¸Šæ˜‡å€¤")]
+    [SerializeField]
+    private int _defenseGrowth;
+    public int defenseGrowth => _defenseGrowth;
+
+    [Header("ãƒ¬ãƒ™ãƒ«ã‚¢ãƒƒãƒ—æ™‚ã®é€Ÿåº¦ä¸Šæ˜‡å€¤")]
+    [SerializeField]
+    private int _speedGrowth;
+    public int speedGrowth => _speedGrowth;
+
+    [Header("åˆæœŸã‹ã‚‰æ‰€æŒã—ã¦ã„ã‚‹ã‚¹ã‚­ãƒ«ãƒªã‚¹ãƒˆ")]
     [SerializeField]
     private List<CSO_SkillData> _initialSkills;
     public IReadOnlyList<CSO_SkillData> initialSkills => _initialSkills;
 
-    [Header("AI‚ªu‚½‚½‚©‚¤v‚ğ‘I‚Ôd‚İ")]
+    [Header("AIãŒã€ŒãŸãŸã‹ã†ã€ã‚’é¸ã¶é‡ã¿")]
     [SerializeField] private float _attackWeight = 1f;
     public float attackWeight => _attackWeight;
-    [Header("AI‚ªŠeƒXƒLƒ‹‚ğ‘I‚Ôd‚İ")]
+    [Header("AIãŒå„ã‚¹ã‚­ãƒ«ã‚’é¸ã¶é‡ã¿")]
     [SerializeField] private List<float> _skillWeights;
     public IReadOnlyList<float> skillWeights => _skillWeights;
 
     void OnValidate()
     {
-        // ƒXƒLƒ‹‚Ì”‚Æd‚İ‚Ì”‚ªˆê’v‚·‚é‚æ‚¤‚É’²®
+        // ã‚¹ã‚­ãƒ«ã®æ•°ã¨é‡ã¿ã®æ•°ãŒä¸€è‡´ã™ã‚‹ã‚ˆã†ã«èª¿æ•´
         if (_skillWeights.Count != _initialSkills.Count)
         {
             int diff = _initialSkills.Count - _skillWeights.Count;
@@ -61,12 +86,12 @@ public class CSO_CharacterData : ScriptableObject
             {
                 for (int i = 0; i < diff; i++)
                 {
-                    _skillWeights.Add(0.0f); // ƒfƒtƒHƒ‹ƒg‚Ìd‚İ‚ğ’Ç‰Á
+                    _skillWeights.Add(0.0f); // ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã®é‡ã¿ã‚’è¿½åŠ 
                 }
             }
             else
             {
-                _skillWeights.RemoveRange(_skillWeights.Count + diff, -diff); // —]•ª‚Èd‚İ‚ğíœ
+                _skillWeights.RemoveRange(_skillWeights.Count + diff, -diff); // ä½™åˆ†ãªé‡ã¿ã‚’å‰Šé™¤
             }
         }
     }

@@ -1,5 +1,5 @@
 /// <summary>
-/// ���s�𔻒肷��B�܂��������Ă��Ȃ���΃R�}���h���͂ɖ߂�B
+/// 勝敗を判定する。まだ決着していなければコマンド入力に戻る。
 /// </summary>
 public class CS_BattleStateJudgeResult : IBattleState
 {

@@ -1,11 +1,11 @@
 public interface IBattleCommand
 {
-    /// <summary>•\¦—p‚ÌƒRƒ}ƒ“ƒh–¼</summary>
+    /// <summary>è¡¨ç¤ºç”¨ã®ã‚³ãƒãƒ³ãƒ‰å</summary>
     string commandName { get; }
 
-    /// <summary>s“®‚ğÀs‚·‚éB</summary>
-    /// <param name="context">í“¬ƒRƒ“ƒeƒLƒXƒg</param>
-    /// <param name="user">s“®‚·‚é‘¤</param>
-    /// <param name="target">‘ÎÛ</param>
+    /// <summary>è¡Œå‹•ã‚’å®Ÿè¡Œã™ã‚‹ã€‚</summary>
+    /// <param name="context">æˆ¦é—˜ã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆ</param>
+    /// <param name="user">è¡Œå‹•ã™ã‚‹å´</param>
+    /// <param name="target">å¯¾è±¡</param>
     void Execute(CS_BattleContext context, CS_CharacterState user, CS_CharacterState target);
 }

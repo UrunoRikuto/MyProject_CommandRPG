@@ -3,17 +3,17 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "DB_", menuName = "Scriptable Objects/DB_SkillData")]
 public class CSO_SkillData : ScriptableObject
 {
-    [Header("–¼‘O")]
+    [Header("åå‰")]
     [SerializeField] 
     private string _skillName;
     public string skillName => _skillName;
 
-    [Header("g—pƒRƒXƒg")]
+    [Header("ä½¿ç”¨ã‚³ã‚¹ãƒˆ")]
     [SerializeField]
     private int _cost;
     public int cost => _cost;
 
-    [Header("ƒ_ƒ[ƒW”{—¦")]
+    [Header("ãƒ€ãƒ¡ãƒ¼ã‚¸å€ç‡")]
     [SerializeField]
     private float _damageRate;
     public float damageRate => _damageRate;

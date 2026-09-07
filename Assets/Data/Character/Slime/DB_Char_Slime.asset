@@ -13,11 +13,17 @@ MonoBehaviour:
   m_Name: DB_Char_Slime
   m_EditorClassIdentifier: Assembly-CSharp::CSO_CharacterData
   _characterName: Slime
+  _characterIcon: {fileID: 0}
   _baseHealth: 10
   _baseMP: 0
   _baseAttack: 5
   _baseDefense: 0
   _baseSpeed: 5
+  _healthGrowth: 5
+  _mpGrowth: 0
+  _attackGrowth: 1
+  _defenseGrowth: 0
+  _speedGrowth: 1
   _initialSkills: []
   _attackWeight: 1
   _skillWeights: []

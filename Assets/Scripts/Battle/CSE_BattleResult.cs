@@ -1,22 +1,22 @@
 public enum CSE_BattleResult
 {
     /// <summary>
-    /// –¢Œˆ’…(í“¬Œp‘±’†)
+    /// æœªæ±ºç€(æˆ¦é—˜ç¶™ç¶šä¸­)
     /// </summary>
     None,
 
     /// <summary>
-    /// ƒvƒŒƒCƒ„[‘¤‚ÌŸ—˜
+    /// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼å´ã®å‹åˆ©
     /// </summary>
     Win,
 
     /// <summary>
-    /// ƒvƒŒƒCƒ„[‘¤‚Ì”s–k
+    /// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼å´ã®æ•—åŒ—
     /// </summary>
     Lose,
 
     /// <summary>
-    /// “¦‘–
+    /// é€ƒèµ°
     /// </summary>
     Escape
 }

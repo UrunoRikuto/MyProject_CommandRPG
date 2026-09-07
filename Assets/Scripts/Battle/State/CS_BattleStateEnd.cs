@@ -1,17 +1,17 @@
 using UnityEngine;
 
-/// <summary>í“¬I—¹BŒ‹‰Ê‚ğƒƒO‚Éo‚·(ƒŠƒUƒ‹ƒg‰‰o‚ÍƒtƒF[ƒY5‚Å’Ç‰Á—\’è)B</summary>
+/// <summary>æˆ¦é—˜çµ‚äº†ã€‚çµæœã‚’ãƒ­ã‚°ã«å‡ºã™(ãƒªã‚¶ãƒ«ãƒˆæ¼”å‡ºã¯ãƒ•ã‚§ãƒ¼ã‚º5ã§è¿½åŠ äºˆå®š)ã€‚</summary>
 public class CS_BattleStateEnd : IBattleState
 {
     public void Enter(CS_BattleContext context, CS_BattleStateMachine machine)
     {
         string message = context.result switch
         {
-            CSE_BattleResult.Win => "Ÿ—˜!",
-            CSE_BattleResult.Escape => "‚É‚°‚«‚Á‚½!",
-            _ => "”s–k..."
+            CSE_BattleResult.Win => "å‹åˆ©!",
+            CSE_BattleResult.Escape => "ã«ã’ãã£ãŸ!",
+            _ => "æ•—åŒ—..."
         };
-        Debug.Log($"í“¬I—¹: {message}");
+        Debug.Log($"æˆ¦é—˜çµ‚äº†: {message}");
 
         machine.NotifyBattleEnd(context.result);
     }

@@ -4,10 +4,10 @@ using UnityEngine;
 
 public class CS_BattleStateMachine : MonoBehaviour
 {
-    [SerializeField] 
+    [SerializeField]
     private List<CSO_CharacterData> _playerPartyData;
 
-    [SerializeField] 
+    [SerializeField]
     private List<CSO_CharacterData> _enemyPartyData;
 
     [SerializeField] private CS_CommandButtonInput _commandButtonInput;
@@ -34,26 +34,35 @@ public class CS_BattleStateMachine : MonoBehaviour
     {
         if (_hasStarted) return;
 
+        List<int> enemyLevels = null;
         var encounterData = CS_GameManager.Instance.ConsumePendingEncounter();
         if (encounterData != null)
         {
             _enemyPartyData.Clear();
+            enemyLevels = new List<int>();
             for (int i = 0; i < encounterData.enemyDataList.Count; i++)
             {
                 var enemyData = encounterData.enemyDataList[i];
                 if (enemyData != null)
                 {
                     _enemyPartyData.Add(enemyData);
+                    // エンカウントのレベル範囲内でランダムにレベルを決定する
+                    enemyLevels.Add(UnityEngine.Random.Range(encounterData.minLevel, encounterData.maxLevel + 1));
                 }
             }
         }
 
-        StartBattle(_playerPartyData, _enemyPartyData);
+        StartBattle(_playerPartyData, _enemyPartyData, enemyLevels);
     }
 
     public void StartBattle(List<CSO_CharacterData> playerPartyData, IReadOnlyList<CSO_CharacterData> enemyPartyData)
     {
-        BuildContext(playerPartyData, enemyPartyData);
+        StartBattle(playerPartyData, enemyPartyData, null);
+    }
+
+    public void StartBattle(List<CSO_CharacterData> playerPartyData, IReadOnlyList<CSO_CharacterData> enemyPartyData, IReadOnlyList<int> enemyLevels)
+    {
+        BuildContext(playerPartyData, enemyPartyData, enemyLevels);
 
         _characterUIWindow.CreateCharacterUI(_context.allyParty, _context.enemyParty);
 
@@ -62,14 +71,15 @@ public class CS_BattleStateMachine : MonoBehaviour
         _hasStarted = true;
     }
 
-    private void BuildContext(List<CSO_CharacterData> playerPartyData, IReadOnlyList<CSO_CharacterData> enemyPartyData)
+    private void BuildContext(List<CSO_CharacterData> playerPartyData, IReadOnlyList<CSO_CharacterData> enemyPartyData, IReadOnlyList<int> enemyLevels)
     {
         List<CS_PartyMemberState> partyState = CS_GameManager.Instance.GetOrInitializePartyState(playerPartyData);
 
         List<CS_CharacterState> playerParty = new List<CS_CharacterState>();
         for (int i = 0; i < playerPartyData.Count; i++)
         {
-            CS_CharacterState characterState = new CS_CharacterState(playerPartyData[i]);
+            int level = i < partyState.Count ? partyState[i].level : 1;
+            CS_CharacterState characterState = new CS_CharacterState(playerPartyData[i], level);
             if (i < partyState.Count)
             {
                 characterState.SetCurrentStats(partyState[i].currentHealth, partyState[i].currentMP);
@@ -77,9 +87,10 @@ public class CS_BattleStateMachine : MonoBehaviour
             playerParty.Add(characterState);
         }
         List<CS_CharacterState> enemyParty = new List<CS_CharacterState>();
-        foreach (var enemyData in enemyPartyData)
+        for (int i = 0; i < enemyPartyData.Count; i++)
         {
-            enemyParty.Add(new CS_CharacterState(enemyData));
+            int level = (enemyLevels != null && i < enemyLevels.Count) ? enemyLevels[i] : 1;
+            enemyParty.Add(new CS_CharacterState(enemyPartyData[i], level));
         }
         _context = new CS_BattleContext(playerParty, enemyParty);
     }
@@ -90,11 +101,11 @@ public class CS_BattleStateMachine : MonoBehaviour
     }
 
     /// <summary>
-    /// ��Ԃ�؂�ւ���
+    /// 状態を切り替える
     /// </summary>
     public void ChangeState(IBattleState nextState)
     {
-        // ����ChangeState���s���Ȃ�A���̑J�ڐ��\�񂷂邾��
+        // 既にChangeState実行中なら、次の遷移先を予約するだけ
         if (_isChangingState)
         {
             _pendingNextState = nextState;

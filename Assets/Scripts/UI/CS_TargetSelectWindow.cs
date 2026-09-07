@@ -19,7 +19,7 @@ public class CS_TargetSelectWindow : MonoBehaviour
 
         foreach (var candidate in candidates)
         {
-            if (candidate.isDead) continue; // ¶‘¶‚µ‚Ä‚¢‚é“G‚¾‚¯•\¦
+            if (candidate.isDead) continue; // ç”Ÿå­˜ã—ã¦ã„ã‚‹æ•µã ã‘è¡¨ç¤º
 
             CS_CharacterState capturedTarget = candidate;
             Button button = Instantiate(_targetButtonPrefab, _buttonParent);

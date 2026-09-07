@@ -13,11 +13,17 @@ MonoBehaviour:
   m_Name: DB_Char_Goblin
   m_EditorClassIdentifier: Assembly-CSharp::CSO_CharacterData
   _characterName: Goblin
+  _characterIcon: {fileID: 0}
   _baseHealth: 20
   _baseMP: 0
   _baseAttack: 10
   _baseDefense: 5
   _baseSpeed: 10
+  _healthGrowth: 5
+  _mpGrowth: 0
+  _attackGrowth: 5
+  _defenseGrowth: 5
+  _speedGrowth: 5
   _initialSkills: []
   _attackWeight: 1
   _skillWeights: []

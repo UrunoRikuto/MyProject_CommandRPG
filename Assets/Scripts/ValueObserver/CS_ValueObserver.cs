@@ -3,38 +3,38 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// •Ï”‚Ì’l‚ğƒŠƒAƒ‹ƒ^ƒCƒ€‚ÅŠÄ‹‚·‚éƒVƒXƒeƒ€
-/// Awake()‚âStart()‚Å•Ï”‚ğ“o˜^‚·‚é‚¾‚¯‚ÅAŒã‚Í‚±‚ÌƒVƒXƒeƒ€‚ª©“®ŠÇ—‚µ‚Ü‚·
+/// å¤‰æ•°ã®å€¤ã‚’ãƒªã‚¢ãƒ«ã‚¿ã‚¤ãƒ ã§ç›£è¦–ã™ã‚‹ã‚·ã‚¹ãƒ†ãƒ 
+/// Awake()ã‚„Start()ã§å¤‰æ•°ã‚’ç™»éŒ²ã™ã‚‹ã ã‘ã§ã€å¾Œã¯ã“ã®ã‚·ã‚¹ãƒ†ãƒ ãŒè‡ªå‹•ç®¡ç†ã—ã¾ã™
 /// </summary>
 public class CS_ValueObserver
 {
     /// <summary>
-    /// ŠÄ‹‘ÎÛ‚Ì•Ï”î•ñ
+    /// ç›£è¦–å¯¾è±¡ã®å¤‰æ•°æƒ…å ±
     /// </summary>
     public class ObservedValue
     {
-        /// <summary>•Ï”‚ª‘®‚·‚éƒIƒuƒWƒFƒNƒg</summary>
+        /// <summary>å¤‰æ•°ãŒå±ã™ã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</summary>
         public GameObject Target { get; set; }
 
-        /// <summary>•Ï”‚ª‘®‚·‚éƒRƒ“ƒ|[ƒlƒ“ƒg</summary>
+        /// <summary>å¤‰æ•°ãŒå±ã™ã‚‹ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆ</summary>
         public MonoBehaviour Component { get; set; }
 
-        /// <summary>•Ï”‚Ì–¼‘O</summary>
+        /// <summary>å¤‰æ•°ã®åå‰</summary>
         public string VariableName { get; set; }
 
-        /// <summary>•Ï”‚ğæ“¾‚·‚éƒfƒŠƒQ[ƒg</summary>
+        /// <summary>å¤‰æ•°ã‚’å–å¾—ã™ã‚‹ãƒ‡ãƒªã‚²ãƒ¼ãƒˆ</summary>
         public Func<object> GetValueFunc { get; set; }
 
-        /// <summary>Œ»İ‚Ì’l</summary>
+        /// <summary>ç¾åœ¨ã®å€¤</summary>
         public object CurrentValue { get; set; }
 
-        /// <summary>‘O‰ñ‚Ì’l</summary>
+        /// <summary>å‰å›ã®å€¤</summary>
         public object PreviousValue { get; set; }
 
-        /// <summary>“o˜^</summary>
+        /// <summary>ç™»éŒ²æ™‚åˆ»</summary>
         public DateTime RegistrationTime { get; set; }
 
-        /// <summary>ƒRƒ“ƒ|[ƒlƒ“ƒg‚ªíœ‚³‚ê‚½‚©</summary>
+        /// <summary>ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆãŒå‰Šé™¤ã•ã‚ŒãŸã‹</summary>
         public bool IsComponentDestroyed { get; set; }
 
         public ObservedValue()
@@ -48,7 +48,7 @@ public class CS_ValueObserver
     private Dictionary<string, ObservedValue> _observedValues = new Dictionary<string, ObservedValue>();
 
     /// <summary>
-    /// ƒVƒ“ƒOƒ‹ƒgƒ“ƒCƒ“ƒXƒ^ƒ“ƒX‚ğæ“¾
+    /// ã‚·ãƒ³ã‚°ãƒ«ãƒˆãƒ³ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã‚’å–å¾—
     /// </summary>
     public static CS_ValueObserver Instance
     {
@@ -63,13 +63,13 @@ public class CS_ValueObserver
     }
 
     /// <summary>
-    /// ŠÄ‹‘ÎÛ‚Ì•Ï”‚ğ“o˜^
+    /// ç›£è¦–å¯¾è±¡ã®å¤‰æ•°ã‚’ç™»éŒ²
     /// </summary>
-    /// <param name="target">‘ÎÛ‚Æ‚È‚éGameObject</param>
-    /// <param name="component">•Ï”‚ª‘®‚·‚éƒRƒ“ƒ|[ƒlƒ“ƒg</param>
-    /// <param name="variableName">•Ï”‚Ì–¼‘O</param>
-    /// <param name="getValueFunc">•Ï”‚Ì’l‚ğæ“¾‚·‚éƒfƒŠƒQ[ƒg</param>
-    /// <returns>“o˜^IDiŒã‚ÅQÆ‚·‚éê‡‚Ég—pj</returns>
+    /// <param name="target">å¯¾è±¡ã¨ãªã‚‹GameObject</param>
+    /// <param name="component">å¤‰æ•°ãŒå±ã™ã‚‹ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆ</param>
+    /// <param name="variableName">å¤‰æ•°ã®åå‰</param>
+    /// <param name="getValueFunc">å¤‰æ•°ã®å€¤ã‚’å–å¾—ã™ã‚‹ãƒ‡ãƒªã‚²ãƒ¼ãƒˆ</param>
+    /// <returns>ç™»éŒ²IDï¼ˆå¾Œã§å‚ç…§ã™ã‚‹å ´åˆã«ä½¿ç”¨ï¼‰</returns>
     public string Register(GameObject target, MonoBehaviour component, string variableName, Func<object> getValueFunc)
     {
         if (target == null || component == null || string.IsNullOrEmpty(variableName) || getValueFunc == null)
@@ -95,9 +95,9 @@ public class CS_ValueObserver
     }
 
     /// <summary>
-    /// ŠÄ‹‘ÎÛ‚Ì•Ï”‚ğ“o˜^‰ğœ
+    /// ç›£è¦–å¯¾è±¡ã®å¤‰æ•°ã‚’ç™»éŒ²è§£é™¤
     /// </summary>
-    /// <param name="registrationId">“o˜^‚É•Ô‚³‚ê‚½ID</param>
+    /// <param name="registrationId">ç™»éŒ²æ™‚ã«è¿”ã•ã‚ŒãŸID</param>
     public void Unregister(string registrationId)
     {
         if (_observedValues.ContainsKey(registrationId))
@@ -107,9 +107,9 @@ public class CS_ValueObserver
     }
 
     /// <summary>
-    /// ŠÄ‹‘ÎÛ‚Ì•Ï”‚Ì’l‚ğXV
+    /// ç›£è¦–å¯¾è±¡ã®å¤‰æ•°ã®å€¤ã‚’æ›´æ–°
     /// </summary>
-    /// <param name="registrationId">“o˜^ID</param>
+    /// <param name="registrationId">ç™»éŒ²ID</param>
     private void UpdateValue(string registrationId)
     {
         if (!_observedValues.ContainsKey(registrationId))
@@ -117,7 +117,7 @@ public class CS_ValueObserver
 
         ObservedValue observed = _observedValues[registrationId];
 
-        // ƒRƒ“ƒ|[ƒlƒ“ƒg‚ªíœ‚³‚ê‚½‚©ƒ`ƒFƒbƒN
+        // ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆãŒå‰Šé™¤ã•ã‚ŒãŸã‹ãƒã‚§ãƒƒã‚¯
         if (observed.Component == null || observed.Target == null)
         {
             observed.IsComponentDestroyed = true;
@@ -139,7 +139,7 @@ public class CS_ValueObserver
     }
 
     /// <summary>
-    /// ‚·‚×‚Ä‚ÌŠÄ‹‘ÎÛ‚Ì’l‚ğXV
+    /// ã™ã¹ã¦ã®ç›£è¦–å¯¾è±¡ã®å€¤ã‚’æ›´æ–°
     /// </summary>
     public void UpdateAllValues()
     {
@@ -149,7 +149,7 @@ public class CS_ValueObserver
         {
             UpdateValue(kvp.Key);
 
-            // íœ‚³‚ê‚½ƒRƒ“ƒ|[ƒlƒ“ƒg‚ÍƒŠƒXƒg‚©‚çíœ
+            // å‰Šé™¤ã•ã‚ŒãŸã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã¯ãƒªã‚¹ãƒˆã‹ã‚‰å‰Šé™¤
             if (kvp.Value.IsComponentDestroyed)
             {
                 keysToRemove.Add(kvp.Key);
@@ -163,7 +163,7 @@ public class CS_ValueObserver
     }
 
     /// <summary>
-    /// ‚·‚×‚Ä‚ÌŠÄ‹‘ÎÛ‚Ì’l‚ğæ“¾
+    /// ã™ã¹ã¦ã®ç›£è¦–å¯¾è±¡ã®å€¤ã‚’å–å¾—
     /// </summary>
     public Dictionary<string, ObservedValue> GetAllObservedValues()
     {
@@ -171,7 +171,7 @@ public class CS_ValueObserver
     }
 
     /// <summary>
-    /// ŠÄ‹‘ÎÛ‚Ì”‚ğæ“¾
+    /// ç›£è¦–å¯¾è±¡ã®æ•°ã‚’å–å¾—
     /// </summary>
     public int GetObservedValueCount()
     {
@@ -179,7 +179,7 @@ public class CS_ValueObserver
     }
 
     /// <summary>
-    /// “o˜^ID‚ğ¶¬
+    /// ç™»éŒ²IDã‚’ç”Ÿæˆ
     /// </summary>
     private string GenerateRegistrationId(GameObject target, MonoBehaviour component, string variableName)
     {
@@ -187,7 +187,7 @@ public class CS_ValueObserver
     }
 
     /// <summary>
-    /// ƒCƒ“ƒXƒ^ƒ“ƒX‚ğƒNƒŠƒAiƒGƒfƒBƒ^‚ÌI—¹‚È‚Çj
+    /// ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã‚’ã‚¯ãƒªã‚¢ï¼ˆã‚¨ãƒ‡ã‚£ã‚¿ã®çµ‚äº†æ™‚ãªã©ï¼‰
     /// </summary>
     public void Clear()
     {

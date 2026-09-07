@@ -11,7 +11,7 @@ public class CS_BattleStateActionExecute : IBattleState
             if (target.isDead)
             {
                 target = context.PickRandomLivingTarget(context.GetOpposingParty(entry.actor));
-                if (target == null) continue; // ���肪�S�ł��Ă����炱�̍s���̓L�����Z��
+                if (target == null) continue; // 相手が全滅していたらこの行動はキャンセル
             }
 
             entry.command.Execute(context, entry.actor, target);

@@ -3,23 +3,23 @@ using UnityEngine;
 
 public class CS_BattleContext
 {
-    // ƒvƒŒƒCƒ„[‚Ìó‘Ô
+    // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®çŠ¶æ…‹
     private readonly List<CS_CharacterState> _allyParty;
     public IReadOnlyList<CS_CharacterState> allyParty => _allyParty;
-    // ƒvƒŒƒCƒ„[‚ª‘€ì‚·‚éƒLƒƒƒ‰ƒNƒ^[‚Ìó‘Ô
+    // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ãŒæ“ä½œã™ã‚‹ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ã®çŠ¶æ…‹
     public CS_CharacterState playerState => _allyParty.Count > 0 ? _allyParty[0] : null;
-    // ƒvƒŒƒCƒ„[ˆÈŠO‚Ì–¡•ûƒLƒƒƒ‰ƒNƒ^[‚Ìó‘Ô
+    // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ä»¥å¤–ã®å‘³æ–¹ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ã®çŠ¶æ…‹
     public IReadOnlyList<CS_CharacterState> allyPartyWithoutPlayer => _allyParty.Count > 1 ? _allyParty.GetRange(1, _allyParty.Count - 1) : new List<CS_CharacterState>();
 
-    // “G‚Ìó‘Ô
+    // æ•µã®çŠ¶æ…‹
     private readonly List<CS_CharacterState> _enemyParty;
     public IReadOnlyList<CS_CharacterState> enemyParty => _enemyParty;
 
-    // s“®‡ƒLƒ…[
+    // è¡Œå‹•é †ã‚­ãƒ¥ãƒ¼
     private readonly Queue<CS_BattleActionEntry> _actionQueue = new Queue<CS_BattleActionEntry>();
     public Queue<CS_BattleActionEntry> actionQueue => _actionQueue;
 
-    // w’è‚µ‚½ƒLƒƒƒ‰ƒNƒ^[‚ÌŠ‘®‚·‚éƒp[ƒeƒB[‚Ì‘Šè‘¤‚Ìƒp[ƒeƒB[‚ğ•Ô‚·
+    // æŒ‡å®šã—ãŸã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ã®æ‰€å±ã™ã‚‹ãƒ‘ãƒ¼ãƒ†ã‚£ãƒ¼ã®ç›¸æ‰‹å´ã®ãƒ‘ãƒ¼ãƒ†ã‚£ãƒ¼ã‚’è¿”ã™
     public IReadOnlyList<CS_CharacterState> GetOpposingParty(CS_CharacterState actor)
     {
         return _allyParty.Contains(actor) ? (IReadOnlyList<CS_CharacterState>)_enemyParty : _allyParty;
@@ -35,7 +35,7 @@ public class CS_BattleContext
         return living.Count > 0 ? living[Random.Range(0, living.Count)] : null;
     }
 
-    // í“¬Œ‹‰Ê
+    // æˆ¦é—˜çµæœ
     public CSE_BattleResult result { get; set; } = CSE_BattleResult.None;
 
     public CS_BattleContext(List<CS_CharacterState> playerParty, List<CS_CharacterState> enemyParty)

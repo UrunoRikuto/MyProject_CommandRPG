@@ -4,7 +4,7 @@ public static class CS_BattleAI
 {
     public static IBattleCommand DecideCommand(CS_CharacterState actor)
     {
-        // MP‚ª‘«‚è‚È‚¢ƒXƒLƒ‹‚Í‘I‘ğˆ‚©‚çœŠO‚µ‚Ä‚¨‚­(‘I‚ñ‚Å‚à•s”­‚É‚È‚é‚¾‚¯‚È‚Ì‚Å)
+        // MPãŒè¶³ã‚Šãªã„ã‚¹ã‚­ãƒ«ã¯é¸æŠè‚¢ã‹ã‚‰é™¤å¤–ã—ã¦ãŠã(é¸ã‚“ã§ã‚‚ä¸ç™ºã«ãªã‚‹ã ã‘ãªã®ã§)
         float totalWeight = actor.attackWeight;
         for (int i = 0; i < actor.currentSkills.Count; i++)
         {
@@ -27,6 +27,6 @@ public static class CS_BattleAI
             roll -= actor.skillWeights[i];
         }
 
-        return new CS_AttackCommand(); // •ÛŒ¯(‚±‚±‚É‚ÍŠî–{“’B‚µ‚È‚¢)
+        return new CS_AttackCommand(); // ä¿é™º(ã“ã“ã«ã¯åŸºæœ¬åˆ°é”ã—ãªã„)
     }
 }

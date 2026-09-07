@@ -42,7 +42,7 @@ public class CS_BattleStateCommandInput : IBattleState
 
     private void HandleCommandDecided(IBattleCommand command, CS_CharacterState target)
     {
-        // ‚É‚°‚é‚Ítarget==null‚Å“Í‚­‚Ì‚ÅA‘f‘‚³”äŠr‚ÌŠî€‚Æ‚µ‚Ä¶‘¶’†‚Ì“G‚©‚çƒ‰ƒ“ƒ_ƒ€‚É1‘Ì•â‚¤
+        // ã«ã’ã‚‹ã¯target==nullã§å±Šãã®ã§ã€ç´ æ—©ã•æ¯”è¼ƒã®åŸºæº–ã¨ã—ã¦ç”Ÿå­˜ä¸­ã®æ•µã‹ã‚‰ãƒ©ãƒ³ãƒ€ãƒ ã«1ä½“è£œã†
         CS_CharacterState resolvedTarget = target ?? _context.PickRandomLivingTarget(_context.enemyParty);
         if (resolvedTarget != null)
         {

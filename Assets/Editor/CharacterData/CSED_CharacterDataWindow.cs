@@ -270,6 +270,7 @@ public class CSED_CharacterDataWindow : EditorWindow
 
         EditorGUILayout.BeginVertical(EditorStyles.helpBox);
         DrawStatRow(character, serializedObject);
+        DrawGrowthRow(serializedObject);
         if (_expandedCharacters.Contains(character))
         {
             DrawSkillList(character, serializedObject);
@@ -306,6 +307,26 @@ public class CSED_CharacterDataWindow : EditorWindow
         GUILayout.Space(RESIZE_HANDLE_WIDTH);
 
         EditorGUILayout.LabelField($"{character.initialSkills.Count}個", GUILayout.Width(_columnWidths[(int)Column.SkillCount]));
+
+        EditorGUILayout.EndHorizontal();
+    }
+
+    /// <summary>
+    /// 各基礎ステータスの真下に、レベルアップ時の上昇値を表示する行
+    /// </summary>
+    private void DrawGrowthRow(SerializedObject serializedObject)
+    {
+        EditorGUILayout.BeginHorizontal();
+
+        GUILayout.Space(FOLDOUT_WIDTH);
+        GUILayout.Label("Lv+", EditorStyles.miniLabel, GUILayout.Width(_columnWidths[(int)Column.Name]));
+        GUILayout.Space(RESIZE_HANDLE_WIDTH);
+
+        DrawStatProperty(serializedObject, "_healthGrowth", Column.Health);
+        DrawStatProperty(serializedObject, "_mpGrowth", Column.MP);
+        DrawStatProperty(serializedObject, "_attackGrowth", Column.Attack);
+        DrawStatProperty(serializedObject, "_defenseGrowth", Column.Defense);
+        DrawStatProperty(serializedObject, "_speedGrowth", Column.Speed);
 
         EditorGUILayout.EndHorizontal();
     }

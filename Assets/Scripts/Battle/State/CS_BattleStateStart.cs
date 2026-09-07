@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// �퓬�J�n���o(����̓��O�̂�)�B�����ɃR�}���h���͂֐i�ށB
+/// 戦闘開始演出(現状はログのみ)。すぐにコマンド入力へ進む。
 /// </summary>
 public class CS_BattleStateStart : IBattleState
 {

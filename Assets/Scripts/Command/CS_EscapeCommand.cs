@@ -2,20 +2,20 @@ using UnityEngine;
 
 public class CS_EscapeCommand : IBattleCommand
 {
-    public string commandName => "‚É‚°‚é";
+    public string commandName => "ã«ã’ã‚‹";
 
-    // “¦‚°‚éŠm—¦‚ÌŒÅ’è’l
-    private const float _escapeSuccessRate = 0.5f; // 50%‚ÌŠm—¦‚Å“¦‚°‚é‚±‚Æ‚ª‚Å‚«‚é
+    // é€ƒã’ã‚‹ç¢ºç‡ã®å›ºå®šå€¤
+    private const float _escapeSuccessRate = 0.5f; // 50%ã®ç¢ºç‡ã§é€ƒã’ã‚‹ã“ã¨ãŒã§ãã‚‹
 
     public void Execute(CS_BattleContext context, CS_CharacterState user, CS_CharacterState target)
     {
-        // Šm—¦‚ğ‘¬“x”äŠr‚µ‚Ä’²®
+        // ç¢ºç‡ã‚’é€Ÿåº¦æ¯”è¼ƒã—ã¦èª¿æ•´
         float speedRatio = (float)user.currentSpeed / target.currentSpeed;
-        float adjustedEscapeRate = Mathf.Min(_escapeSuccessRate * speedRatio, 1.0f); // Å‘å‚Å100%‚É§ŒÀ
+        float adjustedEscapeRate = Mathf.Min(_escapeSuccessRate * speedRatio, 1.0f); // æœ€å¤§ã§100%ã«åˆ¶é™
 
-        // “¦‚°‚é”»’è
+        // é€ƒã’ã‚‹åˆ¤å®š
         if (Random.value >= adjustedEscapeRate) return;
 
-        context.result = CSE_BattleResult.Escape; // “¦‚°‚é‚±‚Æ‚É¬Œ÷‚µ‚½ê‡‚ÌŒ‹‰Ê‚ğİ’è
+        context.result = CSE_BattleResult.Escape; // é€ƒã’ã‚‹ã“ã¨ã«æˆåŠŸã—ãŸå ´åˆã®çµæœã‚’è¨­å®š
     }
 }

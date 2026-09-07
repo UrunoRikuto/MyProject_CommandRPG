@@ -13,11 +13,17 @@ MonoBehaviour:
   m_Name: DB_Char_Wyvern
   m_EditorClassIdentifier: Assembly-CSharp::CSO_CharacterData
   _characterName: Wyvern
+  _characterIcon: {fileID: 0}
   _baseHealth: 100
   _baseMP: 100
   _baseAttack: 30
   _baseDefense: 30
   _baseSpeed: 30
+  _healthGrowth: 10
+  _mpGrowth: 10
+  _attackGrowth: 5
+  _defenseGrowth: 5
+  _speedGrowth: 5
   _initialSkills:
   - {fileID: 11400000, guid: be628395a962df946a66753b2128d4a9, type: 2}
   - {fileID: 11400000, guid: 9d530d8d0755a334b903445c2a7b23b6, type: 2}

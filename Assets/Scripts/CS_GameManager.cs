@@ -74,7 +74,8 @@ public class CS_GameManager : MonoBehaviour
                 {
                     characterName = data.characterName,
                     currentHealth = data.baseHealth,
-                    currentMP = data.baseMP
+                    currentMP = data.baseMP,
+                    level = 1
                 });
             }
         }
@@ -115,10 +116,20 @@ public class CS_GameManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 現在のプレイヤー位置とパーティ状態をセーブデータとして保存する
+    /// 現在のプレイヤー位置とパーティ状態をセーブデータとして保存する。
+    /// ポーズメニューなど、戦闘を経由せずに呼ばれる場合に備えて_playerを保険で探しておく
     /// </summary>
-    private void SaveGame()
+    public void SaveGame()
     {
+        if (_player == null)
+        {
+            var player = GameObject.FindAnyObjectByType<CS_PlayerMove>();
+            if (player != null)
+            {
+                _player = player.gameObject;
+            }
+        }
+
         var saveData = new CS_SaveData
         {
             playerPosition = _player != null ? _player.transform.position : Vector3.zero,

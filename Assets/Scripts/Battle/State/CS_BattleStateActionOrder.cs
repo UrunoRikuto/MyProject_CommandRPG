@@ -7,7 +7,7 @@ public class CS_BattleStateActionOrder : IBattleState
     {
         List<CS_BattleActionEntry> sorted = context.actionQueue
             .OrderByDescending(e => e.actor.currentSpeed)
-            .ThenByDescending(e => context.allyParty.Contains(e.actor)) // “¯‘¬‚ÍƒvƒŒƒCƒ„[‘¤—Dæ
+            .ThenByDescending(e => context.allyParty.Contains(e.actor)) // åŒé€Ÿã¯ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼å´å„ªå…ˆ
             .ToList();
 
         context.actionQueue.Clear();
