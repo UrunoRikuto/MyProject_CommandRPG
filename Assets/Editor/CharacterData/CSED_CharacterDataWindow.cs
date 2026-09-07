@@ -36,6 +36,7 @@ public class CSED_CharacterDataWindow : EditorWindow
     private Vector2 _scrollPosition = Vector2.zero;
     private List<CSO_CharacterData> _characters = new List<CSO_CharacterData>();
     private HashSet<CSO_CharacterData> _expandedCharacters = new HashSet<CSO_CharacterData>();
+    private Dictionary<CSO_CharacterData, int> _previewLevels = new Dictionary<CSO_CharacterData, int>();
     private string _filterText = "";
 
     private float[] _columnWidths = (float[])DEFAULT_COLUMN_WIDTHS.Clone();
@@ -271,6 +272,7 @@ public class CSED_CharacterDataWindow : EditorWindow
         EditorGUILayout.BeginVertical(EditorStyles.helpBox);
         DrawStatRow(character, serializedObject);
         DrawGrowthRow(serializedObject);
+        DrawPreviewRow(character);
         if (_expandedCharacters.Contains(character))
         {
             DrawSkillList(character, serializedObject);
@@ -329,6 +331,44 @@ public class CSED_CharacterDataWindow : EditorWindow
         DrawStatProperty(serializedObject, "_speedGrowth", Column.Speed);
 
         EditorGUILayout.EndHorizontal();
+    }
+
+    /// <summary>
+    /// 指定したレベルに達した時点でのステータス(基礎値+上昇値×(レベル-1))を確認できる行。
+    /// レベル欄は編集可能だが、保存はされない(このウィンドウ内でのプレビュー専用)
+    /// </summary>
+    private void DrawPreviewRow(CSO_CharacterData character)
+    {
+        EditorGUILayout.BeginHorizontal();
+
+        GUILayout.Space(FOLDOUT_WIDTH);
+
+        if (!_previewLevels.TryGetValue(character, out int previewLevel))
+        {
+            previewLevel = 1;
+        }
+
+        GUILayout.Label("Lv", EditorStyles.miniLabel, GUILayout.Width(22));
+        float levelFieldWidth = Mathf.Max(30f, _columnWidths[(int)Column.Name] - 22);
+        int newLevel = EditorGUILayout.IntField(previewLevel, GUILayout.Width(levelFieldWidth));
+        newLevel = Mathf.Clamp(newLevel, 1, CS_CharacterState.MAX_LEVEL);
+        _previewLevels[character] = newLevel;
+        GUILayout.Space(RESIZE_HANDLE_WIDTH);
+
+        int levelBonus = newLevel - 1;
+        DrawPreviewValue(character.baseHealth + character.healthGrowth * levelBonus, Column.Health);
+        DrawPreviewValue(character.baseMP + character.mpGrowth * levelBonus, Column.MP);
+        DrawPreviewValue(character.baseAttack + character.attackGrowth * levelBonus, Column.Attack);
+        DrawPreviewValue(character.baseDefense + character.defenseGrowth * levelBonus, Column.Defense);
+        DrawPreviewValue(character.baseSpeed + character.speedGrowth * levelBonus, Column.Speed);
+
+        EditorGUILayout.EndHorizontal();
+    }
+
+    private void DrawPreviewValue(int value, Column column)
+    {
+        EditorGUILayout.LabelField(value.ToString(), GUILayout.Width(_columnWidths[(int)column]));
+        GUILayout.Space(RESIZE_HANDLE_WIDTH);
     }
 
     private void DrawFoldoutButton(CSO_CharacterData character)
