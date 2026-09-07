@@ -25,6 +25,11 @@ public class CS_EncounterSymbol : MonoBehaviour
         Collider2D collider = GetComponent<Collider2D>();
         collider.isTrigger = true;
 
+        if (_encounterData == null || _encounterData.Count == 0)
+        {
+            Debug.LogWarning($"{name}のエンカウントデータが設定されていません。");
+        }
+
         CS_ValueObserver.Instance.Register(gameObject, this, name + "のクールタイム", () => _currentCoolTime);
     }
 
@@ -48,6 +53,13 @@ public class CS_EncounterSymbol : MonoBehaviour
             // クールタイム中はエンカウントしない
             if (_currentCoolTime > 0f)
                 return;
+
+            if (_encounterData == null || _encounterData.Count == 0)
+            {
+                Debug.LogWarning($"{name}のエンカウントデータが設定されていません。");
+                return;
+            }
+
             // エンカウント確率に基づいてエンカウント判定
             if (Random.value < _encounterRate)
             {
@@ -58,6 +70,11 @@ public class CS_EncounterSymbol : MonoBehaviour
                 Debug.Log($"エンカウント！：");
                 for (int i = 0; i < encounterData.enemyDataList.Count; i++)
                 {
+                    if (encounterData.enemyDataList[i] == null)
+                    {
+                        Debug.LogWarning($"エンカウントデータの敵データが設定されていません。");
+                        continue;
+                    }
                     Debug.Log($"敵{i + 1}：{encounterData.enemyDataList[i].characterName}");
                 }
                 // ----------------------------------------------------- //
