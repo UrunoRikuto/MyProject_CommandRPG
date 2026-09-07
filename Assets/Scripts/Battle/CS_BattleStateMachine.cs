@@ -22,23 +22,20 @@ public class CS_BattleStateMachine : MonoBehaviour
     private bool _hasPendingNextState;
 
 
-    private void Awake()
+    private void BuildContext(List<CSO_CharacterData> playerPartyData, List<CSO_CharacterData> enemyPartyData)
     {
         List<CS_CharacterState> playerParty = new List<CS_CharacterState>();
-        foreach (var playerData in _playerPartyData)
+        foreach (var playerData in playerPartyData)
         {
             playerParty.Add(new CS_CharacterState(playerData));
         }
         List<CS_CharacterState> enemyParty = new List<CS_CharacterState>();
-        foreach (var enemyData in _enemyPartyData)
+        foreach (var enemyData in enemyPartyData)
         {
             enemyParty.Add(new CS_CharacterState(enemyData));
         }
         _context = new CS_BattleContext(playerParty, enemyParty);
-    }
 
-    private void Start()
-    {
         ChangeState(new CS_BattleStateStart());
     }
 
