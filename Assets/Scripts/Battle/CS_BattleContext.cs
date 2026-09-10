@@ -3,13 +3,9 @@ using UnityEngine;
 
 public class CS_BattleContext
 {
-    // プレイヤーの状態
+    // 味方の状態(全員ボタン操作で行動を決定する)
     private readonly List<CS_CharacterState> _allyParty;
     public IReadOnlyList<CS_CharacterState> allyParty => _allyParty;
-    // プレイヤーが操作するキャラクターの状態
-    public CS_CharacterState playerState => _allyParty.Count > 0 ? _allyParty[0] : null;
-    // プレイヤー以外の味方キャラクターの状態
-    public IReadOnlyList<CS_CharacterState> allyPartyWithoutPlayer => _allyParty.Count > 1 ? _allyParty.GetRange(1, _allyParty.Count - 1) : new List<CS_CharacterState>();
 
     // 敵の状態
     private readonly List<CS_CharacterState> _enemyParty;

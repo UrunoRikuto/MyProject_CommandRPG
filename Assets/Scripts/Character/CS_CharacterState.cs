@@ -125,4 +125,13 @@ public class CS_CharacterState
         _currentHealth = Mathf.Clamp(health, 0, _maxHealth);
         _currentMP = Mathf.Clamp(mp, 0, _maxMP);
     }
+
+    /// <summary>
+    /// 体力・MPを最大値まで回復する(敗北時の全回復など)
+    /// </summary>
+    public void FullHeal()
+    {
+        _currentHealth = _maxHealth;
+        _currentMP = _maxMP;
+    }
 }

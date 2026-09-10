@@ -16,14 +16,34 @@ public class CS_CharacterUI : MonoBehaviour
     [SerializeField]
     private RectTransform _mpBarRect;
 
+    [SerializeField]
+    private RectTransform _turnIndicatorRect;
+
     private Image _characterImage;
     public Image characterImage => _characterImage;
 
     private CS_CharacterState _characterState;
+    private Vector2 _turnIndicatorBasePos;
 
     private void Awake()
     {
         _characterImage = GetComponent<Image>();
+        if (_turnIndicatorRect != null)
+        {
+            _turnIndicatorBasePos = _turnIndicatorRect.anchoredPosition;
+            _turnIndicatorRect.gameObject.SetActive(false);
+        }
+    }
+
+    /// <summary>
+    /// 行動選択中であることを示すマーカーの表示/非表示を切り替える
+    /// </summary>
+    public void SetTurnIndicator(bool active)
+    {
+        if (_turnIndicatorRect != null)
+        {
+            _turnIndicatorRect.gameObject.SetActive(active);
+        }
     }
 
     public void SetCharacterState(CS_CharacterState characterState)
@@ -64,5 +84,11 @@ public class CS_CharacterUI : MonoBehaviour
         _mpFillImage.fillAmount = _characterState.maxMP > 0
             ? (float)_characterState.currentMP / _characterState.maxMP
             : 0f;
+
+        if (_turnIndicatorRect != null && _turnIndicatorRect.gameObject.activeSelf)
+        {
+            float bob = Mathf.Sin(Time.time * 4f) * 6f;
+            _turnIndicatorRect.anchoredPosition = _turnIndicatorBasePos + new Vector2(0, bob);
+        }
     }
 }

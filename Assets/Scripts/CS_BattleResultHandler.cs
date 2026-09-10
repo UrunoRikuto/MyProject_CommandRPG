@@ -10,6 +10,15 @@ public class CS_BattleResultHandler : MonoBehaviour
 
     private void HandleBattleEnd(CSE_BattleResult result)
     {
+        if (result == CSE_BattleResult.Lose)
+        {
+            // 敗北時は体力・MPを全回復させてから町に戻す
+            foreach (var ally in _battleStateMachine.context.allyParty)
+            {
+                ally.FullHeal();
+            }
+        }
+
         CS_GameManager.Instance.UpdatePartyState(_battleStateMachine.context.allyParty);
 
         switch (result)

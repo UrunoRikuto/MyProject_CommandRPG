@@ -19,8 +19,11 @@ public class CS_CharacterUIWindow : MonoBehaviour
     [Header("キャラクターUIのプレハブ")]
     private GameObject _characterUIPrefab;
 
+    private readonly Dictionary<CS_CharacterState, CS_CharacterUI> _characterUIByState = new Dictionary<CS_CharacterState, CS_CharacterUI>();
+
     public void CreateCharacterUI(IReadOnlyList<CS_CharacterState> allyParty, IReadOnlyList<CS_CharacterState> enemyParty)
     {
+        _characterUIByState.Clear();
         CreateCharacterIcons(allyParty, _allyUIParent, isEnemy: false);
         CreateCharacterIcons(enemyParty, _enemyUIParent, isEnemy: true);
     }
@@ -37,10 +40,22 @@ public class CS_CharacterUIWindow : MonoBehaviour
             characterUIScript.characterImage.sprite = party[i].characterIcon;
             characterUIScript.SetCharacterState(party[i]);
             characterUIScript.SetTeamSide(isEnemy);
+            _characterUIByState[party[i]] = characterUIScript;
 
             // アイコン位置を設定(人数が偶数でも中央揃えになるようfloatで計算)
             RectTransform rectTransform = characterUI.GetComponent<RectTransform>();
             rectTransform.anchoredPosition = new Vector2((i - (party.Count - 1) / 2f) * _iconWidth, 0);
+        }
+    }
+
+    /// <summary>
+    /// 現在行動を選択しているキャラクターのアイコンにだけターンマーカーを表示する。nullを渡すと全て非表示にする
+    /// </summary>
+    public void SetActingCharacter(CS_CharacterState character)
+    {
+        foreach (var pair in _characterUIByState)
+        {
+            pair.Value.SetTurnIndicator(pair.Key == character);
         }
     }
 }
