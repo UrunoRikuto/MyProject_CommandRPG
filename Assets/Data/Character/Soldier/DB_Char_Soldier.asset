@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e0bb5039f0cb154aafc1ed75534c028, type: 3}
+  m_Name: DB_Char_Soldier
+  m_EditorClassIdentifier: Assembly-CSharp::CSO_CharacterData
+  _characterName: Soldier
+  _characterIcon: {fileID: 0}
+  _baseHealth: 32
+  _baseMP: 0
+  _baseAttack: 9
+  _baseDefense: 6
+  _baseSpeed: 5
+  _healthGrowth: 6
+  _mpGrowth: 0
+  _attackGrowth: 2
+  _defenseGrowth: 1
+  _speedGrowth: 1
+  _initialSkills: []
+  _attackWeight: 1
+  _skillWeights: []
+  _expReward: 0
+  _mpRegenPerTurn: 0
+  _elementResistances:
+  - element: 0
+    multiplier: 0.5

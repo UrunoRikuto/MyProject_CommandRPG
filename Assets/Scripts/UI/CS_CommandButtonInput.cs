@@ -22,6 +22,8 @@ public class CS_CommandButtonInput : MonoBehaviour
         _canvasGroup = GetComponent<CanvasGroup>();
         _skillSelectWindow.onSkillSelected += HandleSkillSelected;
         _targetSelectWindow.onTargetSelected += HandleTargetSelected;
+        _skillSelectWindow.onCancelled += HandleSelectionCancelled;
+        _targetSelectWindow.onCancelled += HandleSelectionCancelled;
     }
 
     public void SetAvailableSkills(IReadOnlyList<CSO_SkillData> skills)
@@ -78,5 +80,14 @@ public class CS_CommandButtonInput : MonoBehaviour
     {
         onCommandDecided?.Invoke(_pendingCommand, target);
         _pendingCommand = null;
+    }
+
+    /// <summary>
+    /// スキル/ターゲット選択のどちらで「戻る」が押されても、保留中のコマンドを破棄してコマンド選択に戻す
+    /// </summary>
+    private void HandleSelectionCancelled()
+    {
+        _pendingCommand = null;
+        SetInteractable(true);
     }
 }

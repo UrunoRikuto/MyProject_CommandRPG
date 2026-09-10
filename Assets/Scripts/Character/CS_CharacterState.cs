@@ -5,6 +5,9 @@ public class CS_CharacterState
 {
     public const int MAX_LEVEL = 100;
 
+    // レベルアップに必要な経験値は「現在レベル × この値」(1レベルごとの必要量は固定幅で増える)
+    private const int EXP_PER_LEVEL_STEP = 100;
+
     // キャラクターの基礎データ
     private CSO_CharacterData _characterData;
 
@@ -20,6 +23,12 @@ public class CS_CharacterState
     // 現在のレベル
     private int _level;
     public int level => _level;
+
+    // 現在の経験値(次のレベルに達するとリセットされる)
+    private int _currentExp;
+    public int currentExp => _currentExp;
+    // 次のレベルに必要な経験値(上限レベルに達している場合は0)
+    public int expToNextLevel => _level >= MAX_LEVEL ? 0 : _level * EXP_PER_LEVEL_STEP;
 
     // 最大体力
     private int _maxHealth;
@@ -54,47 +63,58 @@ public class CS_CharacterState
     public float attackWeight => _characterData.attackWeight;
     public IReadOnlyList<float> skillWeights => _characterData.skillWeights;
 
+    // 撃破された際に相手に与える経験値(レベルが高いほど多くなる。基礎値×現在レベル)
+    public int expReward => _characterData.expReward * _level;
+
+    /// <summary>
+    /// 指定した属性に対するこのキャラクターの耐性倍率(1=等倍)
+    /// </summary>
+    public float GetElementMultiplier(CSE_ElementType element) => _characterData.GetElementMultiplier(element);
+
     public CS_CharacterState(CSO_CharacterData data, int level = 1)
     {
         _characterData = data;
         _level = Mathf.Clamp(level, 1, MAX_LEVEL);
 
-        // レベル1を基準に、レベルごとの上昇値を(レベル-1)回分加算する(1レベルごとの上昇値は固定)
-        int levelBonus = _level - 1;
-
-        // 体力の初期化
-        _maxHealth = _characterData.baseHealth + _characterData.healthGrowth * levelBonus;
+        RecalculateStats();
         _currentHealth = _maxHealth;
-
-        // MPの初期化
-        _maxMP = _characterData.baseMP + _characterData.mpGrowth * levelBonus;
         _currentMP = _maxMP;
-
-        // 攻撃力の初期化
-        _currentAttack = _characterData.baseAttack + _characterData.attackGrowth * levelBonus;
-
-        // 防御力の初期化
-        _currentDefense = _characterData.baseDefense + _characterData.defenseGrowth * levelBonus;
-
-        // 速度の初期化
-        _currentSpeed = _characterData.baseSpeed + _characterData.speedGrowth * levelBonus;
 
         // スキルリストの初期化
         _currentSkills = new List<CSO_SkillData>(_characterData.initialSkills);
     }
 
     /// <summary>
-    /// ダメージを受ける処理
+    /// レベルに応じた最大ステータスを算出する(基礎値+成長値×(レベル-1)、1レベルごとの上昇値は固定)
+    /// </summary>
+    private void RecalculateStats()
+    {
+        int levelBonus = _level - 1;
+
+        _maxHealth = _characterData.baseHealth + _characterData.healthGrowth * levelBonus;
+        _maxMP = _characterData.baseMP + _characterData.mpGrowth * levelBonus;
+        _currentAttack = _characterData.baseAttack + _characterData.attackGrowth * levelBonus;
+        _currentDefense = _characterData.baseDefense + _characterData.defenseGrowth * levelBonus;
+        _currentSpeed = _characterData.baseSpeed + _characterData.speedGrowth * levelBonus;
+    }
+
+    /// <summary>
+    /// ダメージを受ける処理。属性を指定すると自身の属性耐性が乗算される(Noneなら常に等倍)
     /// </summary>
     /// <param name="damage">受けるダメージ量</param>
-    public void TakeDamage(int damage)
+    /// <param name="element">ダメージの属性</param>
+    public void TakeDamage(int damage, CSE_ElementType element = CSE_ElementType.None)
     {
-        // 防御力を考慮した実際のダメージ量を計算
-        int effectiveDamage = Mathf.Max(damage - _currentDefense, 1);
+        // 防御力を考慮した実際のダメージ量を計算(最低1)
+        int baseDamage = Mathf.Max(damage - _currentDefense, 1);
+
+        // 属性耐性を乗算する(0倍なら完全無効化できる)
+        float elementMultiplier = element == CSE_ElementType.None ? 1f : _characterData.GetElementMultiplier(element);
 
         // ランダム性を加えてダメージ量を変動させる(例: ±10%の範囲で変動)
         float randomFactor = Random.Range(0.9f, 1.1f);
-        effectiveDamage = Mathf.RoundToInt(effectiveDamage * randomFactor);
+
+        int effectiveDamage = Mathf.Max(Mathf.RoundToInt(baseDamage * elementMultiplier * randomFactor), 0);
 
         // 現在の体力を減少させる
         _currentHealth = Mathf.Max(_currentHealth - effectiveDamage, 0);
@@ -118,12 +138,60 @@ public class CS_CharacterState
     }
 
     /// <summary>
+    /// 1ターン分のMP自然回復(キャラクターごとに設定した固定値、最大値まで)
+    /// </summary>
+    public void RegenMP()
+    {
+        _currentMP = Mathf.Min(_maxMP, _currentMP + _characterData.mpRegenPerTurn);
+    }
+
+    /// <summary>
+    /// 経験値を獲得し、必要量を満たしていれば(上限レベルまで)連続してレベルアップする。
+    /// 敵はこのメソッドを呼ばないため、レベルが上がるのは味方のみ
+    /// </summary>
+    public void GainExp(int amount)
+    {
+        if (_level >= MAX_LEVEL) return;
+
+        _currentExp += amount;
+        while (_level < MAX_LEVEL && _currentExp >= expToNextLevel)
+        {
+            _currentExp -= expToNextLevel;
+            LevelUp();
+        }
+    }
+
+    /// <summary>
+    /// レベルを1上げてステータスを再計算する。最大値の増加分だけ現在値も引き上げる
+    /// (レベルアップで相対的に弱くならないようにするため)
+    /// </summary>
+    private void LevelUp()
+    {
+        int previousMaxHealth = _maxHealth;
+        int previousMaxMP = _maxMP;
+
+        _level++;
+        RecalculateStats();
+
+        _currentHealth += _maxHealth - previousMaxHealth;
+        _currentMP += _maxMP - previousMaxMP;
+    }
+
+    /// <summary>
     /// 保存されていた現在HP/MPを反映する(セーブデータ復元用)
     /// </summary>
     public void SetCurrentStats(int health, int mp)
     {
         _currentHealth = Mathf.Clamp(health, 0, _maxHealth);
         _currentMP = Mathf.Clamp(mp, 0, _maxMP);
+    }
+
+    /// <summary>
+    /// 保存されていた経験値を反映する(セーブデータ復元用)
+    /// </summary>
+    public void SetExp(int exp)
+    {
+        _currentExp = Mathf.Max(0, exp);
     }
 
     /// <summary>

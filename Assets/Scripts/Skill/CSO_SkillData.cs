@@ -18,4 +18,8 @@ public class CSO_SkillData : ScriptableObject
     private float _damageRate;
     public float damageRate => _damageRate;
 
+    [Header("属性")]
+    [SerializeField]
+    private CSE_ElementType _element = CSE_ElementType.None;
+    public CSE_ElementType element => _element;
 }

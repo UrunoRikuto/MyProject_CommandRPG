@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e0bb5039f0cb154aafc1ed75534c028, type: 3}
+  m_Name: DB_Char_Knight
+  m_EditorClassIdentifier: Assembly-CSharp::CSO_CharacterData
+  _characterName: Knight
+  _characterIcon: {fileID: 21300000, guid: 4256ff3da2c8435082578d5c47d4ac65, type: 3}
+  _baseHealth: 45
+  _baseMP: 20
+  _baseAttack: 18
+  _baseDefense: 16
+  _baseSpeed: 8
+  _healthGrowth: 6
+  _mpGrowth: 2
+  _attackGrowth: 4
+  _defenseGrowth: 5
+  _speedGrowth: 2
+  _initialSkills:
+  - {fileID: 11400000, guid: 90189bb7e7474a07bd8e8decfc4dd545, type: 2}
+  _attackWeight: 1
+  _skillWeights:
+  - 0.4
+  _expReward: 45
+  _mpRegenPerTurn: 2
+  _elementResistances:
+  - element: 5
+    multiplier: 1.5
+  - element: 8
+    multiplier: 0.5

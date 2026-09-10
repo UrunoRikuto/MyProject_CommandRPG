@@ -135,6 +135,11 @@ public class CSED_CharacterDataWindow : EditorWindow
             CreateNewCharacter();
         }
 
+        if (GUILayout.Button("属性相性表", EditorStyles.toolbarButton, GUILayout.Width(90)))
+        {
+            CSED_ElementAffinityWindow.ShowWindow();
+        }
+
         if (GUILayout.Button("幅を保存", EditorStyles.toolbarButton, GUILayout.Width(80)))
         {
             SaveColumnWidths();
@@ -273,6 +278,7 @@ public class CSED_CharacterDataWindow : EditorWindow
         DrawStatRow(character, serializedObject);
         DrawGrowthRow(serializedObject);
         DrawPreviewRow(character);
+        DrawExpAndRegenRow(serializedObject);
         if (_expandedCharacters.Contains(character))
         {
             DrawSkillList(character, serializedObject);
@@ -361,6 +367,29 @@ public class CSED_CharacterDataWindow : EditorWindow
         DrawPreviewValue(character.baseAttack + character.attackGrowth * levelBonus, Column.Attack);
         DrawPreviewValue(character.baseDefense + character.defenseGrowth * levelBonus, Column.Defense);
         DrawPreviewValue(character.baseSpeed + character.speedGrowth * levelBonus, Column.Speed);
+
+        EditorGUILayout.EndHorizontal();
+    }
+
+    /// <summary>
+    /// 撃破時に与える経験値と、1ターンごとのMP自然回復量を編集する行。
+    /// 属性耐性はキャラクターごとに数が異なるため、ここでは扱わずデフォルトのInspectorで編集する
+    /// </summary>
+    private void DrawExpAndRegenRow(SerializedObject serializedObject)
+    {
+        EditorGUILayout.BeginHorizontal();
+
+        GUILayout.Space(FOLDOUT_WIDTH + _columnWidths[(int)Column.Name]);
+        GUILayout.Space(RESIZE_HANDLE_WIDTH);
+
+        GUILayout.Label("EXP", EditorStyles.miniLabel, GUILayout.Width(30));
+        var expProp = serializedObject.FindProperty("_expReward");
+        EditorGUILayout.PropertyField(expProp, GUIContent.none, GUILayout.Width(_columnWidths[(int)Column.Health]));
+        GUILayout.Space(RESIZE_HANDLE_WIDTH);
+
+        GUILayout.Label("MP回復/turn", EditorStyles.miniLabel, GUILayout.Width(70));
+        var regenProp = serializedObject.FindProperty("_mpRegenPerTurn");
+        EditorGUILayout.PropertyField(regenProp, GUIContent.none, GUILayout.Width(_columnWidths[(int)Column.MP]));
 
         EditorGUILayout.EndHorizontal();
     }

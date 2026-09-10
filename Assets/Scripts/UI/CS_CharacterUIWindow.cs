@@ -58,4 +58,17 @@ public class CS_CharacterUIWindow : MonoBehaviour
             pair.Value.SetTurnIndicator(pair.Key == character);
         }
     }
+
+    /// <summary>
+    /// 指定したキャラクターのアイコンのワールド座標(≒スクリーン座標)を返す。
+    /// 攻撃演出(弾のエフェクトなど)の始点・終点として使う
+    /// </summary>
+    public Vector3 GetIconWorldPosition(CS_CharacterState character)
+    {
+        if (_characterUIByState.TryGetValue(character, out CS_CharacterUI characterUI))
+        {
+            return characterUI.transform.position;
+        }
+        return transform.position;
+    }
 }

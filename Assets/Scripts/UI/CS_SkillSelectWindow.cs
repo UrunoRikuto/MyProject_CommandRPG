@@ -11,6 +11,7 @@ public class CS_SkillSelectWindow : MonoBehaviour
     [SerializeField] private ScrollRect _scrollRect;
 
     public event Action<int> onSkillSelected;
+    public event Action onCancelled;
 
     public void Open(IReadOnlyList<CSO_SkillData> skills)
     {
@@ -36,6 +37,15 @@ public class CS_SkillSelectWindow : MonoBehaviour
     private void Select(int index)
     {
         onSkillSelected?.Invoke(index);
+        Close();
+    }
+
+    /// <summary>
+    /// 「戻る」ボタン用。何も選ばずにコマンド選択へ戻る
+    /// </summary>
+    public void OnCancelClicked()
+    {
+        onCancelled?.Invoke();
         Close();
     }
 

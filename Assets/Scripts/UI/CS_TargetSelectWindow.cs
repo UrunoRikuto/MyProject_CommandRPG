@@ -11,6 +11,7 @@ public class CS_TargetSelectWindow : MonoBehaviour
     [SerializeField] private ScrollRect _scrollRect;
 
     public event Action<CS_CharacterState> onTargetSelected;
+    public event Action onCancelled;
 
     public void Open(IReadOnlyList<CS_CharacterState> candidates)
     {
@@ -35,6 +36,15 @@ public class CS_TargetSelectWindow : MonoBehaviour
     private void Select(CS_CharacterState target)
     {
         onTargetSelected?.Invoke(target);
+        Close();
+    }
+
+    /// <summary>
+    /// 「戻る」ボタン用。何も選ばずにコマンド選択へ戻る
+    /// </summary>
+    public void OnCancelClicked()
+    {
+        onCancelled?.Invoke();
         Close();
     }
 

@@ -16,6 +16,9 @@ public class CS_BattleStateMachine : MonoBehaviour
     [SerializeField] private CS_CharacterUIWindow _characterUIWindow;
     public CS_CharacterUIWindow characterUIWindow => _characterUIWindow;
 
+    [SerializeField] private CS_BattleEffectPlayer _effectPlayer;
+    public CS_BattleEffectPlayer effectPlayer => _effectPlayer;
+
     private CS_BattleContext _context;
     private IBattleState _currentState;
 
@@ -83,6 +86,7 @@ public class CS_BattleStateMachine : MonoBehaviour
             if (i < partyState.Count)
             {
                 characterState.SetCurrentStats(partyState[i].currentHealth, partyState[i].currentMP);
+                characterState.SetExp(partyState[i].exp);
             }
             playerParty.Add(characterState);
         }

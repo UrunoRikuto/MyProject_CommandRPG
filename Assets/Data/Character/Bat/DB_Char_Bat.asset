@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e0bb5039f0cb154aafc1ed75534c028, type: 3}
+  m_Name: DB_Char_Bat
+  m_EditorClassIdentifier: Assembly-CSharp::CSO_CharacterData
+  _characterName: Bat
+  _characterIcon: {fileID: 21300000, guid: 244324cc735044d1822e7886cf3624b3, type: 3}
+  _baseHealth: 8
+  _baseMP: 0
+  _baseAttack: 4
+  _baseDefense: 0
+  _baseSpeed: 12
+  _healthGrowth: 3
+  _mpGrowth: 0
+  _attackGrowth: 1
+  _defenseGrowth: 0
+  _speedGrowth: 2
+  _initialSkills: []
+  _attackWeight: 1
+  _skillWeights: []
+  _expReward: 8
+  _mpRegenPerTurn: 0
+  _elementResistances:
+  - element: 5
+    multiplier: 1.5

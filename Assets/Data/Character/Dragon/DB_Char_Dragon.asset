@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e0bb5039f0cb154aafc1ed75534c028, type: 3}
+  m_Name: DB_Char_Dragon
+  m_EditorClassIdentifier: Assembly-CSharp::CSO_CharacterData
+  _characterName: Dragon
+  _characterIcon: {fileID: 21300000, guid: ec23caf8b3bc4e9a920f9e845d28d565, type: 3}
+  _baseHealth: 90
+  _baseMP: 60
+  _baseAttack: 26
+  _baseDefense: 22
+  _baseSpeed: 18
+  _healthGrowth: 9
+  _mpGrowth: 6
+  _attackGrowth: 5
+  _defenseGrowth: 4
+  _speedGrowth: 3
+  _initialSkills:
+  - {fileID: 11400000, guid: fe651b5971a945a19fad688efb422ee2, type: 2}
+  _attackWeight: 0.7
+  _skillWeights:
+  - 0.6
+  _expReward: 88
+  _mpRegenPerTurn: 3
+  _elementResistances:
+  - element: 1
+    multiplier: 0.3
+  - element: 2
+    multiplier: 1.8
+  - element: 4
+    multiplier: 1.3

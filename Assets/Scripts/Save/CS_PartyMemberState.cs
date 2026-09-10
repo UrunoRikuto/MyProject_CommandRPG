@@ -10,4 +10,5 @@ public class CS_PartyMemberState
     public int currentHealth;
     public int currentMP;
     public int level = 1;
+    public int exp = 0;
 }

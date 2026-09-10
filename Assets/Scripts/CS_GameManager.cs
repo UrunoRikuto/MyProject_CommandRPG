@@ -76,7 +76,8 @@ public class CS_GameManager : MonoBehaviour
                     characterName = data.characterName,
                     currentHealth = data.baseHealth,
                     currentMP = data.baseMP,
-                    level = 1
+                    level = 1,
+                    exp = 0
                 });
             }
         }
@@ -113,6 +114,8 @@ public class CS_GameManager : MonoBehaviour
         {
             _partyState[i].currentHealth = allyParty[i].currentHealth;
             _partyState[i].currentMP = allyParty[i].currentMP;
+            _partyState[i].level = allyParty[i].level;
+            _partyState[i].exp = allyParty[i].currentExp;
         }
     }
 

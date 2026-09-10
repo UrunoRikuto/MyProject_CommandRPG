@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e0bb5039f0cb154aafc1ed75534c028, type: 3}
+  m_Name: DB_Char_Spider
+  m_EditorClassIdentifier: Assembly-CSharp::CSO_CharacterData
+  _characterName: Spider
+  _characterIcon: {fileID: 21300000, guid: df43f7d4e9b242449ef226107369b3a2, type: 3}
+  _baseHealth: 22
+  _baseMP: 10
+  _baseAttack: 12
+  _baseDefense: 4
+  _baseSpeed: 14
+  _healthGrowth: 4
+  _mpGrowth: 1
+  _attackGrowth: 3
+  _defenseGrowth: 1
+  _speedGrowth: 2
+  _initialSkills:
+  - {fileID: 11400000, guid: 0808c063ca3343f0ac8ae4ef77cdf55c, type: 2}
+  _attackWeight: 0.6
+  _skillWeights:
+  - 0.4
+  _expReward: 32
+  _mpRegenPerTurn: 1
+  _elementResistances:
+  - element: 1
+    multiplier: 1.5
+  - element: 4
+    multiplier: 1.3
+  - element: 6
+    multiplier: 0.7

@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e0bb5039f0cb154aafc1ed75534c028, type: 3}
+  m_Name: DB_Char_Cyclops
+  m_EditorClassIdentifier: Assembly-CSharp::CSO_CharacterData
+  _characterName: Cyclops
+  _characterIcon: {fileID: 21300000, guid: 183e5c33090f468fb29ed3b2958d2c1d, type: 3}
+  _baseHealth: 70
+  _baseMP: 15
+  _baseAttack: 20
+  _baseDefense: 18
+  _baseSpeed: 7
+  _healthGrowth: 8
+  _mpGrowth: 2
+  _attackGrowth: 5
+  _defenseGrowth: 5
+  _speedGrowth: 1
+  _initialSkills:
+  - {fileID: 11400000, guid: fa95c7b6f578483a973cff487ecb0593, type: 2}
+  _attackWeight: 1
+  _skillWeights:
+  - 0.4
+  _expReward: 68
+  _mpRegenPerTurn: 1
+  _elementResistances:
+  - element: 6
+    multiplier: 0.5
+  - element: 7
+    multiplier: 1.5

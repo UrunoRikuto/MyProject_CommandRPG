@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e0bb5039f0cb154aafc1ed75534c028, type: 3}
+  m_Name: DB_Char_Orc
+  m_EditorClassIdentifier: Assembly-CSharp::CSO_CharacterData
+  _characterName: Orc
+  _characterIcon: {fileID: 21300000, guid: d665dcf7ca72414381490ca1320074a7, type: 3}
+  _baseHealth: 55
+  _baseMP: 10
+  _baseAttack: 22
+  _baseDefense: 12
+  _baseSpeed: 6
+  _healthGrowth: 7
+  _mpGrowth: 1
+  _attackGrowth: 6
+  _defenseGrowth: 3
+  _speedGrowth: 1
+  _initialSkills:
+  - {fileID: 11400000, guid: bd7a0abadfcb4f2f8083b328f180d153, type: 2}
+  _attackWeight: 1
+  _skillWeights:
+  - 0.5
+  _expReward: 58
+  _mpRegenPerTurn: 1
+  _elementResistances:
+  - element: 1
+    multiplier: 0.5
+  - element: 4
+    multiplier: 1.5

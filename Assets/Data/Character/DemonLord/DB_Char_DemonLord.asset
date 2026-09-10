@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e0bb5039f0cb154aafc1ed75534c028, type: 3}
+  m_Name: DB_Char_DemonLord
+  m_EditorClassIdentifier: Assembly-CSharp::CSO_CharacterData
+  _characterName: DemonLord
+  _characterIcon: {fileID: 21300000, guid: 4f384493234149a6a1af18b1ef50ddf6, type: 3}
+  _baseHealth: 180
+  _baseMP: 150
+  _baseAttack: 40
+  _baseDefense: 35
+  _baseSpeed: 25
+  _healthGrowth: 15
+  _mpGrowth: 12
+  _attackGrowth: 8
+  _defenseGrowth: 6
+  _speedGrowth: 4
+  _initialSkills:
+  - {fileID: 11400000, guid: bea67cccdef2417a9b2f5eb9c029933a, type: 2}
+  - {fileID: 11400000, guid: 2d2fccfcd865485c845dedaef26fa51f, type: 2}
+  _attackWeight: 0.4
+  _skillWeights:
+  - 0.6
+  - 0.3
+  _expReward: 220
+  _mpRegenPerTurn: 6
+  _elementResistances:
+  - element: 7
+    multiplier: 2.0
+  - element: 8
+    multiplier: 0.2
+  - element: 1
+    multiplier: 0.6
+  - element: 2
+    multiplier: 0.6
+  - element: 3
+    multiplier: 0.6
+  - element: 4
+    multiplier: 0.6
+  - element: 5
+    multiplier: 0.6
+  - element: 6
+    multiplier: 0.6

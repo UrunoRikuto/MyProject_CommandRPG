@@ -1,6 +1,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// 属性1つ分の耐性倍率。1=等倍、1より大きい=弱点、1より小さい=耐性、0=無効
+/// </summary>
+[System.Serializable]
+public class CSE_ElementResistance
+{
+    public CSE_ElementType element;
+    public float multiplier = 1f;
+}
+
 [CreateAssetMenu(fileName = "DB_", menuName = "Scriptable Objects/DB_CharacterData")]
 public class CSO_CharacterData : ScriptableObject
 {
@@ -75,6 +85,29 @@ public class CSO_CharacterData : ScriptableObject
     [Header("AIが各スキルを選ぶ重み")]
     [SerializeField] private List<float> _skillWeights;
     public IReadOnlyList<float> skillWeights => _skillWeights;
+
+    [Header("撃破時に味方が得られる経験値")]
+    [SerializeField] private int _expReward;
+    public int expReward => _expReward;
+
+    [Header("1ターンごとに回復するMP量")]
+    [SerializeField] private int _mpRegenPerTurn;
+    public int mpRegenPerTurn => _mpRegenPerTurn;
+
+    [Header("属性耐性(リストに無い属性は等倍)")]
+    [SerializeField] private List<CSE_ElementResistance> _elementResistances = new List<CSE_ElementResistance>();
+
+    /// <summary>
+    /// 指定した属性のダメージ倍率を返す。設定が無ければ等倍(1)
+    /// </summary>
+    public float GetElementMultiplier(CSE_ElementType element)
+    {
+        foreach (var resistance in _elementResistances)
+        {
+            if (resistance.element == element) return resistance.multiplier;
+        }
+        return 1f;
+    }
 
     void OnValidate()
     {

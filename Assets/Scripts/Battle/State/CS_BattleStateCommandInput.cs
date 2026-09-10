@@ -13,6 +13,8 @@ public class CS_BattleStateCommandInput : IBattleState
 
     public void Enter(CS_BattleContext context, CS_BattleStateMachine machine)
     {
+        RegenMPForRound(context);
+
         DecideActionsForParty(context, context.enemyParty);
 
         _context = context;
@@ -24,6 +26,21 @@ public class CS_BattleStateCommandInput : IBattleState
         machine.commandButtonInput.onCommandDecided += HandleCommandDecided;
 
         PromptNextAlly();
+    }
+
+    /// <summary>
+    /// ラウンド開始時に、生存している全キャラクター(味方・敵とも)のMPを自然回復させる
+    /// </summary>
+    private void RegenMPForRound(CS_BattleContext context)
+    {
+        foreach (var ally in context.allyParty)
+        {
+            if (!ally.isDead) ally.RegenMP();
+        }
+        foreach (var enemy in context.enemyParty)
+        {
+            if (!enemy.isDead) enemy.RegenMP();
+        }
     }
 
     private void DecideActionsForParty(CS_BattleContext context, IReadOnlyList<CS_CharacterState> party)

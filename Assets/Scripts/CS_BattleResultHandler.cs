@@ -10,6 +10,11 @@ public class CS_BattleResultHandler : MonoBehaviour
 
     private void HandleBattleEnd(CSE_BattleResult result)
     {
+        if (result == CSE_BattleResult.Win)
+        {
+            GrantExpToSurvivors();
+        }
+
         if (result == CSE_BattleResult.Lose)
         {
             // 敗北時は体力・MPを全回復させてから町に戻す
@@ -35,4 +40,32 @@ public class CS_BattleResultHandler : MonoBehaviour
         }
     }
 
+    // 敵の方がレベルが高いほど経験値が増えるボーナス。1レベル差につきこの割合だけ加算する
+    private const float LEVEL_DIFF_BONUS_PER_LEVEL = 0.1f;
+
+    /// <summary>
+    /// 倒した敵の経験値を、生存している味方全員に(敵はレベルアップしないため味方限定で)与える。
+    /// 自分より高レベルな敵ほどボーナス倍率が乗るため、必要な経験値は味方ごとに個別に計算する
+    /// </summary>
+    private void GrantExpToSurvivors()
+    {
+        var enemyParty = _battleStateMachine.context.enemyParty;
+
+        foreach (var ally in _battleStateMachine.context.allyParty)
+        {
+            if (ally.isDead) continue;
+
+            int totalExp = 0;
+            foreach (var enemy in enemyParty)
+            {
+                float levelDiffBonus = 1f + Mathf.Max(0, enemy.level - ally.level) * LEVEL_DIFF_BONUS_PER_LEVEL;
+                totalExp += Mathf.RoundToInt(enemy.expReward * levelDiffBonus);
+            }
+
+            if (totalExp > 0)
+            {
+                ally.GainExp(totalExp);
+            }
+        }
+    }
 }
