@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(CanvasGroup))]
 public class CS_CommandButtonInput : MonoBehaviour
 {
     [SerializeField] private CS_SkillSelectWindow _skillSelectWindow;
     [SerializeField] private CS_TargetSelectWindow _targetSelectWindow;
+    [SerializeField] private Button _skillButton;
 
     private CanvasGroup _canvasGroup;
     private IReadOnlyList<CSO_SkillData> _availableSkills;
@@ -22,7 +24,16 @@ public class CS_CommandButtonInput : MonoBehaviour
         _targetSelectWindow.onTargetSelected += HandleTargetSelected;
     }
 
-    public void SetAvailableSkills(IReadOnlyList<CSO_SkillData> skills) => _availableSkills = skills;
+    public void SetAvailableSkills(IReadOnlyList<CSO_SkillData> skills)
+    {
+        _availableSkills = skills;
+        // 使えるスキルが1つもない場合は選択できてしまわないようボタン自体を非活性にする
+        if (_skillButton != null)
+        {
+            _skillButton.interactable = skills != null && skills.Count > 0;
+        }
+    }
+
     public void SetAvailableTargets(IReadOnlyList<CS_CharacterState> targets) => _availableTargets = targets;
 
     public void Show()

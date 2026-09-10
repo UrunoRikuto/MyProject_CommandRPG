@@ -378,6 +378,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CS_CommandButtonInput
   _skillSelectWindow: {fileID: 1890139403}
   _targetSelectWindow: {fileID: 328588585}
+  _skillButton: {fileID: 1415453832}
 --- !u!114 &182769736
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -909,6 +910,7 @@ GameObject:
   - component: {fileID: 629843747}
   - component: {fileID: 629843746}
   - component: {fileID: 629843745}
+  - component: {fileID: 4456512758033694179}
   m_Layer: 0
   m_Name: EventSystem
   m_TagString: Untagged
@@ -951,6 +953,18 @@ MonoBehaviour:
   m_FirstSelected: {fileID: 0}
   m_sendNavigationEvents: 1
   m_DragThreshold: 10
+--- !u!114 &4456512758033694179
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 629843744}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d36ab63c1b24692902d7e0cc3e6adc1, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::CS_EventSystemGuard
 --- !u!4 &629843747
 Transform:
   m_ObjectHideFlags: 0

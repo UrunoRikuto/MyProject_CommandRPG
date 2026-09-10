@@ -47,6 +47,11 @@ public class CS_SkillSelectWindow : MonoBehaviour
 
     private void ClearButtons()
     {
-        foreach (Transform child in _buttonParent) Destroy(child.gameObject);
+        // Destroyはフレーム末まで実際には削除されないため、レイアウト計算に混ざらないよう先に非表示にしておく
+        foreach (Transform child in _buttonParent)
+        {
+            child.gameObject.SetActive(false);
+            Destroy(child.gameObject);
+        }
     }
 }
