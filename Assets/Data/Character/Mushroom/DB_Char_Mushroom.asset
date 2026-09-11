@@ -34,3 +34,7 @@ MonoBehaviour:
     multiplier: 0.3
   - element: 1
     multiplier: 1.5
+  _itemDrops:
+  - itemId: Potion
+    dropChance: 0.5
+  _equipmentDrops: []

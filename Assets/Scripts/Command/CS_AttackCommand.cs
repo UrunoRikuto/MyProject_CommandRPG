@@ -11,7 +11,7 @@ public class CS_AttackCommand : IBattleCommand
 
         Debug.Log($"{user.characterName}は{target.characterName}に攻撃した！");
 
-        // ダメージを与える
-        target.TakeDamage(damage);
+        // ダメージを与える(武器に属性上書きが設定されていればその属性で。毒武器などに対応)
+        target.TakeDamage(damage, user.attackElement);
     }
 }

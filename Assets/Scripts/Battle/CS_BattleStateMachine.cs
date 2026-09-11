@@ -82,7 +82,8 @@ public class CS_BattleStateMachine : MonoBehaviour
         for (int i = 0; i < playerPartyData.Count; i++)
         {
             int level = i < partyState.Count ? partyState[i].level : 1;
-            CS_CharacterState characterState = new CS_CharacterState(playerPartyData[i], level);
+            List<CSO_EquipmentData> equipment = i < partyState.Count ? ResolveEquipment(partyState[i]) : null;
+            CS_CharacterState characterState = new CS_CharacterState(playerPartyData[i], level, equipment);
             if (i < partyState.Count)
             {
                 characterState.SetCurrentStats(partyState[i].currentHealth, partyState[i].currentMP);
@@ -97,6 +98,24 @@ public class CS_BattleStateMachine : MonoBehaviour
             enemyParty.Add(new CS_CharacterState(enemyPartyData[i], level));
         }
         _context = new CS_BattleContext(playerParty, enemyParty);
+    }
+
+    /// <summary>
+    /// パーティメンバーが装備中の装備品をCS_ItemDatabaseで解決する(未装備スロットはnullを除外)
+    /// </summary>
+    private List<CSO_EquipmentData> ResolveEquipment(CS_PartyMemberState memberState)
+    {
+        List<CSO_EquipmentData> equipment = new List<CSO_EquipmentData>();
+        AddIfFound(equipment, memberState.equippedWeaponId);
+        AddIfFound(equipment, memberState.equippedArmorId);
+        AddIfFound(equipment, memberState.equippedAccessoryId);
+        return equipment;
+    }
+
+    private void AddIfFound(List<CSO_EquipmentData> list, string equipmentId)
+    {
+        CSO_EquipmentData data = CS_ItemDatabase.GetEquipment(equipmentId);
+        if (data != null) list.Add(data);
     }
 
     private void Update()

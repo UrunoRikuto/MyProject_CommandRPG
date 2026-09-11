@@ -74,7 +74,35 @@ public class CS_BattleStateCommandInput : IBattleState
         _machine.characterUIWindow.SetActingCharacter(_currentActor);
         _machine.commandButtonInput.SetAvailableSkills(_currentActor.currentSkills);
         _machine.commandButtonInput.SetAvailableTargets(_context.enemyParty);
+        _machine.commandButtonInput.SetAvailableAllyTargets(_context.allyParty);
+        _machine.commandButtonInput.SetAvailableItems(GetUsableItems());
         _machine.commandButtonInput.Show();
+    }
+
+    /// <summary>
+    /// 現在使用可能などうぐの一覧を返す。デバッグモード中は全アイテムを無制限(count=-1)で、
+    /// 通常時は所持数が1以上のものだけを実際の所持数付きで返す
+    /// </summary>
+    private List<(CSO_ItemData item, int count)> GetUsableItems()
+    {
+        var result = new List<(CSO_ItemData item, int count)>();
+
+        if (CS_GameManager.Instance.isDebugMode)
+        {
+            foreach (var item in CS_ItemDatabase.AllItems)
+            {
+                result.Add((item, -1));
+            }
+            return result;
+        }
+
+        foreach (var stack in CS_GameManager.Instance.ownedItemsList)
+        {
+            if (stack.count <= 0) continue;
+            var item = CS_ItemDatabase.GetItem(stack.id);
+            if (item != null) result.Add((item, stack.count));
+        }
+        return result;
     }
 
     private void HandleCommandDecided(IBattleCommand command, CS_CharacterState target)

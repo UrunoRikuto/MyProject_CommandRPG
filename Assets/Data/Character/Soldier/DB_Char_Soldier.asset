@@ -29,6 +29,4 @@ MonoBehaviour:
   _skillWeights: []
   _expReward: 0
   _mpRegenPerTurn: 0
-  _elementResistances:
-  - element: 0
-    multiplier: 0.5
+  _elementResistances: []

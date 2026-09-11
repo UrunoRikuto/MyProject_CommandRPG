@@ -10,9 +10,20 @@ public class CS_GameManager : MonoBehaviour
     private GameObject _player;
     private GameObject _fieldEnvironment;
     private GameObject _pauseMenu;
+    private GameObject _equipmentMenu;
 
     private List<CS_PartyMemberState> _partyState;
     private Vector3? _pendingPlayerPosition;
+
+    // 所持アイテム/装備、開封済み宝箱ID(いずれもセーブ対象)
+    private List<CS_ItemStack> _ownedItems = new List<CS_ItemStack>();
+    private List<CS_ItemStack> _ownedEquipment = new List<CS_ItemStack>();
+    private List<string> _openedChestIds = new List<string>();
+
+    // デバッグモード(タイトル画面でキーを押しながら「はじめから」した場合のみtrue。セーブ対象外)
+    private bool _isDebugMode;
+    public bool isDebugMode => _isDebugMode;
+    public void SetDebugMode(bool value) => _isDebugMode = value;
 
     void Awake()
     {
@@ -59,6 +70,9 @@ public class CS_GameManager : MonoBehaviour
 
         _partyState = saveData.partyState;
         _pendingPlayerPosition = saveData.playerPosition;
+        _ownedItems = saveData.ownedItems ?? new List<CS_ItemStack>();
+        _ownedEquipment = saveData.ownedEquipment ?? new List<CS_ItemStack>();
+        _openedChestIds = saveData.openedChestIds ?? new List<string>();
     }
 
     /// <summary>
@@ -98,6 +112,9 @@ public class CS_GameManager : MonoBehaviour
     {
         _partyState = null;
         _pendingPlayerPosition = null;
+        _ownedItems = new List<CS_ItemStack>();
+        _ownedEquipment = new List<CS_ItemStack>();
+        _openedChestIds = new List<string>();
     }
 
     /// <summary>
@@ -137,9 +154,116 @@ public class CS_GameManager : MonoBehaviour
         var saveData = new CS_SaveData
         {
             playerPosition = _player != null ? _player.transform.position : Vector3.zero,
-            partyState = _partyState
+            partyState = _partyState,
+            ownedItems = _ownedItems,
+            ownedEquipment = _ownedEquipment,
+            openedChestIds = _openedChestIds
         };
         CS_SaveManager.Instance.Save(saveData);
+    }
+
+    /// <summary>
+    /// 所持しているアイテムの個数を返す(未所持なら0)
+    /// </summary>
+    public int GetItemCount(string itemId)
+    {
+        var stack = _ownedItems.Find(s => s.id == itemId);
+        return stack != null ? stack.count : 0;
+    }
+
+    /// <summary>
+    /// アイテムを所持数に加算する(ドロップ・宝箱用)
+    /// </summary>
+    public void AddItem(string itemId, int count)
+    {
+        var stack = _ownedItems.Find(s => s.id == itemId);
+        if (stack != null)
+        {
+            stack.count += count;
+        }
+        else
+        {
+            _ownedItems.Add(new CS_ItemStack { id = itemId, count = count });
+        }
+    }
+
+    /// <summary>
+    /// アイテムを1個消費できれば消費してtrueを返す。デバッグモード中は所持数を確認・消費せず常にtrueを返す
+    /// </summary>
+    public bool TryConsumeItem(string itemId)
+    {
+        if (_isDebugMode) return true;
+
+        var stack = _ownedItems.Find(s => s.id == itemId);
+        if (stack == null || stack.count <= 0) return false;
+
+        stack.count--;
+        return true;
+    }
+
+    /// <summary>
+    /// 所持している装備の一覧(未装備の手持ち分)。デバッグモード中はUI側でCS_ItemDatabase.AllEquipmentを使うこと
+    /// </summary>
+    public IReadOnlyList<CS_ItemStack> ownedEquipmentList => _ownedEquipment;
+    public IReadOnlyList<CS_ItemStack> ownedItemsList => _ownedItems;
+
+    /// <summary>
+    /// 装備を所持数に加算する(ドロップ・宝箱用)
+    /// </summary>
+    public void AddEquipment(string equipmentId, int count)
+    {
+        var stack = _ownedEquipment.Find(s => s.id == equipmentId);
+        if (stack != null)
+        {
+            stack.count += count;
+        }
+        else
+        {
+            _ownedEquipment.Add(new CS_ItemStack { id = equipmentId, count = count });
+        }
+    }
+
+    /// <summary>
+    /// 指定した味方キャラクターの指定スロットに装備IDをセットする(空文字で外す)
+    /// </summary>
+    public void SetEquipped(string characterName, CSE_EquipmentSlot slot, string equipmentId)
+    {
+        var member = _partyState?.Find(m => m.characterName == characterName);
+        if (member == null) return;
+
+        switch (slot)
+        {
+            case CSE_EquipmentSlot.Weapon: member.equippedWeaponId = equipmentId; break;
+            case CSE_EquipmentSlot.Armor: member.equippedArmorId = equipmentId; break;
+            case CSE_EquipmentSlot.Accessory: member.equippedAccessoryId = equipmentId; break;
+        }
+    }
+
+    /// <summary>
+    /// 指定した味方キャラクターの指定スロットに装備している装備IDを返す(未装備は空文字)
+    /// </summary>
+    public string GetEquipped(string characterName, CSE_EquipmentSlot slot)
+    {
+        var member = _partyState?.Find(m => m.characterName == characterName);
+        if (member == null) return "";
+
+        return slot switch
+        {
+            CSE_EquipmentSlot.Weapon => member.equippedWeaponId,
+            CSE_EquipmentSlot.Armor => member.equippedArmorId,
+            CSE_EquipmentSlot.Accessory => member.equippedAccessoryId,
+            _ => ""
+        };
+    }
+
+    public bool IsChestOpened(string chestId) => _openedChestIds.Contains(chestId);
+
+    public void MarkChestOpened(string chestId)
+    {
+        if (!_openedChestIds.Contains(chestId))
+        {
+            _openedChestIds.Add(chestId);
+        }
     }
 
     public void RequestBattle(CSO_EncounterData encounterData)
@@ -152,6 +276,8 @@ public class CS_GameManager : MonoBehaviour
             _fieldEnvironment = GameObject.Find("FieldEnvironment");
         if (_pauseMenu == null)
             _pauseMenu = GameObject.Find("PauseMenuController");
+        if (_equipmentMenu == null)
+            _equipmentMenu = GameObject.Find("EquipmentMenuController");
 
         CS_SceneManager.Instance.LoadSceneAdditive("BattleScene", () =>
         {
@@ -164,9 +290,11 @@ public class CS_GameManager : MonoBehaviour
             // フィールド側を非表示にする
             if (_fieldEnvironment != null)
                 _fieldEnvironment.SetActive(false);
-            // 戦闘中はポーズメニューを開けないようにする
+            // 戦闘中はポーズメニュー・装備メニューを開けないようにする
             if (_pauseMenu != null)
                 _pauseMenu.SetActive(false);
+            if (_equipmentMenu != null)
+                _equipmentMenu.SetActive(false);
         });
     }
 
@@ -190,9 +318,11 @@ public class CS_GameManager : MonoBehaviour
             // フィールド側を再表示にする
             if (_fieldEnvironment != null)
                 _fieldEnvironment.SetActive(true);
-            // ポーズメニューを再度開けるようにする
+            // ポーズメニュー・装備メニューを再度開けるようにする
             if (_pauseMenu != null)
                 _pauseMenu.SetActive(true);
+            if (_equipmentMenu != null)
+                _equipmentMenu.SetActive(true);
 
             SaveGame();
         });
@@ -211,9 +341,11 @@ public class CS_GameManager : MonoBehaviour
             // フィールド側を再表示にする
             if (_fieldEnvironment != null)
                 _fieldEnvironment.SetActive(true);
-            // ポーズメニューを再度開けるようにする
+            // ポーズメニュー・装備メニューを再度開けるようにする
             if (_pauseMenu != null)
                 _pauseMenu.SetActive(true);
+            if (_equipmentMenu != null)
+                _equipmentMenu.SetActive(true);
 
             // ここで宿屋に移動させる処理を追加する
 

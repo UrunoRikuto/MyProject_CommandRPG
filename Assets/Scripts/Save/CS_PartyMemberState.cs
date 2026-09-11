@@ -11,4 +11,9 @@ public class CS_PartyMemberState
     public int currentMP;
     public int level = 1;
     public int exp = 0;
+
+    // 装備中の装備ID(CS_ItemDatabaseで解決する)。未装備は空文字
+    public string equippedWeaponId = "";
+    public string equippedArmorId = "";
+    public string equippedAccessoryId = "";
 }

@@ -38,3 +38,7 @@ MonoBehaviour:
     multiplier: 1.5
   - element: 4
     multiplier: 0.7
+  _itemDrops: []
+  _equipmentDrops:
+  - itemId: SpeedCharm
+    dropChance: 0.15

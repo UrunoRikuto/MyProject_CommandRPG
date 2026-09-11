@@ -11,6 +11,9 @@ public class CS_CharacterState
     // キャラクターの基礎データ
     private CSO_CharacterData _characterData;
 
+    // 装備中の装備品(敵は常に空リスト。味方のみCS_BattleStateMachineから渡される)
+    private IReadOnlyList<CSO_EquipmentData> _equipment;
+
     // キャラクターが死亡しているかどうか
     public bool isDead => _currentHealth <= 0;
 
@@ -66,15 +69,46 @@ public class CS_CharacterState
     // 撃破された際に相手に与える経験値(レベルが高いほど多くなる。基礎値×現在レベル)
     public int expReward => _characterData.expReward * _level;
 
-    /// <summary>
-    /// 指定した属性に対するこのキャラクターの耐性倍率(1=等倍)
-    /// </summary>
-    public float GetElementMultiplier(CSE_ElementType element) => _characterData.GetElementMultiplier(element);
+    // 撃破された際にドロップする可能性のあるアイテム/装備
+    public IReadOnlyList<CSE_DropEntry> itemDrops => _characterData.itemDrops;
+    public IReadOnlyList<CSE_DropEntry> equipmentDrops => _characterData.equipmentDrops;
 
-    public CS_CharacterState(CSO_CharacterData data, int level = 1)
+    /// <summary>
+    /// 指定した属性に対するこのキャラクターの耐性倍率(1=等倍)。装備の補正は乗算でスタックする
+    /// </summary>
+    public float GetElementMultiplier(CSE_ElementType element)
+    {
+        float multiplier = _characterData.GetElementMultiplier(element);
+        foreach (var equipment in _equipment)
+        {
+            multiplier *= equipment.GetElementMultiplier(element);
+        }
+        return multiplier;
+    }
+
+    /// <summary>
+    /// 「たたかう」で与える属性。武器のattackElementOverrideがNone以外ならそれを使う(毒武器など)
+    /// </summary>
+    public CSE_ElementType attackElement
+    {
+        get
+        {
+            foreach (var equipment in _equipment)
+            {
+                if (equipment.slotType == CSE_EquipmentSlot.Weapon && equipment.attackElementOverride != CSE_ElementType.None)
+                {
+                    return equipment.attackElementOverride;
+                }
+            }
+            return CSE_ElementType.None;
+        }
+    }
+
+    public CS_CharacterState(CSO_CharacterData data, int level = 1, IReadOnlyList<CSO_EquipmentData> equipment = null)
     {
         _characterData = data;
         _level = Mathf.Clamp(level, 1, MAX_LEVEL);
+        _equipment = equipment ?? new List<CSO_EquipmentData>();
 
         RecalculateStats();
         _currentHealth = _maxHealth;
@@ -85,7 +119,8 @@ public class CS_CharacterState
     }
 
     /// <summary>
-    /// レベルに応じた最大ステータスを算出する(基礎値+成長値×(レベル-1)、1レベルごとの上昇値は固定)
+    /// レベルに応じた最大ステータスを算出する(基礎値+成長値×(レベル-1)、1レベルごとの上昇値は固定)。
+    /// 装備中のボーナスもここで加算する
     /// </summary>
     private void RecalculateStats()
     {
@@ -96,6 +131,15 @@ public class CS_CharacterState
         _currentAttack = _characterData.baseAttack + _characterData.attackGrowth * levelBonus;
         _currentDefense = _characterData.baseDefense + _characterData.defenseGrowth * levelBonus;
         _currentSpeed = _characterData.baseSpeed + _characterData.speedGrowth * levelBonus;
+
+        foreach (var equipment in _equipment)
+        {
+            _maxHealth += equipment.healthBonus;
+            _maxMP += equipment.mpBonus;
+            _currentAttack += equipment.attackBonus;
+            _currentDefense += equipment.defenseBonus;
+            _currentSpeed += equipment.speedBonus;
+        }
     }
 
     /// <summary>
@@ -108,8 +152,8 @@ public class CS_CharacterState
         // 防御力を考慮した実際のダメージ量を計算(最低1)
         int baseDamage = Mathf.Max(damage - _currentDefense, 1);
 
-        // 属性耐性を乗算する(0倍なら完全無効化できる)
-        float elementMultiplier = element == CSE_ElementType.None ? 1f : _characterData.GetElementMultiplier(element);
+        // 属性耐性を乗算する(0倍なら完全無効化できる。装備の補正込み)
+        float elementMultiplier = element == CSE_ElementType.None ? 1f : GetElementMultiplier(element);
 
         // ランダム性を加えてダメージ量を変動させる(例: ±10%の範囲で変動)
         float randomFactor = Random.Range(0.9f, 1.1f);
@@ -201,5 +245,21 @@ public class CS_CharacterState
     {
         _currentHealth = _maxHealth;
         _currentMP = _maxMP;
+    }
+
+    /// <summary>
+    /// 体力を指定量回復する(最大値でクランプ。回復アイテム用)
+    /// </summary>
+    public void Heal(int amount)
+    {
+        _currentHealth = Mathf.Min(_maxHealth, _currentHealth + amount);
+    }
+
+    /// <summary>
+    /// MPを指定量回復する(最大値でクランプ。MP回復アイテム用)
+    /// </summary>
+    public void RestoreMP(int amount)
+    {
+        _currentMP = Mathf.Min(_maxMP, _currentMP + amount);
     }
 }

@@ -36,3 +36,7 @@ MonoBehaviour:
     multiplier: 0.5
   - element: 7
     multiplier: 1.5
+  _itemDrops: []
+  _equipmentDrops:
+  - itemId: IronPlate
+    dropChance: 0.2

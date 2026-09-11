@@ -13,6 +13,7 @@ public class CS_BattleResultHandler : MonoBehaviour
         if (result == CSE_BattleResult.Win)
         {
             GrantExpToSurvivors();
+            GrantDropsFromDefeatedEnemies();
         }
 
         if (result == CSE_BattleResult.Lose)
@@ -65,6 +66,35 @@ public class CS_BattleResultHandler : MonoBehaviour
             if (totalExp > 0)
             {
                 ally.GainExp(totalExp);
+            }
+        }
+    }
+
+    /// <summary>
+    /// 倒した敵ごとに設定されたドロップ表を確率抽選し、当選したアイテム/装備を所持品に加える
+    /// </summary>
+    private void GrantDropsFromDefeatedEnemies()
+    {
+        foreach (var enemy in _battleStateMachine.context.enemyParty)
+        {
+            if (!enemy.isDead) continue;
+
+            foreach (var drop in enemy.itemDrops)
+            {
+                if (Random.value <= drop.dropChance)
+                {
+                    CS_GameManager.Instance.AddItem(drop.itemId, 1);
+                    Debug.Log($"{enemy.characterName}から{drop.itemId}をドロップした！");
+                }
+            }
+
+            foreach (var drop in enemy.equipmentDrops)
+            {
+                if (Random.value <= drop.dropChance)
+                {
+                    CS_GameManager.Instance.AddEquipment(drop.itemId, 1);
+                    Debug.Log($"{enemy.characterName}から{drop.itemId}をドロップした！");
+                }
             }
         }
     }

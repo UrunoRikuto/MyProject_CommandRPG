@@ -61,6 +61,7 @@ public class CS_BattleStateActionExecute : IBattleState
 
         if (command is CS_AttackCommand)
         {
+            element = actor.attackElement;
             return true;
         }
 
@@ -73,6 +74,16 @@ public class CS_BattleStateActionExecute : IBattleState
             if (actor.currentMP < skillData.cost) return false;
 
             element = skillData.element;
+            return true;
+        }
+
+        if (command is CS_ItemCommand itemCommand)
+        {
+            bool usable = CS_GameManager.Instance.isDebugMode
+                || CS_GameManager.Instance.GetItemCount(itemCommand.itemData.itemId) > 0;
+            if (!usable) return false;
+
+            element = itemCommand.itemData.element;
             return true;
         }
 
