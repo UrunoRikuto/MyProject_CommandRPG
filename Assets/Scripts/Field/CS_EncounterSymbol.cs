@@ -33,6 +33,22 @@ public class CS_EncounterSymbol : MonoBehaviour
         CS_ValueObserver.Instance.Register(gameObject, this, name + "のクールタイム", () => _currentCoolTime);
     }
 
+    /// <summary>
+    /// エディタ編集中のSceneビューにだけ、エンカウントエリアを半透明な赤色で表示する
+    /// (ゲーム画面には映らないUnity標準のギズモ機能。実行中の見た目には影響しない)
+    /// </summary>
+    private void OnDrawGizmos()
+    {
+        BoxCollider2D boxCollider = GetComponent<BoxCollider2D>();
+        Vector2 size = boxCollider != null ? boxCollider.size : Vector2.one;
+        Vector2 offset = boxCollider != null ? boxCollider.offset : Vector2.zero;
+
+        Gizmos.color = new Color(1f, 0f, 0f, 0.35f);
+        Vector3 center = transform.TransformPoint(offset);
+        Vector3 size3D = new Vector3(size.x * transform.lossyScale.x, size.y * transform.lossyScale.y, 0.1f);
+        Gizmos.DrawCube(center, size3D);
+    }
+
     private void Update()
     {
         // クールタイムを減少させる
