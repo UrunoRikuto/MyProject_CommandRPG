@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e0bb5039f0cb154aafc1ed75534c028, type: 3}
   m_Name: DB_Char_Gargoyle
   m_EditorClassIdentifier: Assembly-CSharp::CSO_CharacterData
-  _characterName: Gargoyle
+  _characterName: ガーゴイル
   _characterIcon: {fileID: 21300000, guid: b54320cfb1b24b60a6c9456e653a9fd1, type: 3}
   _baseHealth: 65
   _baseMP: 20

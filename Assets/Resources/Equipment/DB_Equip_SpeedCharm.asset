@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: DB_Equip_SpeedCharm
   m_EditorClassIdentifier: Assembly-CSharp::CSO_EquipmentData
   _equipmentId: SpeedCharm
-  _equipmentName: SpeedCharm
+  _equipmentName: 俊足のお守り
   _icon: {fileID: 0}
   _slotType: 2
   _healthBonus: 0

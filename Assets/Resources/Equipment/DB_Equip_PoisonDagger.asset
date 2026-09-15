@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: DB_Equip_PoisonDagger
   m_EditorClassIdentifier: Assembly-CSharp::CSO_EquipmentData
   _equipmentId: PoisonDagger
-  _equipmentName: PoisonDagger
+  _equipmentName: 毒の短剣
   _icon: {fileID: 0}
   _slotType: 0
   _healthBonus: 0

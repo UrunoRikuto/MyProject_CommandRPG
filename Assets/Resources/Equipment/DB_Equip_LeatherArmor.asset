@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: DB_Equip_LeatherArmor
   m_EditorClassIdentifier: Assembly-CSharp::CSO_EquipmentData
   _equipmentId: LeatherArmor
-  _equipmentName: LeatherArmor
+  _equipmentName: 革の鎧
   _icon: {fileID: 0}
   _slotType: 1
   _healthBonus: 0

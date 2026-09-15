@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: DB_Equip_IronPlate
   m_EditorClassIdentifier: Assembly-CSharp::CSO_EquipmentData
   _equipmentId: IronPlate
-  _equipmentName: IronPlate
+  _equipmentName: 鉄の鎧
   _icon: {fileID: 0}
   _slotType: 1
   _healthBonus: 15

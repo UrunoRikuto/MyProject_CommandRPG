@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: DB_Item_Ether
   m_EditorClassIdentifier: Assembly-CSharp::CSO_ItemData
   _itemId: Ether
-  _itemName: Ether
+  _itemName: エーテル
   _icon: {fileID: 0}
   _targetSide: 0
   _effectType: 1

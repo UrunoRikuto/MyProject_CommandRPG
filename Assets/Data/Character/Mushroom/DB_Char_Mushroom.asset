@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e0bb5039f0cb154aafc1ed75534c028, type: 3}
   m_Name: DB_Char_Mushroom
   m_EditorClassIdentifier: Assembly-CSharp::CSO_CharacterData
-  _characterName: Mushroom
+  _characterName: マッシュルーム
   _characterIcon: {fileID: 21300000, guid: 10938a8dde714b659b680178730fb72a, type: 3}
   _baseHealth: 18
   _baseMP: 0

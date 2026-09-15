@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: DB_Item_Potion
   m_EditorClassIdentifier: Assembly-CSharp::CSO_ItemData
   _itemId: Potion
-  _itemName: Potion
+  _itemName: ポーション
   _icon: {fileID: 0}
   _targetSide: 0
   _effectType: 0

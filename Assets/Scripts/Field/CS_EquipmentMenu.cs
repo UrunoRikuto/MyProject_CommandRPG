@@ -149,19 +149,18 @@ public class CS_EquipmentMenu : MonoBehaviour
         string armorId = CS_GameManager.Instance.GetEquipped(characterName, CSE_EquipmentSlot.Armor);
         string accessoryId = CS_GameManager.Instance.GetEquipped(characterName, CSE_EquipmentSlot.Accessory);
 
-        // 日本語グリフを持つTMP Font Assetが無いため、動的テキストは既存の慣例に合わせて英語表記にする
         _infoText.text =
             $"{characterName}\n" +
-            $"Weapon: {DisplayName(weaponId)}\n" +
-            $"Armor: {DisplayName(armorId)}\n" +
-            $"Accessory: {DisplayName(accessoryId)}\n" +
+            $"武器: {DisplayName(weaponId)}\n" +
+            $"防具: {DisplayName(armorId)}\n" +
+            $"装飾品: {DisplayName(accessoryId)}\n" +
             BuildStatPreview(characterName, weaponId, armorId, accessoryId);
     }
 
     private string DisplayName(string equipmentId)
     {
         var equipment = CS_ItemDatabase.GetEquipment(equipmentId);
-        return equipment != null ? equipment.equipmentName : "None";
+        return equipment != null ? equipment.equipmentName : "なし";
     }
 
     /// <summary>

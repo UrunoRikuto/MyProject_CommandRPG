@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e0bb5039f0cb154aafc1ed75534c028, type: 3}
   m_Name: DB_Char_Warlock
   m_EditorClassIdentifier: Assembly-CSharp::CSO_CharacterData
-  _characterName: Warlock
+  _characterName: ウォーロック
   _characterIcon: {fileID: 21300000, guid: de7d328b7e2648c892d841c48a4a62c8, type: 3}
   _baseHealth: 18
   _baseMP: 28

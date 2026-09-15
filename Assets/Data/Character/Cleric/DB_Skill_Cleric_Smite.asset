@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b67d6621983315740b06d7fe8b06fee9, type: 3}
   m_Name: DB_Skill_Cleric_Smite
   m_EditorClassIdentifier: Assembly-CSharp::CSO_SkillData
-  _skillName: Smite
+  _skillName: スマイト
   _cost: 10
   _damageRate: 2.4
   _element: 7

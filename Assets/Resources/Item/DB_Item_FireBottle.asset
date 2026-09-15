@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: DB_Item_FireBottle
   m_EditorClassIdentifier: Assembly-CSharp::CSO_ItemData
   _itemId: FireBottle
-  _itemName: FireBottle
+  _itemName: 火炎瓶
   _icon: {fileID: 0}
   _targetSide: 1
   _effectType: 2

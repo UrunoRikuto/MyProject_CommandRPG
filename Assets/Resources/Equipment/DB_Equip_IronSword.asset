@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: DB_Equip_IronSword
   m_EditorClassIdentifier: Assembly-CSharp::CSO_EquipmentData
   _equipmentId: IronSword
-  _equipmentName: IronSword
+  _equipmentName: 鉄の剣
   _icon: {fileID: 0}
   _slotType: 0
   _healthBonus: 0

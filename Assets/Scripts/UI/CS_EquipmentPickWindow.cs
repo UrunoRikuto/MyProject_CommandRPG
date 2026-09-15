@@ -22,9 +22,8 @@ public class CS_EquipmentPickWindow : MonoBehaviour
         ClearButtons();
         gameObject.SetActive(true);
 
-        // 日本語グリフを持つTMP Font Assetが無いため、動的テキストは既存の慣例に合わせて英語表記にする
         Button unequipButton = Instantiate(_equipmentButtonPrefab, _buttonParent);
-        unequipButton.GetComponentInChildren<TextMeshProUGUI>().text = "(Unequip)";
+        unequipButton.GetComponentInChildren<TextMeshProUGUI>().text = "(外す)";
         unequipButton.onClick.AddListener(() => Select(null));
 
         foreach (var candidate in candidates)

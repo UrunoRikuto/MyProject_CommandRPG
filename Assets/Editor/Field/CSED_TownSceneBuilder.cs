@@ -445,8 +445,7 @@ public class CSED_TownSceneBuilder : EditorWindow
     }
 
     /// <summary>
-    /// マップ選択UI(4テーマ+キャンセル)をコードで組み立てる。
-    /// 日本語グリフ付きTMP Font Assetが無いプロジェクト方針に合わせ、ボタン文言は英語表記にしている
+    /// マップ選択UI(4テーマ+キャンセル)をコードで組み立てる
     /// </summary>
     private CS_MapSelectMenu BuildMapSelectUI(Scene townScene)
     {
@@ -472,11 +471,11 @@ public class CSED_TownSceneBuilder : EditorWindow
         SceneManager.MoveGameObjectToScene(controllerGo, townScene);
         CS_MapSelectMenu menu = controllerGo.AddComponent<CS_MapSelectMenu>();
 
-        CreateButton(panelGo.transform, "Grassland", new Vector2(0, 120), (UnityEngine.Events.UnityAction)menu.OnSelectGrasslandClicked);
-        CreateButton(panelGo.transform, "Desert", new Vector2(0, 60), (UnityEngine.Events.UnityAction)menu.OnSelectDesertClicked);
-        CreateButton(panelGo.transform, "Wetlands", new Vector2(0, 0), (UnityEngine.Events.UnityAction)menu.OnSelectWetlandsClicked);
-        CreateButton(panelGo.transform, "Snow", new Vector2(0, -60), (UnityEngine.Events.UnityAction)menu.OnSelectSnowClicked);
-        CreateButton(panelGo.transform, "Cancel", new Vector2(0, -130), (UnityEngine.Events.UnityAction)menu.OnCancelClicked);
+        CreateButton(panelGo.transform, "草原", new Vector2(0, 120), (UnityEngine.Events.UnityAction)menu.OnSelectGrasslandClicked);
+        CreateButton(panelGo.transform, "砂漠", new Vector2(0, 60), (UnityEngine.Events.UnityAction)menu.OnSelectDesertClicked);
+        CreateButton(panelGo.transform, "湿地", new Vector2(0, 0), (UnityEngine.Events.UnityAction)menu.OnSelectWetlandsClicked);
+        CreateButton(panelGo.transform, "雪原", new Vector2(0, -60), (UnityEngine.Events.UnityAction)menu.OnSelectSnowClicked);
+        CreateButton(panelGo.transform, "キャンセル", new Vector2(0, -130), (UnityEngine.Events.UnityAction)menu.OnCancelClicked);
 
         SerializedObject so = new SerializedObject(menu);
         so.FindProperty("_menuPanel").objectReferenceValue = panelGo;

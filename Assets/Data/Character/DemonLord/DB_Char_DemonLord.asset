@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e0bb5039f0cb154aafc1ed75534c028, type: 3}
   m_Name: DB_Char_DemonLord
   m_EditorClassIdentifier: Assembly-CSharp::CSO_CharacterData
-  _characterName: DemonLord
+  _characterName: 魔王
   _characterIcon: {fileID: 21300000, guid: 4f384493234149a6a1af18b1ef50ddf6, type: 3}
   _baseHealth: 180
   _baseMP: 150

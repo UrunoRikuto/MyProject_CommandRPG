@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b67d6621983315740b06d7fe8b06fee9, type: 3}
   m_Name: DB_Skill_Ghost_Haunt
   m_EditorClassIdentifier: Assembly-CSharp::CSO_SkillData
-  _skillName: Haunt
+  _skillName: 憑依
   _cost: 8
   _damageRate: 1.3
   _element: 8

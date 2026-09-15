@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b67d6621983315740b06d7fe8b06fee9, type: 3}
   m_Name: DB_Skill_Spider_PoisonBite
   m_EditorClassIdentifier: Assembly-CSharp::CSO_SkillData
-  _skillName: PoisonBite
+  _skillName: 毒噛み
   _cost: 6
   _damageRate: 1.4
   _element: 3

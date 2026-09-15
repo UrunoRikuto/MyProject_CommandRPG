@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b67d6621983315740b06d7fe8b06fee9, type: 3}
   m_Name: DB_Skill_Gargoyle_StoneDive
   m_EditorClassIdentifier: Assembly-CSharp::CSO_SkillData
-  _skillName: StoneDive
+  _skillName: ストーンダイブ
   _cost: 14
   _damageRate: 2.0
   _element: 6
