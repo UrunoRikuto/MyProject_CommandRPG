@@ -28,6 +28,14 @@ public class CS_GameManager : MonoBehaviour
     private List<CS_ItemStack> _ownedEquipment = new List<CS_ItemStack>();
     private List<string> _openedChestIds = new List<string>();
 
+    // クエスト板の受注可能なクエスト・受注中のクエスト(いずれもセーブ対象)
+    private const int QUEST_BOARD_SIZE = 3;
+    private const int MAX_ACTIVE_QUESTS = 3;
+    private List<CS_QuestData> _boardQuests = new List<CS_QuestData>();
+    private List<CS_QuestData> _activeQuests = new List<CS_QuestData>();
+    public IReadOnlyList<CS_QuestData> boardQuests => _boardQuests;
+    public IReadOnlyList<CS_QuestData> activeQuests => _activeQuests;
+
     // デバッグモード(タイトル画面でキーを押しながら「はじめから」した場合のみtrue。セーブ対象外)
     private bool _isDebugMode;
     public bool isDebugMode => _isDebugMode;
@@ -81,6 +89,8 @@ public class CS_GameManager : MonoBehaviour
         _ownedItems = saveData.ownedItems ?? new List<CS_ItemStack>();
         _ownedEquipment = saveData.ownedEquipment ?? new List<CS_ItemStack>();
         _openedChestIds = saveData.openedChestIds ?? new List<string>();
+        _boardQuests = saveData.boardQuests ?? new List<CS_QuestData>();
+        _activeQuests = saveData.activeQuests ?? new List<CS_QuestData>();
         _currentSceneName = string.IsNullOrEmpty(saveData.currentSceneName) ? "TownScene" : saveData.currentSceneName;
     }
 
@@ -124,6 +134,8 @@ public class CS_GameManager : MonoBehaviour
         _ownedItems = new List<CS_ItemStack>();
         _ownedEquipment = new List<CS_ItemStack>();
         _openedChestIds = new List<string>();
+        _boardQuests = new List<CS_QuestData>();
+        _activeQuests = new List<CS_QuestData>();
         _currentSceneName = "TownScene";
     }
 
@@ -170,6 +182,8 @@ public class CS_GameManager : MonoBehaviour
             ownedItems = _ownedItems,
             ownedEquipment = _ownedEquipment,
             openedChestIds = _openedChestIds,
+            boardQuests = _boardQuests,
+            activeQuests = _activeQuests,
             currentSceneName = _currentSceneName
         };
         CS_SaveManager.Instance.Save(saveData);
@@ -276,6 +290,117 @@ public class CS_GameManager : MonoBehaviour
         if (!_openedChestIds.Contains(chestId))
         {
             _openedChestIds.Add(chestId);
+        }
+    }
+
+    /// <summary>
+    /// クエスト板の受注可能な一覧が既定数(3件)を下回っていたら、ランダムクエストで補充する。
+    /// クエスト板を開くたびに呼ぶ
+    /// </summary>
+    public void EnsureQuestBoardFilled()
+    {
+        while (_boardQuests.Count < QUEST_BOARD_SIZE)
+        {
+            CS_QuestData quest = GenerateRandomQuest();
+            if (quest == null) break;
+            _boardQuests.Add(quest);
+        }
+    }
+
+    /// <summary>
+    /// 討伐対象・目標数・報酬をランダムに決めたクエストを1件作る。
+    /// 討伐対象はCSO_QuestMonsterPool(Resources/Quest/DB_QuestMonsterPool)から、
+    /// 報酬はCS_ItemDatabaseのアイテム・装備を合わせたプールから抽選する
+    /// </summary>
+    private CS_QuestData GenerateRandomQuest()
+    {
+        CSO_QuestMonsterPool monsterPool = Resources.Load<CSO_QuestMonsterPool>("Quest/DB_QuestMonsterPool");
+        if (monsterPool == null || monsterPool.monsters.Count == 0)
+        {
+            Debug.LogWarning("Resources/Quest/DB_QuestMonsterPoolが見つからないか空です。クエストを生成できません。");
+            return null;
+        }
+
+        CSO_CharacterData targetMonster = monsterPool.monsters[UnityEngine.Random.Range(0, monsterPool.monsters.Count)];
+
+        var allItems = CS_ItemDatabase.AllItems;
+        var allEquipment = CS_ItemDatabase.AllEquipment;
+        int totalRewardCandidates = allItems.Count + allEquipment.Count;
+        if (totalRewardCandidates == 0)
+        {
+            Debug.LogWarning("報酬候補となるアイテム/装備が見つかりません。クエストを生成できません。");
+            return null;
+        }
+
+        int rewardIndex = UnityEngine.Random.Range(0, totalRewardCandidates);
+        CSE_QuestRewardType rewardType;
+        string rewardId;
+        if (rewardIndex < allItems.Count)
+        {
+            rewardType = CSE_QuestRewardType.Item;
+            rewardId = allItems[rewardIndex].itemId;
+        }
+        else
+        {
+            rewardType = CSE_QuestRewardType.Equipment;
+            rewardId = allEquipment[rewardIndex - allItems.Count].equipmentId;
+        }
+
+        return new CS_QuestData
+        {
+            questId = System.Guid.NewGuid().ToString(),
+            targetMonsterName = targetMonster.characterName,
+            targetCount = UnityEngine.Random.Range(3, 9),
+            currentCount = 0,
+            rewardType = rewardType,
+            rewardId = rewardId,
+            rewardCount = rewardType == CSE_QuestRewardType.Item ? UnityEngine.Random.Range(1, 4) : 1,
+            isAccepted = false,
+        };
+    }
+
+    /// <summary>
+    /// 指定したクエストを受注する。受注中のクエストが上限(3件)に達していたら失敗しfalseを返す
+    /// </summary>
+    public bool AcceptQuest(string questId)
+    {
+        if (_activeQuests.Count >= MAX_ACTIVE_QUESTS) return false;
+
+        CS_QuestData quest = _boardQuests.Find(q => q.questId == questId);
+        if (quest == null) return false;
+
+        _boardQuests.Remove(quest);
+        quest.isAccepted = true;
+        _activeQuests.Add(quest);
+        EnsureQuestBoardFilled();
+        return true;
+    }
+
+    /// <summary>
+    /// 敵を1体倒すたびに呼ぶ。対象種族が一致する受注中クエストの進捗を進め、
+    /// 目標数に達したら報酬を即座に付与してクエストを完了扱いにする
+    /// </summary>
+    public void ReportMonsterDefeated(string characterName)
+    {
+        for (int i = _activeQuests.Count - 1; i >= 0; i--)
+        {
+            CS_QuestData quest = _activeQuests[i];
+            if (quest.targetMonsterName != characterName) continue;
+
+            quest.currentCount++;
+            if (quest.currentCount < quest.targetCount) continue;
+
+            if (quest.rewardType == CSE_QuestRewardType.Item)
+            {
+                AddItem(quest.rewardId, quest.rewardCount);
+            }
+            else
+            {
+                AddEquipment(quest.rewardId, quest.rewardCount);
+            }
+            Debug.Log($"クエスト達成: {quest.targetMonsterName}を{quest.targetCount}体討伐、報酬を獲得しました。");
+
+            _activeQuests.RemoveAt(i);
         }
     }
 

@@ -18,4 +18,8 @@ public class CS_SaveData
     public List<CS_ItemStack> ownedItems = new List<CS_ItemStack>();
     public List<CS_ItemStack> ownedEquipment = new List<CS_ItemStack>();
     public List<string> openedChestIds = new List<string>();
+
+    // クエスト板の受注可能なクエスト、受注中のクエスト
+    public List<CS_QuestData> boardQuests = new List<CS_QuestData>();
+    public List<CS_QuestData> activeQuests = new List<CS_QuestData>();
 }

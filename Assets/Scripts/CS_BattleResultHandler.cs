@@ -14,6 +14,7 @@ public class CS_BattleResultHandler : MonoBehaviour
         {
             GrantExpToSurvivors();
             GrantDropsFromDefeatedEnemies();
+            ReportDefeatedEnemiesToQuests();
         }
 
         if (result == CSE_BattleResult.Lose)
@@ -96,6 +97,18 @@ public class CS_BattleResultHandler : MonoBehaviour
                     Debug.Log($"{enemy.characterName}から{drop.itemId}をドロップした！");
                 }
             }
+        }
+    }
+
+    /// <summary>
+    /// 倒した敵ごとに、クエスト板の受注中クエストの進捗を更新する
+    /// </summary>
+    private void ReportDefeatedEnemiesToQuests()
+    {
+        foreach (var enemy in _battleStateMachine.context.enemyParty)
+        {
+            if (!enemy.isDead) continue;
+            CS_GameManager.Instance.ReportMonsterDefeated(enemy.characterName);
         }
     }
 }

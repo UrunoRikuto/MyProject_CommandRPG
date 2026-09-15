@@ -165,6 +165,26 @@ public class CSED_TownSceneBuilder : EditorWindow
         CreateDecoration(parent.transform, "FlowerPot_1", flowerPot, new Vector3(8.5f, 9.5f, 0f), Vector2.one, true, null);
         CreateDecoration(parent.transform, "FlowerPot_2", flowerPot, new Vector3(12.5f, 9.5f, 0f), Vector2.one, true, null);
 
+        // 石碑(Grave)をクエスト板として使う。装飾用の当たり判定(物理ブロック)はそのまま残し、
+        // 別途プレイヤーの近接検知用のトリガーコライダー+CS_QuestBoardを追加する
+        GameObject graveObject = parent.transform.Find("Grave")?.gameObject;
+        CS_QuestBoard questBoard = null;
+        if (graveObject != null)
+        {
+            questBoard = graveObject.GetComponent<CS_QuestBoard>();
+            if (questBoard == null)
+            {
+                BoxCollider2D proximityCollider = graveObject.AddComponent<BoxCollider2D>();
+                proximityCollider.isTrigger = true;
+                proximityCollider.size = new Vector2(2.5f, 2.5f);
+                questBoard = graveObject.AddComponent<CS_QuestBoard>();
+            }
+        }
+        else
+        {
+            Debug.LogWarning("Graveオブジェクトが見つからず、クエスト板を設定できませんでした。");
+        }
+
         // 既存のTownGate(以前のバージョンで見た目なしのまま作られたもの)に看板テクスチャを補完する
         GameObject townGate = FindRootByName(townScene, "TownGate");
         if (townGate != null)
@@ -187,6 +207,11 @@ public class CSED_TownSceneBuilder : EditorWindow
             {
                 menuObject.SetActive(true);
             }
+        }
+
+        if (questBoard != null)
+        {
+            BuildQuestBoardUI(townScene, questBoard);
         }
 
         EditorSceneManager.MarkSceneDirty(townScene);
@@ -634,6 +659,184 @@ public class CSED_TownSceneBuilder : EditorWindow
         monsterText.alignment = TextAlignmentOptions.Center;
         monsterText.color = new Color(0.8f, 0.8f, 0.85f);
         monsterText.fontSize = 16;
+    }
+
+    private const string QUEST_BOARD_CANVAS_NAME = "QuestBoardCanvas";
+    private const string QUEST_BOARD_CONTROLLER_NAME = "QuestBoardMenuController";
+    private const float QUEST_ROW_HEIGHT = 70f;
+
+    /// <summary>
+    /// クエスト板(石碑)のウィンドウをコードで組み立てる。受注可能なクエスト一覧(左、受注ボタン付き)と
+    /// 受注中のクエスト一覧(右、進捗表示のみ)を、それぞれScrollRectの動的リストとして持つ。
+    /// 何度実行しても既存のCanvas/Controllerを破棄してから作り直す(AddTownBuildings全体の再実行に合わせる)
+    /// </summary>
+    private void BuildQuestBoardUI(Scene townScene, CS_QuestBoard questBoard)
+    {
+        GameObject existingCanvas = FindRootByName(townScene, QUEST_BOARD_CANVAS_NAME);
+        if (existingCanvas != null) DestroyImmediate(existingCanvas);
+        GameObject existingController = FindRootByName(townScene, QUEST_BOARD_CONTROLLER_NAME);
+        if (existingController != null) DestroyImmediate(existingController);
+
+        GameObject canvasGo = new GameObject(QUEST_BOARD_CANVAS_NAME, typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
+        SceneManager.MoveGameObjectToScene(canvasGo, townScene);
+        Canvas canvas = canvasGo.GetComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        CanvasScaler scaler = canvasGo.GetComponent<CanvasScaler>();
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = new Vector2(1280, 720);
+
+        GameObject panelGo = new GameObject("QuestBoardPanel", typeof(RectTransform), typeof(Image));
+        panelGo.transform.SetParent(canvasGo.transform, false);
+        RectTransform panelRect = panelGo.GetComponent<RectTransform>();
+        panelRect.anchorMin = panelRect.anchorMax = new Vector2(0.5f, 0.5f);
+        panelRect.sizeDelta = new Vector2(760, 560);
+        panelRect.anchoredPosition = Vector2.zero;
+        Image panelImage = panelGo.GetComponent<Image>();
+        panelImage.sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprites/UI/UI_Window.png");
+        panelImage.type = Image.Type.Sliced;
+
+        GameObject controllerGo = new GameObject(QUEST_BOARD_CONTROLLER_NAME);
+        SceneManager.MoveGameObjectToScene(controllerGo, townScene);
+        CS_QuestBoardMenu menu = controllerGo.AddComponent<CS_QuestBoardMenu>();
+
+        CreateSectionLabel(panelGo.transform, "受注可能なクエスト", new Vector2(-190, 245));
+        CreateSectionLabel(panelGo.transform, "進行中のクエスト", new Vector2(190, 245));
+
+        Transform boardContent = CreateScrollList(panelGo.transform, new Vector2(-190, -20), new Vector2(340, 380), out ScrollRect boardScrollRect);
+        Transform activeContent = CreateScrollList(panelGo.transform, new Vector2(190, -20), new Vector2(340, 380), out ScrollRect activeScrollRect);
+
+        // 行テンプレートはリストのContentではなくPanel直下に置く。Content配下に置いてしまうと、
+        // RefreshLists()のClearChildren()がリスト再構築のたびにテンプレート自身も道連れで
+        // 非表示化→Destroyしてしまい、2回目以降Instantiateできなくなる不具合があったため
+        GameObject boardRowTemplate = CreateQuestRow(panelGo.transform, "BoardRowTemplate", true);
+        GameObject activeRowTemplate = CreateQuestRow(panelGo.transform, "ActiveRowTemplate", false);
+
+        CreateButton(panelGo.transform, "閉じる", new Vector2(0, -250), (UnityEngine.Events.UnityAction)menu.OnCloseButtonClicked);
+
+        SerializedObject so = new SerializedObject(menu);
+        so.FindProperty("_menuPanel").objectReferenceValue = panelGo;
+        so.FindProperty("_boardRowTemplate").objectReferenceValue = boardRowTemplate;
+        so.FindProperty("_boardListParent").objectReferenceValue = boardContent;
+        so.FindProperty("_boardScrollRect").objectReferenceValue = boardScrollRect;
+        so.FindProperty("_activeRowTemplate").objectReferenceValue = activeRowTemplate;
+        so.FindProperty("_activeListParent").objectReferenceValue = activeContent;
+        so.FindProperty("_activeScrollRect").objectReferenceValue = activeScrollRect;
+        so.ApplyModifiedPropertiesWithoutUndo();
+
+        panelGo.SetActive(false);
+
+        SerializedObject boardSo = new SerializedObject(questBoard);
+        boardSo.FindProperty("_questBoardMenu").objectReferenceValue = menu;
+        boardSo.ApplyModifiedPropertiesWithoutUndo();
+    }
+
+    private void CreateSectionLabel(Transform parent, string label, Vector2 anchoredPosition)
+    {
+        GameObject textGo = new GameObject("Label", typeof(RectTransform), typeof(TextMeshProUGUI));
+        textGo.transform.SetParent(parent, false);
+        RectTransform rect = textGo.GetComponent<RectTransform>();
+        rect.sizeDelta = new Vector2(340, 30);
+        rect.anchoredPosition = anchoredPosition;
+        TextMeshProUGUI text = textGo.GetComponent<TextMeshProUGUI>();
+        text.text = label;
+        text.alignment = TextAlignmentOptions.Center;
+        text.color = Color.white;
+        text.fontSize = 22;
+    }
+
+    /// <summary>
+    /// スクロール可能なリスト領域を1つ作る。ScrollRect+Mask+背景Imageを同一オブジェクトに持たせ、
+    /// その子にContentを配置する。行の並べ方はVerticalLayoutGroupに頼らず、
+    /// CS_QuestBoardMenu側でCS_EquipmentMenu.BuildMemberButtonsと同じ「anchoredPositionを
+    /// 直接計算する」方式にする(LayoutGroupのChildControlWidth/Height未設定だと
+    /// 子の幅が0のまま反映されない問題があり、確実に動く手動計算方式に統一した)
+    /// </summary>
+    private Transform CreateScrollList(Transform parent, Vector2 anchoredPosition, Vector2 size, out ScrollRect scrollRect)
+    {
+        GameObject viewGo = new GameObject("ScrollView", typeof(RectTransform), typeof(Image), typeof(Mask), typeof(ScrollRect));
+        viewGo.transform.SetParent(parent, false);
+        RectTransform viewRect = viewGo.GetComponent<RectTransform>();
+        viewRect.anchorMin = viewRect.anchorMax = new Vector2(0.5f, 0.5f);
+        viewRect.sizeDelta = size;
+        viewRect.anchoredPosition = anchoredPosition;
+
+        Image viewImage = viewGo.GetComponent<Image>();
+        viewImage.color = new Color(0f, 0f, 0f, 0.15f);
+        Mask mask = viewGo.GetComponent<Mask>();
+        mask.showMaskGraphic = true;
+
+        GameObject contentGo = new GameObject("Content", typeof(RectTransform));
+        contentGo.transform.SetParent(viewGo.transform, false);
+        RectTransform contentRect = contentGo.GetComponent<RectTransform>();
+        contentRect.anchorMin = new Vector2(0f, 1f);
+        contentRect.anchorMax = new Vector2(1f, 1f);
+        contentRect.pivot = new Vector2(0.5f, 1f);
+        contentRect.sizeDelta = Vector2.zero;
+        contentRect.anchoredPosition = Vector2.zero;
+
+        scrollRect = viewGo.GetComponent<ScrollRect>();
+        scrollRect.content = contentRect;
+        scrollRect.viewport = viewRect;
+        scrollRect.horizontal = false;
+        scrollRect.vertical = true;
+        scrollRect.movementType = ScrollRect.MovementType.Clamped;
+
+        return contentGo.transform;
+    }
+
+    /// <summary>
+    /// クエスト1件分の行テンプレート。Title/Rewardの2段テキストを持つ。受注可能リスト用のみButtonを持たせる。
+    /// 幅は上下ストレッチアンカー(anchorMin.x=0, anchorMax.x=1)でContentの幅に自動追従させ、
+    /// 高さ・縦位置はCS_QuestBoardMenu側でインスタンス化するたびに直接計算する
+    /// </summary>
+    private GameObject CreateQuestRow(Transform parent, string name, bool withAcceptButton)
+    {
+        GameObject rowGo = withAcceptButton
+            ? new GameObject(name, typeof(RectTransform), typeof(Image), typeof(Button))
+            : new GameObject(name, typeof(RectTransform), typeof(Image));
+        rowGo.transform.SetParent(parent, false);
+        RectTransform rowRect = rowGo.GetComponent<RectTransform>();
+        rowRect.anchorMin = new Vector2(0f, 1f);
+        rowRect.anchorMax = new Vector2(1f, 1f);
+        rowRect.pivot = new Vector2(0.5f, 1f);
+        rowRect.sizeDelta = new Vector2(0f, QUEST_ROW_HEIGHT);
+        rowRect.anchoredPosition = Vector2.zero;
+
+        Image image = rowGo.GetComponent<Image>();
+        image.sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprites/UI/UI_Button.png");
+        image.type = Image.Type.Sliced;
+
+        if (withAcceptButton)
+        {
+            Button button = rowGo.GetComponent<Button>();
+            button.targetGraphic = image;
+        }
+
+        GameObject titleGo = new GameObject("Title", typeof(RectTransform), typeof(TextMeshProUGUI));
+        titleGo.transform.SetParent(rowGo.transform, false);
+        RectTransform titleRect = titleGo.GetComponent<RectTransform>();
+        titleRect.anchorMin = new Vector2(0.05f, 0.5f);
+        titleRect.anchorMax = new Vector2(0.95f, 1f);
+        titleRect.sizeDelta = Vector2.zero;
+        titleRect.anchoredPosition = Vector2.zero;
+        TextMeshProUGUI titleText = titleGo.GetComponent<TextMeshProUGUI>();
+        titleText.alignment = TextAlignmentOptions.MidlineLeft;
+        titleText.color = Color.white;
+        titleText.fontSize = 20;
+
+        GameObject rewardGo = new GameObject("Reward", typeof(RectTransform), typeof(TextMeshProUGUI));
+        rewardGo.transform.SetParent(rowGo.transform, false);
+        RectTransform rewardRect = rewardGo.GetComponent<RectTransform>();
+        rewardRect.anchorMin = new Vector2(0.05f, 0f);
+        rewardRect.anchorMax = new Vector2(0.95f, 0.5f);
+        rewardRect.sizeDelta = Vector2.zero;
+        rewardRect.anchoredPosition = Vector2.zero;
+        TextMeshProUGUI rewardText = rewardGo.GetComponent<TextMeshProUGUI>();
+        rewardText.alignment = TextAlignmentOptions.MidlineLeft;
+        rewardText.color = new Color(0.8f, 0.8f, 0.85f);
+        rewardText.fontSize = 16;
+
+        return rowGo;
     }
 
     private void CreateTownGate(Scene townScene, CS_MapSelectMenu mapSelectMenu)
