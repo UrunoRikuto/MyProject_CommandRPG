@@ -148,7 +148,7 @@ Transform:
   m_GameObject: {fileID: 118988}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 29.5, y: 6.5, z: 0}
+  m_LocalPosition: {x: 10.5, y: 36.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -167,7 +167,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5840869657245a799745ba3c951c02a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CS_FieldMonster
-  _encounterData: {fileID: 11400000, guid: 5e016c2c67d34b488b24d1191860f968, type: 2}
+  _encounterData: {fileID: 11400000, guid: 711e294ec3ee41c981186ba6b27ae5cf, type: 2}
+  _tier: 2
+  _companionData: {fileID: 0}
   _moveSpeed: 1.2
   _wanderRadius: 3
   _directionChangeInterval: 2
@@ -302,7 +304,7 @@ Transform:
   m_GameObject: {fileID: 28378833}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 28.5, y: 32.5, z: 0}
+  m_LocalPosition: {x: 53.5, y: 7.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -321,7 +323,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5840869657245a799745ba3c951c02a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CS_FieldMonster
-  _encounterData: {fileID: 11400000, guid: 5e016c2c67d34b488b24d1191860f968, type: 2}
+  _encounterData: {fileID: 11400000, guid: d6bc2b88a2de467b95d71eac8d3a8b56, type: 2}
+  _tier: 0
+  _companionData: {fileID: 0}
   _moveSpeed: 1.2
   _wanderRadius: 3
   _directionChangeInterval: 2
@@ -934,7 +938,7 @@ Transform:
   m_GameObject: {fileID: 270169297}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 39.5, y: 10.5, z: 0}
+  m_LocalPosition: {x: 4.5, y: 29.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -954,6 +958,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CS_FieldMonster
   _encounterData: {fileID: 11400000, guid: d6bc2b88a2de467b95d71eac8d3a8b56, type: 2}
+  _tier: 0
+  _companionData: {fileID: 0}
   _moveSpeed: 1.2
   _wanderRadius: 3
   _directionChangeInterval: 2
@@ -1231,7 +1237,7 @@ Transform:
   m_GameObject: {fileID: 294112798}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 23.5, y: 5.5, z: 0}
+  m_LocalPosition: {x: 23.5, y: 12.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1387,7 +1393,7 @@ Transform:
   m_GameObject: {fileID: 306628268}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 10.5, y: 36.5, z: 0}
+  m_LocalPosition: {x: 14.5, y: 11.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1406,7 +1412,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5840869657245a799745ba3c951c02a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CS_FieldMonster
-  _encounterData: {fileID: 11400000, guid: 711e294ec3ee41c981186ba6b27ae5cf, type: 2}
+  _encounterData: {fileID: 11400000, guid: 5e016c2c67d34b488b24d1191860f968, type: 2}
+  _tier: 1
+  _companionData: {fileID: 11400000, guid: d6bc2b88a2de467b95d71eac8d3a8b56, type: 2}
   _moveSpeed: 1.2
   _wanderRadius: 3
   _directionChangeInterval: 2
@@ -1774,7 +1782,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: 183e5c33090f468fb29ed3b2958d2c1d, type: 3}
+  m_Sprite: {fileID: 21300000, guid: df43f7d4e9b242449ef226107369b3a2, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -1885,7 +1893,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: 183e5c33090f468fb29ed3b2958d2c1d, type: 3}
+  m_Sprite: {fileID: 21300000, guid: df43f7d4e9b242449ef226107369b3a2, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -1924,7 +1932,7 @@ Transform:
   m_GameObject: {fileID: 423027465}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 22.26, y: 23.78, z: 0}
+  m_LocalPosition: {x: 29.5, y: 6.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1944,6 +1952,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CS_FieldMonster
   _encounterData: {fileID: 11400000, guid: d6bc2b88a2de467b95d71eac8d3a8b56, type: 2}
+  _tier: 0
+  _companionData: {fileID: 0}
   _moveSpeed: 1.2
   _wanderRadius: 3
   _directionChangeInterval: 2
@@ -2161,7 +2171,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: b54320cfb1b24b60a6c9456e653a9fd1, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 183e5c33090f468fb29ed3b2958d2c1d, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -2200,7 +2210,7 @@ Transform:
   m_GameObject: {fileID: 498025454}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 21.5, y: 27.5, z: 0}
+  m_LocalPosition: {x: 41.5, y: 34.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -2220,6 +2230,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CS_FieldMonster
   _encounterData: {fileID: 11400000, guid: d6bc2b88a2de467b95d71eac8d3a8b56, type: 2}
+  _tier: 0
+  _companionData: {fileID: 0}
   _moveSpeed: 1.2
   _wanderRadius: 3
   _directionChangeInterval: 2
@@ -2597,7 +2609,7 @@ Transform:
   m_GameObject: {fileID: 564114760}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 36.35, y: 14.64, z: 0}
+  m_LocalPosition: {x: 12.5, y: 29.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -2616,7 +2628,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5840869657245a799745ba3c951c02a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CS_FieldMonster
-  _encounterData: {fileID: 11400000, guid: 711e294ec3ee41c981186ba6b27ae5cf, type: 2}
+  _encounterData: {fileID: 11400000, guid: d6bc2b88a2de467b95d71eac8d3a8b56, type: 2}
+  _tier: 0
+  _companionData: {fileID: 0}
   _moveSpeed: 1.2
   _wanderRadius: 3
   _directionChangeInterval: 2
@@ -2751,7 +2765,7 @@ Transform:
   m_GameObject: {fileID: 575420874}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 17.5, y: 34.5, z: 0}
+  m_LocalPosition: {x: 6.5, y: 16.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -2770,7 +2784,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5840869657245a799745ba3c951c02a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CS_FieldMonster
-  _encounterData: {fileID: 11400000, guid: d6bc2b88a2de467b95d71eac8d3a8b56, type: 2}
+  _encounterData: {fileID: 11400000, guid: 5e016c2c67d34b488b24d1191860f968, type: 2}
+  _tier: 1
+  _companionData: {fileID: 11400000, guid: d6bc2b88a2de467b95d71eac8d3a8b56, type: 2}
   _moveSpeed: 1.2
   _wanderRadius: 3
   _directionChangeInterval: 2
@@ -2965,7 +2981,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: 183e5c33090f468fb29ed3b2958d2c1d, type: 3}
+  m_Sprite: {fileID: 21300000, guid: df43f7d4e9b242449ef226107369b3a2, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -3187,7 +3203,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: 183e5c33090f468fb29ed3b2958d2c1d, type: 3}
+  m_Sprite: {fileID: 21300000, guid: df43f7d4e9b242449ef226107369b3a2, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -3226,7 +3242,7 @@ Transform:
   m_GameObject: {fileID: 856305047}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 44.5, y: 17.5, z: 0}
+  m_LocalPosition: {x: 51.5, y: 25.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -3246,6 +3262,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CS_FieldMonster
   _encounterData: {fileID: 11400000, guid: 5e016c2c67d34b488b24d1191860f968, type: 2}
+  _tier: 1
+  _companionData: {fileID: 11400000, guid: d6bc2b88a2de467b95d71eac8d3a8b56, type: 2}
   _moveSpeed: 1.2
   _wanderRadius: 3
   _directionChangeInterval: 2
@@ -3581,7 +3599,7 @@ Transform:
   m_GameObject: {fileID: 932628269}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 53.5, y: 7.5, z: 0}
+  m_LocalPosition: {x: 28.5, y: 22.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -3601,6 +3619,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CS_FieldMonster
   _encounterData: {fileID: 11400000, guid: d6bc2b88a2de467b95d71eac8d3a8b56, type: 2}
+  _tier: 0
+  _companionData: {fileID: 0}
   _moveSpeed: 1.2
   _wanderRadius: 3
   _directionChangeInterval: 2
@@ -3735,7 +3755,7 @@ Transform:
   m_GameObject: {fileID: 944349689}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 41.5, y: 34.5, z: 0}
+  m_LocalPosition: {x: 44.5, y: 17.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -3754,7 +3774,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5840869657245a799745ba3c951c02a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CS_FieldMonster
-  _encounterData: {fileID: 11400000, guid: d6bc2b88a2de467b95d71eac8d3a8b56, type: 2}
+  _encounterData: {fileID: 11400000, guid: 5e016c2c67d34b488b24d1191860f968, type: 2}
+  _tier: 1
+  _companionData: {fileID: 11400000, guid: d6bc2b88a2de467b95d71eac8d3a8b56, type: 2}
   _moveSpeed: 1.2
   _wanderRadius: 3
   _directionChangeInterval: 2
@@ -33058,7 +33080,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: b54320cfb1b24b60a6c9456e653a9fd1, type: 3}
+  m_Sprite: {fileID: 21300000, guid: df43f7d4e9b242449ef226107369b3a2, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -33115,7 +33137,7 @@ Transform:
   m_GameObject: {fileID: 1153820609}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 12.5, y: 29.5, z: 0}
+  m_LocalPosition: {x: 34.5, y: 31.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -33134,7 +33156,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5840869657245a799745ba3c951c02a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CS_FieldMonster
-  _encounterData: {fileID: 11400000, guid: d6bc2b88a2de467b95d71eac8d3a8b56, type: 2}
+  _encounterData: {fileID: 11400000, guid: 5e016c2c67d34b488b24d1191860f968, type: 2}
+  _tier: 1
+  _companionData: {fileID: 11400000, guid: d6bc2b88a2de467b95d71eac8d3a8b56, type: 2}
   _moveSpeed: 1.2
   _wanderRadius: 3
   _directionChangeInterval: 2
@@ -33473,7 +33497,7 @@ Transform:
   m_GameObject: {fileID: 1237570619}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 4.5, y: 36.5, z: 0}
+  m_LocalPosition: {x: 7.5, y: 23.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -33493,6 +33517,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CS_FieldMonster
   _encounterData: {fileID: 11400000, guid: 5e016c2c67d34b488b24d1191860f968, type: 2}
+  _tier: 1
+  _companionData: {fileID: 11400000, guid: d6bc2b88a2de467b95d71eac8d3a8b56, type: 2}
   _moveSpeed: 1.2
   _wanderRadius: 3
   _directionChangeInterval: 2
@@ -33679,7 +33705,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: df43f7d4e9b242449ef226107369b3a2, type: 3}
+  m_Sprite: {fileID: 21300000, guid: b54320cfb1b24b60a6c9456e653a9fd1, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -33718,7 +33744,7 @@ Transform:
   m_GameObject: {fileID: 1243591057}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 51.5, y: 25.5, z: 0}
+  m_LocalPosition: {x: 21.5, y: 27.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -33737,7 +33763,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5840869657245a799745ba3c951c02a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CS_FieldMonster
-  _encounterData: {fileID: 11400000, guid: 711e294ec3ee41c981186ba6b27ae5cf, type: 2}
+  _encounterData: {fileID: 11400000, guid: d6bc2b88a2de467b95d71eac8d3a8b56, type: 2}
+  _tier: 0
+  _companionData: {fileID: 0}
   _moveSpeed: 1.2
   _wanderRadius: 3
   _directionChangeInterval: 2
@@ -33871,7 +33899,7 @@ Transform:
   m_GameObject: {fileID: 1257659885}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 23.5, y: 12.5, z: 0}
+  m_LocalPosition: {x: 23.5, y: 5.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -34107,7 +34135,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5840869657245a799745ba3c951c02a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CS_FieldMonster
-  _encounterData: {fileID: 11400000, guid: 5e016c2c67d34b488b24d1191860f968, type: 2}
+  _encounterData: {fileID: 11400000, guid: d6bc2b88a2de467b95d71eac8d3a8b56, type: 2}
+  _tier: 0
+  _companionData: {fileID: 0}
   _moveSpeed: 1.2
   _wanderRadius: 3
   _directionChangeInterval: 2
@@ -34346,7 +34376,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: df43f7d4e9b242449ef226107369b3a2, type: 3}
+  m_Sprite: {fileID: 21300000, guid: b54320cfb1b24b60a6c9456e653a9fd1, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -34455,7 +34485,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: 183e5c33090f468fb29ed3b2958d2c1d, type: 3}
+  m_Sprite: {fileID: 21300000, guid: b54320cfb1b24b60a6c9456e653a9fd1, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -34494,7 +34524,7 @@ Transform:
   m_GameObject: {fileID: 1674924422}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 34.5, y: 31.5, z: 0}
+  m_LocalPosition: {x: 32.5, y: 17.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -34514,6 +34544,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CS_FieldMonster
   _encounterData: {fileID: 11400000, guid: 5e016c2c67d34b488b24d1191860f968, type: 2}
+  _tier: 1
+  _companionData: {fileID: 11400000, guid: d6bc2b88a2de467b95d71eac8d3a8b56, type: 2}
   _moveSpeed: 1.2
   _wanderRadius: 3
   _directionChangeInterval: 2
@@ -34730,7 +34762,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: b54320cfb1b24b60a6c9456e653a9fd1, type: 3}
+  m_Sprite: {fileID: 21300000, guid: df43f7d4e9b242449ef226107369b3a2, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -34769,7 +34801,7 @@ Transform:
   m_GameObject: {fileID: 1777547744}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 14.5, y: 11.5, z: 0}
+  m_LocalPosition: {x: 28.5, y: 32.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -34788,7 +34820,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5840869657245a799745ba3c951c02a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CS_FieldMonster
-  _encounterData: {fileID: 11400000, guid: 711e294ec3ee41c981186ba6b27ae5cf, type: 2}
+  _encounterData: {fileID: 11400000, guid: d6bc2b88a2de467b95d71eac8d3a8b56, type: 2}
+  _tier: 0
+  _companionData: {fileID: 0}
   _moveSpeed: 1.2
   _wanderRadius: 3
   _directionChangeInterval: 2
@@ -35070,7 +35104,7 @@ Transform:
   m_GameObject: {fileID: 1780670075}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 6.5, y: 16.5, z: 0}
+  m_LocalPosition: {x: 4.5, y: 36.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -35090,6 +35124,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CS_FieldMonster
   _encounterData: {fileID: 11400000, guid: 5e016c2c67d34b488b24d1191860f968, type: 2}
+  _tier: 1
+  _companionData: {fileID: 11400000, guid: d6bc2b88a2de467b95d71eac8d3a8b56, type: 2}
   _moveSpeed: 1.2
   _wanderRadius: 3
   _directionChangeInterval: 2
@@ -35258,7 +35294,7 @@ Transform:
   m_GameObject: {fileID: 1837987981}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 4.5, y: 29.5, z: 0}
+  m_LocalPosition: {x: 17.5, y: 34.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -35278,6 +35314,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CS_FieldMonster
   _encounterData: {fileID: 11400000, guid: d6bc2b88a2de467b95d71eac8d3a8b56, type: 2}
+  _tier: 0
+  _companionData: {fileID: 0}
   _moveSpeed: 1.2
   _wanderRadius: 3
   _directionChangeInterval: 2
@@ -35420,7 +35458,7 @@ Transform:
   m_GameObject: {fileID: 1894782806}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 7.5, y: 23.5, z: 0}
+  m_LocalPosition: {x: 39.5, y: 10.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -35439,7 +35477,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5840869657245a799745ba3c951c02a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CS_FieldMonster
-  _encounterData: {fileID: 11400000, guid: 711e294ec3ee41c981186ba6b27ae5cf, type: 2}
+  _encounterData: {fileID: 11400000, guid: d6bc2b88a2de467b95d71eac8d3a8b56, type: 2}
+  _tier: 0
+  _companionData: {fileID: 0}
   _moveSpeed: 1.2
   _wanderRadius: 3
   _directionChangeInterval: 2
@@ -35672,7 +35712,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: df43f7d4e9b242449ef226107369b3a2, type: 3}
+  m_Sprite: {fileID: 21300000, guid: b54320cfb1b24b60a6c9456e653a9fd1, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0

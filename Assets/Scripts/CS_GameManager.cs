@@ -10,6 +10,7 @@ public class CS_GameManager : MonoBehaviour
     private static readonly Vector3 TOWN_SPAWN_POSITION = new Vector3(8f, 6f, 0f);
 
     private CSO_EncounterData _currentEncounterData;
+    private List<CS_EncounterPartyMember> _pendingEncounterParty;
 
     private GameObject _player;
     private GameObject _fieldEnvironment;
@@ -407,7 +408,25 @@ public class CS_GameManager : MonoBehaviour
     public void RequestBattle(CSO_EncounterData encounterData)
     {
         _currentEncounterData = encounterData;
+        LoadBattleScene();
+    }
 
+    /// <summary>
+    /// 段階の異なる敵が混ざった編成(例: Mid1体+Common2体)で戦闘を開始する。
+    /// 種族・レベルは呼び出し側(CS_FieldMonster)で既に抽選済みの値をそのまま使う
+    /// </summary>
+    public void RequestBattle(List<CS_EncounterPartyMember> party)
+    {
+        _pendingEncounterParty = party;
+        LoadBattleScene();
+    }
+
+    /// <summary>
+    /// BattleSceneのAdditiveロードと、フィールド側(プレイヤー・環境・各種メニュー)の
+    /// 非表示化。単一エンカウント/混成パーティどちらの開始経路からも共通で呼ぶ
+    /// </summary>
+    private void LoadBattleScene()
+    {
         if (_player == null)
             _player = GameObject.FindAnyObjectByType<CS_PlayerMove>().gameObject;
         if (_fieldEnvironment == null)
@@ -441,6 +460,16 @@ public class CS_GameManager : MonoBehaviour
         var encounterData = _currentEncounterData;
         _currentEncounterData = null; // 消化したらnullにする
         return encounterData;
+    }
+
+    /// <summary>
+    /// CS_FieldMonsterが組み立てた混成パーティを取り出す。無ければnull
+    /// </summary>
+    public List<CS_EncounterPartyMember> ConsumePendingEncounterParty()
+    {
+        var party = _pendingEncounterParty;
+        _pendingEncounterParty = null;
+        return party;
     }
 
     public void ReturnToField()

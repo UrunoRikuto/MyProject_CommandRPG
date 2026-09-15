@@ -24,6 +24,7 @@ public class CSED_FieldMapGenerator : EditorWindow
     private int _seed = 42;
     private int _encounterZoneCount = 0;
     private int _wanderingMonsterCount = 12;
+    private int _commonRatioPercent = 67; // 徘徊モンスターのうちCommonが占める割合(%)。Eliteは常に1体固定で、残りをこの割合でCommon/Midに按分する
     private int _chestCount = 2;
 
     private System.Random _rand;
@@ -45,6 +46,7 @@ public class CSED_FieldMapGenerator : EditorWindow
         _theme = (Theme)EditorGUILayout.EnumPopup("テーマ", _theme);
         _seed = EditorGUILayout.IntField("Seed", _seed);
         _wanderingMonsterCount = Mathf.Max(0, EditorGUILayout.IntField("徘徊モンスターの数", _wanderingMonsterCount));
+        _commonRatioPercent = EditorGUILayout.IntSlider("Common比率(%、残りはMid。Eliteは常に1体固定)", _commonRatioPercent, 0, 100);
         _encounterZoneCount = Mathf.Max(0, EditorGUILayout.IntField("エンカウントエリアの数(モンスターハウス用、通常0)", _encounterZoneCount));
         _chestCount = Mathf.Max(0, EditorGUILayout.IntField("宝箱の数", _chestCount));
 
@@ -55,12 +57,12 @@ public class CSED_FieldMapGenerator : EditorWindow
         }
         if (GUILayout.Button("生成", GUILayout.Height(28)))
         {
-            Generate(_theme, _seed, _encounterZoneCount, _wanderingMonsterCount, _chestCount);
+            Generate(_theme, _seed, _encounterZoneCount, _wanderingMonsterCount, _commonRatioPercent, _chestCount);
         }
         EditorGUILayout.EndHorizontal();
     }
 
-    private void Generate(Theme theme, int seed, int encounterZoneCount, int wanderingMonsterCount, int chestCount)
+    private void Generate(Theme theme, int seed, int encounterZoneCount, int wanderingMonsterCount, int commonRatioPercent, int chestCount)
     {
         Grid grid = FindAnyObjectByType<Grid>();
         if (grid == null)
@@ -106,7 +108,7 @@ public class CSED_FieldMapGenerator : EditorWindow
         // マップの外周を障害物で塞ぎ、プレイヤーがエリア外(何もない空間)へ出られないようにする
         PaintBorder(obstacleTilemap, borderTile);
 
-        PlaceFieldObjects(grid, obstacleTilemap, encounterZoneCount, wanderingMonsterCount, chestCount, theme);
+        PlaceFieldObjects(grid, obstacleTilemap, encounterZoneCount, wanderingMonsterCount, commonRatioPercent, chestCount, theme);
 
         EditorUtility.SetDirty(groundTilemap);
         EditorUtility.SetDirty(obstacleTilemap);
@@ -138,14 +140,14 @@ public class CSED_FieldMapGenerator : EditorWindow
     /// 地形をテーマ別に再生成すると元の座標が岩・木・水などと重なる可能性があるため、
     /// 障害物Tilemapを直接参照して空いているマスだけを探す。オブジェクト同士も一定距離離す
     /// </summary>
-    private void PlaceFieldObjects(Grid grid, Tilemap obstacleTilemap, int encounterZoneCount, int wanderingMonsterCount, int chestCount, Theme theme)
+    private void PlaceFieldObjects(Grid grid, Tilemap obstacleTilemap, int encounterZoneCount, int wanderingMonsterCount, int commonRatioPercent, int chestCount, Theme theme)
     {
         Transform fieldEnvironment = grid.transform.parent != null ? grid.transform.parent : grid.transform;
         Transform encounterParent = FindOrCreateChild(fieldEnvironment, "EncountAreaParent");
         Transform monsterParent = FindOrCreateChild(fieldEnvironment, "FieldMonsterParent");
 
         var symbols = EnsureEncounterSymbols(encounterParent, encounterZoneCount, theme);
-        var fieldMonsters = EnsureFieldMonsters(monsterParent, wanderingMonsterCount, theme);
+        var fieldMonsters = EnsureFieldMonsters(monsterParent, wanderingMonsterCount, commonRatioPercent, theme);
         var chests = EnsureTreasureChests(fieldEnvironment, chestCount);
         var fieldExit = EnsureFieldExit(fieldEnvironment);
 
@@ -338,10 +340,10 @@ public class CSED_FieldMapGenerator : EditorWindow
 
     /// <summary>
     /// 徘徊モンスターの数を指定数ぴったりに揃える(不足分は新規作成、超過分は末尾から削除)。
-    /// テーマの地域専用データ(Common/Mid/Elite)を、おおよそ5:4:3の比率で割り当てる。
+    /// Eliteは数に関わらず常に1体固定、残りをcommonRatioPercentの割合でCommon/Midに按分する。
     /// 既存・新規を問わず全個体へ設定し直す(EnsureEncounterSymbolsと同じ「常に最新化」の方針)
     /// </summary>
-    private CS_FieldMonster[] EnsureFieldMonsters(Transform parent, int count, Theme theme)
+    private CS_FieldMonster[] EnsureFieldMonsters(Transform parent, int count, int commonRatioPercent, Theme theme)
     {
         var monsters = new List<CS_FieldMonster>(
             UnityEngine.Object.FindObjectsByType<CS_FieldMonster>(FindObjectsInactive.Include, FindObjectsSortMode.None));
@@ -394,12 +396,17 @@ public class CSED_FieldMapGenerator : EditorWindow
         string[] dataPaths = GetEncounterDataPaths(theme);
         CSO_EncounterData[] tiers =
         {
-            AssetDatabase.LoadAssetAtPath<CSO_EncounterData>(dataPaths[0]),
-            AssetDatabase.LoadAssetAtPath<CSO_EncounterData>(dataPaths[1]),
-            AssetDatabase.LoadAssetAtPath<CSO_EncounterData>(dataPaths[2]),
+            AssetDatabase.LoadAssetAtPath<CSO_EncounterData>(dataPaths[0]), // Common
+            AssetDatabase.LoadAssetAtPath<CSO_EncounterData>(dataPaths[1]), // Mid
+            AssetDatabase.LoadAssetAtPath<CSO_EncounterData>(dataPaths[2]), // Elite
         };
-        int commonCount = Mathf.RoundToInt(count * 5f / 12f);
-        int midCount = Mathf.RoundToInt(count * 4f / 12f);
+        CSE_MonsterTier[] tierEnums = { CSE_MonsterTier.Common, CSE_MonsterTier.Mid, CSE_MonsterTier.Elite };
+
+        // Eliteは数に関わらず常に1体だけ(0体生成時は0)。残りをcommonRatioPercentでCommon/Midに按分する
+        int eliteCount = count > 0 ? 1 : 0;
+        int remaining = count - eliteCount;
+        int commonCount = Mathf.Clamp(Mathf.RoundToInt(remaining * (commonRatioPercent / 100f)), 0, remaining);
+        int midCount = remaining - commonCount;
 
         // キャラクターアイコンの実寸(Pixels Per Unit依存)に関わらず、見た目上ここに収まるサイズへ揃える
         const float FIELD_MONSTER_VISUAL_SIZE = 0.9f;
@@ -408,9 +415,13 @@ public class CSED_FieldMapGenerator : EditorWindow
         {
             int tierIndex = i < commonCount ? 0 : (i < commonCount + midCount ? 1 : 2);
             CSO_EncounterData data = tiers[tierIndex];
+            // Mid個体だけ、同じ地域のCommonデータを混成編成の2体分として持たせる
+            CSO_EncounterData companionData = tierIndex == 1 ? tiers[0] : null;
 
             SerializedObject so = new SerializedObject(monsters[i]);
             so.FindProperty("_encounterData").objectReferenceValue = data;
+            so.FindProperty("_tier").enumValueIndex = (int)tierEnums[tierIndex];
+            so.FindProperty("_companionData").objectReferenceValue = companionData;
             so.ApplyModifiedPropertiesWithoutUndo();
 
             SpriteRenderer spriteRenderer = monsters[i].GetComponentInChildren<SpriteRenderer>();

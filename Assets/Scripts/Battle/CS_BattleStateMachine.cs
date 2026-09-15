@@ -38,19 +38,38 @@ public class CS_BattleStateMachine : MonoBehaviour
         if (_hasStarted) return;
 
         List<int> enemyLevels = null;
-        var encounterData = CS_GameManager.Instance.ConsumePendingEncounter();
-        if (encounterData != null)
+
+        // まず混成パーティ(CS_FieldMonsterが段階ごとに組み立てたもの)を優先的に確認する。
+        // レベルは呼び出し側で既に抽選済みなので、そのまま使う
+        var party = CS_GameManager.Instance.ConsumePendingEncounterParty();
+        if (party != null && party.Count > 0)
         {
             _enemyPartyData.Clear();
             enemyLevels = new List<int>();
-            for (int i = 0; i < encounterData.enemyDataList.Count; i++)
+            foreach (var member in party)
             {
-                var enemyData = encounterData.enemyDataList[i];
-                if (enemyData != null)
+                if (member.character == null) continue;
+                _enemyPartyData.Add(member.character);
+                enemyLevels.Add(member.level);
+            }
+        }
+        else
+        {
+            // 単一エンカウント(CS_EncounterSymbol、モンスターハウス用に温存中)からの起動
+            var encounterData = CS_GameManager.Instance.ConsumePendingEncounter();
+            if (encounterData != null)
+            {
+                _enemyPartyData.Clear();
+                enemyLevels = new List<int>();
+                for (int i = 0; i < encounterData.enemyDataList.Count; i++)
                 {
-                    _enemyPartyData.Add(enemyData);
-                    // エンカウントのレベル範囲内でランダムにレベルを決定する
-                    enemyLevels.Add(UnityEngine.Random.Range(encounterData.minLevel, encounterData.maxLevel + 1));
+                    var enemyData = encounterData.enemyDataList[i];
+                    if (enemyData != null)
+                    {
+                        _enemyPartyData.Add(enemyData);
+                        // エンカウントのレベル範囲内でランダムにレベルを決定する
+                        enemyLevels.Add(UnityEngine.Random.Range(encounterData.minLevel, encounterData.maxLevel + 1));
+                    }
                 }
             }
         }

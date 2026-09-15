@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -9,6 +10,12 @@ public class CS_FieldMonster : MonoBehaviour
 {
     [Header("この個体が表すエンカウントデータ(地域・段階ごとに1種)")]
     [SerializeField] private CSO_EncounterData _encounterData;
+
+    [Header("この個体の段階(接触時の戦闘編成ルールに使う)")]
+    [SerializeField] private CSE_MonsterTier _tier;
+
+    [Header("Mid個体のみ使用。同じ地域のCommonエンカウントデータ(混成編成の2体分に使う)")]
+    [SerializeField] private CSO_EncounterData _companionData;
 
     [Header("移動速度")]
     [SerializeField] private float _moveSpeed = 1.2f;
@@ -120,7 +127,49 @@ public class CS_FieldMonster : MonoBehaviour
         if (_encounterData == null) return;
 
         HideForBattle();
-        CS_GameManager.Instance.RequestBattle(_encounterData);
+        CS_GameManager.Instance.RequestBattle(BuildEncounterParty());
+    }
+
+    /// <summary>
+    /// 段階ごとの戦闘編成ルールに従って敵パーティを組み立てる。
+    /// Common: 自分の種族を1〜4体。Mid: 自分(Mid)1体+_companionData(Common)2体。Elite: 自分1体のみ
+    /// </summary>
+    private List<CS_EncounterPartyMember> BuildEncounterParty()
+    {
+        var party = new List<CS_EncounterPartyMember>();
+
+        switch (_tier)
+        {
+            case CSE_MonsterTier.Common:
+                int count = Random.Range(1, 5); // 1〜4体
+                for (int i = 0; i < count; i++)
+                {
+                    party.Add(RollMember(_encounterData));
+                }
+                break;
+
+            case CSE_MonsterTier.Mid:
+                party.Add(RollMember(_encounterData));
+                if (_companionData != null)
+                {
+                    party.Add(RollMember(_companionData));
+                    party.Add(RollMember(_companionData));
+                }
+                break;
+
+            case CSE_MonsterTier.Elite:
+                party.Add(RollMember(_encounterData));
+                break;
+        }
+
+        return party;
+    }
+
+    private CS_EncounterPartyMember RollMember(CSO_EncounterData data)
+    {
+        CSO_CharacterData character = data.enemyDataList.Count > 0 ? data.enemyDataList[0] : null;
+        int level = Random.Range(data.minLevel, data.maxLevel + 1);
+        return new CS_EncounterPartyMember(character, level);
     }
 
     /// <summary>
