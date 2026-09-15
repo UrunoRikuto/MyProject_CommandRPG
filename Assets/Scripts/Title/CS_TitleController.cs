@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// タイトル画面のボタン操作。はじめから/つづきからでFieldSceneへ遷移する
+/// タイトル画面のボタン操作。はじめからは常にTownSceneへ、つづきからは最後にいたシーンへ遷移する
 /// </summary>
 public class CS_TitleController : MonoBehaviour
 {
@@ -21,11 +21,11 @@ public class CS_TitleController : MonoBehaviour
     {
         CS_GameManager.Instance.StartNewGame();
         CS_GameManager.Instance.SetDebugMode(Input.GetKey(DEBUG_MODE_KEY));
-        CS_SceneManager.Instance.LoadScene("FieldScene");
+        CS_SceneManager.Instance.LoadScene("TownScene");
     }
 
     public void OnContinueButtonClicked()
     {
-        CS_SceneManager.Instance.LoadScene("FieldScene");
+        CS_SceneManager.Instance.LoadScene(CS_GameManager.Instance.continueSceneName);
     }
 }

@@ -80,21 +80,29 @@ public class CSED_FieldMapGenerator : EditorWindow
 
         _rand = new System.Random(seed);
 
+        TileBase borderTile = null;
         switch (theme)
         {
             case Theme.Grassland:
                 GenerateGrassland(groundTilemap, obstacleTilemap);
+                borderTile = Load("Assets/Tiles/Grassland/Tile_Rock.asset");
                 break;
             case Theme.Desert:
                 GenerateDesert(groundTilemap, obstacleTilemap);
+                borderTile = Load("Assets/Tiles/Desert/Tile_DesertRock.asset");
                 break;
             case Theme.Wetlands:
                 GenerateWetlands(groundTilemap, obstacleTilemap);
+                borderTile = Load("Assets/Tiles/Grassland/Tile_Tree.asset");
                 break;
             case Theme.Snow:
                 GenerateSnow(groundTilemap, obstacleTilemap);
+                borderTile = Load("Assets/Tiles/Snow/Tile_SnowRock.asset");
                 break;
         }
+
+        // マップの外周を障害物で塞ぎ、プレイヤーがエリア外(何もない空間)へ出られないようにする
+        PaintBorder(obstacleTilemap, borderTile);
 
         PlaceEncounterZonesAndChests(grid, obstacleTilemap, encounterZoneCount, chestCount);
 
@@ -122,6 +130,7 @@ public class CSED_FieldMapGenerator : EditorWindow
 
         var symbols = EnsureEncounterSymbols(encounterParent, encounterZoneCount);
         var chests = EnsureTreasureChests(fieldEnvironment, chestCount);
+        var fieldExit = EnsureFieldExit(fieldEnvironment);
 
         const int MARGIN = 3;
         const float MIN_DISTANCE = 6f;
@@ -206,6 +215,21 @@ public class CSED_FieldMapGenerator : EditorWindow
             else
             {
                 Debug.LogWarning($"{chest.name} の配置場所が見つかりませんでした。");
+            }
+        }
+
+        {
+            float radius = Mathf.Max(fieldExit.transform.localScale.x, fieldExit.transform.localScale.y) / 2f + 0.5f;
+            if (TryFindPosition(radius, out Vector2 pos))
+            {
+                Vector3 local = fieldExit.transform.localPosition;
+                fieldExit.transform.localPosition = new Vector3(pos.x, pos.y, local.z);
+                placed.Add(pos);
+                EditorUtility.SetDirty(fieldExit);
+            }
+            else
+            {
+                Debug.LogWarning($"{fieldExit.name} の配置場所が見つかりませんでした。");
             }
         }
     }
@@ -332,6 +356,59 @@ public class CSED_FieldMapGenerator : EditorWindow
         }
 
         return chests.ToArray();
+    }
+
+    /// <summary>
+    /// 「町へ戻る」出入口をちょうど1個だけ用意する(既存の1個はそのまま使う)。
+    /// 見た目は町の出入口と同じ看板素材(Tile_TownSignpost)で揃える
+    /// </summary>
+    private CS_SceneEntrance EnsureFieldExit(Transform parent)
+    {
+        var exits = new List<CS_SceneEntrance>(
+            UnityEngine.Object.FindObjectsByType<CS_SceneEntrance>(FindObjectsInactive.Include, FindObjectsSortMode.None));
+
+        while (exits.Count > 1)
+        {
+            CS_SceneEntrance last = exits[exits.Count - 1];
+            exits.RemoveAt(exits.Count - 1);
+            Undo.DestroyObjectImmediate(last.gameObject);
+        }
+
+        if (exits.Count == 0)
+        {
+            GameObject go = new GameObject("FieldExit_Town");
+            Undo.RegisterCreatedObjectUndo(go, "Create Field Exit");
+            go.transform.SetParent(parent, false);
+            go.transform.localScale = new Vector3(1.2f, 1.2f, 1f);
+
+            go.AddComponent<SpriteRenderer>();
+
+            BoxCollider2D collider = go.AddComponent<BoxCollider2D>();
+            collider.isTrigger = true;
+
+            CS_SceneEntrance entrance = go.AddComponent<CS_SceneEntrance>();
+            SerializedObject so = new SerializedObject(entrance);
+            so.FindProperty("_targetSceneName").stringValue = "TownScene";
+            so.ApplyModifiedPropertiesWithoutUndo();
+
+            exits.Add(entrance);
+        }
+
+        // 以前の仮素材(岩の色替え)のまま残っている出入口も、既存/新規を問わず看板素材へ揃え直す
+        Sprite signSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprites/Tiles/Objects/Tile_TownSignpost.png");
+        foreach (var exit in exits)
+        {
+            SpriteRenderer spriteRenderer = exit.GetComponent<SpriteRenderer>();
+            if (spriteRenderer == null)
+            {
+                spriteRenderer = exit.gameObject.AddComponent<SpriteRenderer>();
+            }
+            spriteRenderer.sprite = signSprite;
+            spriteRenderer.color = Color.white;
+            EditorUtility.SetDirty(spriteRenderer);
+        }
+
+        return exits[0];
     }
 
     private Tilemap GetOrCreateGroundTilemap(Grid grid)
@@ -474,6 +551,25 @@ public class CSED_FieldMapGenerator : EditorWindow
         for (int y = 0; y < H; y++)
             for (int x = 0; x < W; x++)
                 tilemap.SetTile(new Vector3Int(x, y, 0), tile);
+    }
+
+    /// <summary>
+    /// マップの一番外側1マスを障害物で塗り、プレイヤーがエリア外に出られないようにする
+    /// </summary>
+    private void PaintBorder(Tilemap obstacleTilemap, TileBase borderTile)
+    {
+        if (borderTile == null) return;
+
+        for (int x = 0; x < W; x++)
+        {
+            obstacleTilemap.SetTile(new Vector3Int(x, 0, 0), borderTile);
+            obstacleTilemap.SetTile(new Vector3Int(x, H - 1, 0), borderTile);
+        }
+        for (int y = 0; y < H; y++)
+        {
+            obstacleTilemap.SetTile(new Vector3Int(0, y, 0), borderTile);
+            obstacleTilemap.SetTile(new Vector3Int(W - 1, y, 0), borderTile);
+        }
     }
 
     // ---------------------------------------------------------- grassland --

@@ -1,9 +1,13 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class CS_GameManager : MonoBehaviour
 {
     public static CS_GameManager Instance { get; private set; }
+
+    // 町シーンでプレイヤーを復活させる際の初期位置(CSED_TownSceneBuilderが配置する町の中心と揃えてある)
+    private static readonly Vector3 TOWN_SPAWN_POSITION = new Vector3(8f, 6f, 0f);
 
     private CSO_EncounterData _currentEncounterData;
 
@@ -14,6 +18,10 @@ public class CS_GameManager : MonoBehaviour
 
     private List<CS_PartyMemberState> _partyState;
     private Vector3? _pendingPlayerPosition;
+
+    // 「つづきから」で復帰するシーン名(セーブ対象。はじめからは常にTownSceneへ直接遷移する)
+    private string _currentSceneName = "TownScene";
+    public string continueSceneName => _currentSceneName;
 
     // 所持アイテム/装備、開封済み宝箱ID(いずれもセーブ対象)
     private List<CS_ItemStack> _ownedItems = new List<CS_ItemStack>();
@@ -73,6 +81,7 @@ public class CS_GameManager : MonoBehaviour
         _ownedItems = saveData.ownedItems ?? new List<CS_ItemStack>();
         _ownedEquipment = saveData.ownedEquipment ?? new List<CS_ItemStack>();
         _openedChestIds = saveData.openedChestIds ?? new List<string>();
+        _currentSceneName = string.IsNullOrEmpty(saveData.currentSceneName) ? "TownScene" : saveData.currentSceneName;
     }
 
     /// <summary>
@@ -115,6 +124,7 @@ public class CS_GameManager : MonoBehaviour
         _ownedItems = new List<CS_ItemStack>();
         _ownedEquipment = new List<CS_ItemStack>();
         _openedChestIds = new List<string>();
+        _currentSceneName = "TownScene";
     }
 
     /// <summary>
@@ -151,13 +161,16 @@ public class CS_GameManager : MonoBehaviour
             }
         }
 
+        _currentSceneName = SceneManager.GetActiveScene().name;
+
         var saveData = new CS_SaveData
         {
             playerPosition = _player != null ? _player.transform.position : Vector3.zero,
             partyState = _partyState,
             ownedItems = _ownedItems,
             ownedEquipment = _ownedEquipment,
-            openedChestIds = _openedChestIds
+            openedChestIds = _openedChestIds,
+            currentSceneName = _currentSceneName
         };
         CS_SaveManager.Instance.Save(saveData);
     }
@@ -328,27 +341,26 @@ public class CS_GameManager : MonoBehaviour
         });
     }
 
+    /// <summary>
+    /// 敗北時、フィールドを丸ごと離れて町シーンで復活させる。
+    /// (ReturnToFieldと違いフィールド側のオブジェクトは再表示しない=このフィールドは破棄される)
+    /// </summary>
     public void ReturnTown()
     {
         CS_SceneManager.Instance.UnloadSceneAdditive("BattleScene", () =>
         {
-            // BattleSceneがアンロードされた後の処理
-            Debug.Log("BattleSceneがアンロードされました。");
+            Debug.Log("BattleSceneがアンロードされました。町へ戻ります。");
 
-            // プレイヤーとカメラを再表示する
-            if (_player != null)
-                _player.SetActive(true);
-            // フィールド側を再表示にする
-            if (_fieldEnvironment != null)
-                _fieldEnvironment.SetActive(true);
-            // ポーズメニュー・装備メニューを再度開けるようにする
-            if (_pauseMenu != null)
-                _pauseMenu.SetActive(true);
-            if (_equipmentMenu != null)
-                _equipmentMenu.SetActive(true);
+            // 次にロードされるTownSceneでプレイヤーを町の初期位置へ配置する
+            _pendingPlayerPosition = TOWN_SPAWN_POSITION;
 
-            // ここで宿屋に移動させる処理を追加する
+            // シーンをまたぐキャッシュは全てこのフィールド固有のものなので破棄する
+            _player = null;
+            _fieldEnvironment = null;
+            _pauseMenu = null;
+            _equipmentMenu = null;
 
+            CS_SceneManager.Instance.LoadScene("TownScene");
             SaveGame();
         });
     }

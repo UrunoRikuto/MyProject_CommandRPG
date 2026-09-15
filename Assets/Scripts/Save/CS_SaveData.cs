@@ -11,6 +11,9 @@ public class CS_SaveData
     public Vector3 playerPosition;
     public List<CS_PartyMemberState> partyState;
 
+    // 「つづきから」で復帰するシーン名(はじめからは常に町から始まる)
+    public string currentSceneName = "TownScene";
+
     // 所持アイテム/装備(未装備で手持ちにあるもの)、開封済みの宝箱ID
     public List<CS_ItemStack> ownedItems = new List<CS_ItemStack>();
     public List<CS_ItemStack> ownedEquipment = new List<CS_ItemStack>();
