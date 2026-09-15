@@ -104,7 +104,7 @@ public class CSED_FieldMapGenerator : EditorWindow
         // マップの外周を障害物で塞ぎ、プレイヤーがエリア外(何もない空間)へ出られないようにする
         PaintBorder(obstacleTilemap, borderTile);
 
-        PlaceEncounterZonesAndChests(grid, obstacleTilemap, encounterZoneCount, chestCount);
+        PlaceEncounterZonesAndChests(grid, obstacleTilemap, encounterZoneCount, chestCount, theme);
 
         EditorUtility.SetDirty(groundTilemap);
         EditorUtility.SetDirty(obstacleTilemap);
@@ -113,9 +113,22 @@ public class CSED_FieldMapGenerator : EditorWindow
         Debug.Log($"{theme}のフィールドマップを生成しました(Seed: {seed})。シーンの保存をお忘れなく。");
     }
 
-    private const string ENCOUNTER_DATA_COMMON = "Assets/Data/EncounterData/DB_Encounter_Common.asset";
-    private const string ENCOUNTER_DATA_MID = "Assets/Data/EncounterData/DB_Encounter_Mid.asset";
-    private const string ENCOUNTER_DATA_ELITE = "Assets/Data/EncounterData/DB_Encounter_Elite.asset";
+    /// <summary>
+    /// テーマごとの地域専用エンカウントデータ(Common/Mid/Elite)のパスを返す。
+    /// 地域によって出現モンスターを変え、「このモンスターと戦いたいからこの地域に行く」を
+    /// 選べるようにするため、以前の全テーマ共通データ(DB_Encounter_Common/Mid/Elite)から分割した
+    /// </summary>
+    private static string[] GetEncounterDataPaths(Theme theme)
+    {
+        string themeName = theme.ToString();
+        return new[]
+        {
+            $"Assets/Data/EncounterData/DB_Encounter_{themeName}_Common.asset",
+            $"Assets/Data/EncounterData/DB_Encounter_{themeName}_Mid.asset",
+            $"Assets/Data/EncounterData/DB_Encounter_{themeName}_Elite.asset",
+        };
+    }
+
     private static readonly Vector3 CHEST_SCALE = new Vector3(1f, 1f, 1f); // マス目1つ分に収まる大きさ
 
     /// <summary>
@@ -123,12 +136,12 @@ public class CSED_FieldMapGenerator : EditorWindow
     /// 地形をテーマ別に再生成すると元の座標が岩・木・水などと重なる可能性があるため、
     /// 障害物Tilemapを直接参照して空いているマスだけを探す。オブジェクト同士も一定距離離す
     /// </summary>
-    private void PlaceEncounterZonesAndChests(Grid grid, Tilemap obstacleTilemap, int encounterZoneCount, int chestCount)
+    private void PlaceEncounterZonesAndChests(Grid grid, Tilemap obstacleTilemap, int encounterZoneCount, int chestCount, Theme theme)
     {
         Transform fieldEnvironment = grid.transform.parent != null ? grid.transform.parent : grid.transform;
         Transform encounterParent = FindOrCreateChild(fieldEnvironment, "EncountAreaParent");
 
-        var symbols = EnsureEncounterSymbols(encounterParent, encounterZoneCount);
+        var symbols = EnsureEncounterSymbols(encounterParent, encounterZoneCount, theme);
         var chests = EnsureTreasureChests(fieldEnvironment, chestCount);
         var fieldExit = EnsureFieldExit(fieldEnvironment);
 
@@ -247,9 +260,11 @@ public class CSED_FieldMapGenerator : EditorWindow
 
     /// <summary>
     /// エンカウントシンボルの数を指定数ぴったりに揃える(不足分は新規作成、超過分は末尾から削除)。
-    /// 新規作成分にだけ、共通/中堅/エリートの3段階全てを候補として割り当てる
+    /// テーマの地域専用データ(Common/Mid/Elite)を、既存・新規を問わず全シンボルへ設定し直す。
+    /// (以前は新規作成分にしか設定しておらず、同じテーマで再生成しても既存シンボルが
+    /// 古い参照のまま残ってしまっていたため、再実行のたびに必ず最新化するよう修正した)
     /// </summary>
-    private CS_EncounterSymbol[] EnsureEncounterSymbols(Transform parent, int count)
+    private CS_EncounterSymbol[] EnsureEncounterSymbols(Transform parent, int count, Theme theme)
     {
         var symbols = new List<CS_EncounterSymbol>(
             UnityEngine.Object.FindObjectsByType<CS_EncounterSymbol>(FindObjectsInactive.Include, FindObjectsSortMode.None));
@@ -261,9 +276,10 @@ public class CSED_FieldMapGenerator : EditorWindow
             Undo.DestroyObjectImmediate(last.gameObject);
         }
 
-        CSO_EncounterData common = AssetDatabase.LoadAssetAtPath<CSO_EncounterData>(ENCOUNTER_DATA_COMMON);
-        CSO_EncounterData mid = AssetDatabase.LoadAssetAtPath<CSO_EncounterData>(ENCOUNTER_DATA_MID);
-        CSO_EncounterData elite = AssetDatabase.LoadAssetAtPath<CSO_EncounterData>(ENCOUNTER_DATA_ELITE);
+        string[] dataPaths = GetEncounterDataPaths(theme);
+        CSO_EncounterData common = AssetDatabase.LoadAssetAtPath<CSO_EncounterData>(dataPaths[0]);
+        CSO_EncounterData mid = AssetDatabase.LoadAssetAtPath<CSO_EncounterData>(dataPaths[1]);
+        CSO_EncounterData elite = AssetDatabase.LoadAssetAtPath<CSO_EncounterData>(dataPaths[2]);
 
         while (symbols.Count < count)
         {
@@ -277,17 +293,24 @@ public class CSED_FieldMapGenerator : EditorWindow
 
             CS_EncounterSymbol symbol = go.AddComponent<CS_EncounterSymbol>();
 
+            SerializedObject newSo = new SerializedObject(symbol);
+            newSo.FindProperty("_encounterRate").floatValue = 0.6f;
+            newSo.FindProperty("_encounterCoolTime").floatValue = 5f;
+            newSo.ApplyModifiedPropertiesWithoutUndo();
+
+            symbols.Add(symbol);
+        }
+
+        foreach (CS_EncounterSymbol symbol in symbols)
+        {
             SerializedObject so = new SerializedObject(symbol);
-            so.FindProperty("_encounterRate").floatValue = 0.6f;
-            so.FindProperty("_encounterCoolTime").floatValue = 5f;
             SerializedProperty dataProp = so.FindProperty("_encounterData");
             dataProp.arraySize = 3;
             dataProp.GetArrayElementAtIndex(0).objectReferenceValue = common;
             dataProp.GetArrayElementAtIndex(1).objectReferenceValue = mid;
             dataProp.GetArrayElementAtIndex(2).objectReferenceValue = elite;
             so.ApplyModifiedPropertiesWithoutUndo();
-
-            symbols.Add(symbol);
+            EditorUtility.SetDirty(symbol);
         }
 
         return symbols.ToArray();

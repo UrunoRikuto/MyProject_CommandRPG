@@ -54,6 +54,18 @@ public class CSED_TownSceneBuilder : EditorWindow
         {
             AddTownBuildings();
         }
+
+        EditorGUILayout.Space();
+        EditorGUILayout.HelpBox(
+            "マップ選択UIの更新:\n" +
+            "保存済みのTownScene.unityを開いた状態で押すと、マップ選択画面のボタンを\n" +
+            "地域名+出現モンスター名の表示に作り直します。地域ごとのエンカウントデータを\n" +
+            "変更した後などに、何度でも押し直して最新化できます。",
+            MessageType.Info);
+        if (GUILayout.Button("マップ選択UIを更新", GUILayout.Height(28)))
+        {
+            RefreshMapSelectUI();
+        }
     }
 
     private void Build()
@@ -444,8 +456,60 @@ public class CSED_TownSceneBuilder : EditorWindow
         return clonedChildren;
     }
 
+    // 地域ボタンに添える代表モンスター名。CSED_FieldMapGeneratorのGetEncounterDataPaths()で
+    // 実際に組んだ地域別エンカウントデータ(Common/Mid/Elite)と対応させている
+    private static readonly (string theme, string label, string monsters)[] REGIONS =
+    {
+        ("Grassland", "草原", "マッシュルーム/ナイト/オーク"),
+        ("Desert", "砂漠", "スパイダー/ガーゴイル/サイクロプス"),
+        ("Wetlands", "湿地", "コウモリ/スパイダー/ゴースト"),
+        ("Snow", "雪原", "コウモリ/ゴースト/ドラゴン"),
+    };
+
+    private const float REGION_BUTTON_HEIGHT = 64f;
+    private const float REGION_BUTTON_SPACING = 76f;
+
     /// <summary>
-    /// マップ選択UI(4テーマ+キャンセル)をコードで組み立てる
+    /// 保存済みのTownScene.unityに対して、マップ選択UI(MapSelectCanvas/MapSelectMenuController)だけを
+    /// 破棄してから作り直す。地域のエンカウントデータや表示内容を変更した際に、Build()全体
+    /// (FieldSceneのAdditive読み込みが必要)をやり直さずに済むようにするための再実行用入口
+    /// </summary>
+    private void RefreshMapSelectUI()
+    {
+        Scene townScene = EditorSceneManager.GetActiveScene();
+        Grid grid = FindInScene<Grid>(townScene);
+        if (grid == null)
+        {
+            Debug.LogError("シーン内にGridが見つかりません。TownScene.unityを開いてから実行してください。");
+            return;
+        }
+
+        GameObject existingCanvas = FindRootByName(townScene, "MapSelectCanvas");
+        if (existingCanvas != null) DestroyImmediate(existingCanvas);
+        GameObject existingController = FindRootByName(townScene, "MapSelectMenuController");
+        if (existingController != null) DestroyImmediate(existingController);
+
+        CS_MapSelectMenu mapSelectMenu = BuildMapSelectUI(townScene);
+
+        GameObject townGate = FindRootByName(townScene, "TownGate");
+        CS_TownGate gate = townGate != null ? townGate.GetComponent<CS_TownGate>() : null;
+        if (gate != null)
+        {
+            SerializedObject so = new SerializedObject(gate);
+            so.FindProperty("_mapSelectMenu").objectReferenceValue = mapSelectMenu;
+            so.ApplyModifiedPropertiesWithoutUndo();
+        }
+        else
+        {
+            Debug.LogWarning("TownGateが見つからず、マップ選択メニューの参照を張り直せませんでした。");
+        }
+
+        EditorSceneManager.MarkSceneDirty(townScene);
+        Debug.Log("マップ選択UIを更新しました。シーンを保存してください。");
+    }
+
+    /// <summary>
+    /// マップ選択UI(4地域+キャンセル)をコードで組み立てる。各地域ボタンには代表モンスター名も添える
     /// </summary>
     private CS_MapSelectMenu BuildMapSelectUI(Scene townScene)
     {
@@ -461,7 +525,7 @@ public class CSED_TownSceneBuilder : EditorWindow
         panelGo.transform.SetParent(canvasGo.transform, false);
         RectTransform panelRect = panelGo.GetComponent<RectTransform>();
         panelRect.anchorMin = panelRect.anchorMax = new Vector2(0.5f, 0.5f);
-        panelRect.sizeDelta = new Vector2(360, 340);
+        panelRect.sizeDelta = new Vector2(360, 450);
         panelRect.anchoredPosition = Vector2.zero;
         Image panelImage = panelGo.GetComponent<Image>();
         panelImage.sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprites/UI/UI_Window.png");
@@ -471,11 +535,22 @@ public class CSED_TownSceneBuilder : EditorWindow
         SceneManager.MoveGameObjectToScene(controllerGo, townScene);
         CS_MapSelectMenu menu = controllerGo.AddComponent<CS_MapSelectMenu>();
 
-        CreateButton(panelGo.transform, "草原", new Vector2(0, 120), (UnityEngine.Events.UnityAction)menu.OnSelectGrasslandClicked);
-        CreateButton(panelGo.transform, "砂漠", new Vector2(0, 60), (UnityEngine.Events.UnityAction)menu.OnSelectDesertClicked);
-        CreateButton(panelGo.transform, "湿地", new Vector2(0, 0), (UnityEngine.Events.UnityAction)menu.OnSelectWetlandsClicked);
-        CreateButton(panelGo.transform, "雪原", new Vector2(0, -60), (UnityEngine.Events.UnityAction)menu.OnSelectSnowClicked);
-        CreateButton(panelGo.transform, "キャンセル", new Vector2(0, -130), (UnityEngine.Events.UnityAction)menu.OnCancelClicked);
+        UnityEngine.Events.UnityAction[] onClicks =
+        {
+            (UnityEngine.Events.UnityAction)menu.OnSelectGrasslandClicked,
+            (UnityEngine.Events.UnityAction)menu.OnSelectDesertClicked,
+            (UnityEngine.Events.UnityAction)menu.OnSelectWetlandsClicked,
+            (UnityEngine.Events.UnityAction)menu.OnSelectSnowClicked,
+        };
+
+        float startY = ((REGIONS.Length - 1) * REGION_BUTTON_SPACING) / 2f;
+        for (int i = 0; i < REGIONS.Length; i++)
+        {
+            float y = startY - i * REGION_BUTTON_SPACING;
+            CreateRegionButton(panelGo.transform, REGIONS[i].label, REGIONS[i].monsters, new Vector2(0, y), onClicks[i]);
+        }
+
+        CreateButton(panelGo.transform, "キャンセル", new Vector2(0, -startY - REGION_BUTTON_SPACING), (UnityEngine.Events.UnityAction)menu.OnCancelClicked);
 
         SerializedObject so = new SerializedObject(menu);
         so.FindProperty("_menuPanel").objectReferenceValue = panelGo;
@@ -513,6 +588,52 @@ public class CSED_TownSceneBuilder : EditorWindow
         text.alignment = TextAlignmentOptions.Center;
         text.color = Color.white;
         text.fontSize = 28;
+    }
+
+    /// <summary>
+    /// マップ選択の地域ボタン用。地域名(上段)+出現モンスター名(下段、小さめグレー)の2段表示にする
+    /// </summary>
+    private void CreateRegionButton(Transform parent, string label, string monsterNames, Vector2 anchoredPosition, UnityEngine.Events.UnityAction onClick)
+    {
+        GameObject buttonGo = new GameObject(label + "Button", typeof(RectTransform), typeof(Image), typeof(Button));
+        buttonGo.transform.SetParent(parent, false);
+        RectTransform rect = buttonGo.GetComponent<RectTransform>();
+        rect.sizeDelta = new Vector2(280, REGION_BUTTON_HEIGHT);
+        rect.anchoredPosition = anchoredPosition;
+
+        Image image = buttonGo.GetComponent<Image>();
+        image.sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprites/UI/UI_Button.png");
+        image.type = Image.Type.Sliced;
+
+        Button button = buttonGo.GetComponent<Button>();
+        button.targetGraphic = image;
+        UnityEventTools.AddPersistentListener(button.onClick, onClick);
+
+        GameObject titleGo = new GameObject("Title", typeof(RectTransform), typeof(TextMeshProUGUI));
+        titleGo.transform.SetParent(buttonGo.transform, false);
+        RectTransform titleRect = titleGo.GetComponent<RectTransform>();
+        titleRect.anchorMin = new Vector2(0f, 0.5f);
+        titleRect.anchorMax = new Vector2(1f, 1f);
+        titleRect.sizeDelta = Vector2.zero;
+        titleRect.anchoredPosition = Vector2.zero;
+        TextMeshProUGUI titleText = titleGo.GetComponent<TextMeshProUGUI>();
+        titleText.text = label;
+        titleText.alignment = TextAlignmentOptions.Center;
+        titleText.color = Color.white;
+        titleText.fontSize = 26;
+
+        GameObject monsterGo = new GameObject("MonsterLabel", typeof(RectTransform), typeof(TextMeshProUGUI));
+        monsterGo.transform.SetParent(buttonGo.transform, false);
+        RectTransform monsterRect = monsterGo.GetComponent<RectTransform>();
+        monsterRect.anchorMin = new Vector2(0f, 0f);
+        monsterRect.anchorMax = new Vector2(1f, 0.5f);
+        monsterRect.sizeDelta = Vector2.zero;
+        monsterRect.anchoredPosition = Vector2.zero;
+        TextMeshProUGUI monsterText = monsterGo.GetComponent<TextMeshProUGUI>();
+        monsterText.text = monsterNames;
+        monsterText.alignment = TextAlignmentOptions.Center;
+        monsterText.color = new Color(0.8f, 0.8f, 0.85f);
+        monsterText.fontSize = 16;
     }
 
     private void CreateTownGate(Scene townScene, CS_MapSelectMenu mapSelectMenu)
