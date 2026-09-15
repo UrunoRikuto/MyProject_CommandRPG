@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b67d6621983315740b06d7fe8b06fee9, type: 3}
-  m_Name: DB_Skill_Wizard_ThunderBolt
+  m_Name: DB_Skill_Warlock_ShadowBolt
   m_EditorClassIdentifier: Assembly-CSharp::CSO_SkillData
-  _skillName: ThunderBolt
-  _cost: 7
-  _damageRate: 1.8
-  _element: 5
+  _skillName: ShadowBolt
+  _cost: 4
+  _damageRate: 1.6
+  _element: 8

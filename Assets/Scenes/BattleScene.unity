@@ -1348,8 +1348,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CS_BattleStateMachine
   _playerPartyData:
-  - {fileID: 11400000, guid: 238c8e2abacb40e9a06052eca402ec95, type: 2}
-  - {fileID: 11400000, guid: 2631dcfa2a174ca2beb1b1945e8a8d3c, type: 2}
+  - {fileID: 11400000, guid: dcfca8acc136432499f0a2e1c07073b9, type: 2}
+  - {fileID: 11400000, guid: 0d6db534cc55451797b93c461df0e945, type: 2}
+  - {fileID: 11400000, guid: 2dcbad3b69284925bda99ddf7bd1f700, type: 2}
+  - {fileID: 11400000, guid: 4e46f1d61a4644ca97534838a922bc7a, type: 2}
+  - {fileID: 11400000, guid: 5c8cd99f9b564a6981bdedd6f26cf766, type: 2}
   _enemyPartyData:
   - {fileID: 11400000, guid: 3ef25db480e1444dad7a84b768f968b9, type: 2}
   - {fileID: 11400000, guid: fbefaa67c2f64ed0982422fb84fb0f09, type: 2}

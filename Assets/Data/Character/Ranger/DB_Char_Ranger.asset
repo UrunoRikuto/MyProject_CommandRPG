@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e0bb5039f0cb154aafc1ed75534c028, type: 3}
+  m_Name: DB_Char_Ranger
+  m_EditorClassIdentifier: Assembly-CSharp::CSO_CharacterData
+  _characterName: Ranger
+  _characterIcon: {fileID: 21300000, guid: fe6618c439f34d8393714ae5335fe486, type: 3}
+  _baseHealth: 24
+  _baseMP: 10
+  _baseAttack: 9
+  _baseDefense: 4
+  _baseSpeed: 8
+  _healthGrowth: 4
+  _mpGrowth: 1
+  _attackGrowth: 2
+  _defenseGrowth: 1
+  _speedGrowth: 2
+  _initialSkills:
+  - {fileID: 11400000, guid: 9505f219e6744303a391fd4e4ea80c32, type: 2}
+  _attackWeight: 0.65
+  _skillWeights:
+  - 0.35
+  _expReward: 0
+  _mpRegenPerTurn: 1
+  _elementResistances: []
+  _itemDrops: []
+  _equipmentDrops: []

@@ -10,19 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6e0bb5039f0cb154aafc1ed75534c028, type: 3}
-  m_Name: DB_Char_Soldier
+  m_Name: DB_Char_Paladin
   m_EditorClassIdentifier: Assembly-CSharp::CSO_CharacterData
-  _characterName: Soldier
-  _characterIcon: {fileID: 0}
-  _baseHealth: 32
+  _characterName: Paladin
+  _characterIcon: {fileID: 21300000, guid: 5a44abeb3aae4ff9ba0046b2fd45a164, type: 3}
+  _baseHealth: 40
   _baseMP: 0
-  _baseAttack: 9
-  _baseDefense: 6
-  _baseSpeed: 5
-  _healthGrowth: 6
+  _baseAttack: 8
+  _baseDefense: 10
+  _baseSpeed: 3
+  _healthGrowth: 7
   _mpGrowth: 0
   _attackGrowth: 2
-  _defenseGrowth: 1
+  _defenseGrowth: 2
   _speedGrowth: 1
   _initialSkills: []
   _attackWeight: 1
@@ -30,3 +30,5 @@ MonoBehaviour:
   _expReward: 0
   _mpRegenPerTurn: 0
   _elementResistances: []
+  _itemDrops: []
+  _equipmentDrops: []

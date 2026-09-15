@@ -13,6 +13,11 @@ public class CS_EquipmentMenu : MonoBehaviour
     [SerializeField] private List<CSO_CharacterData> _playerPartyData;
     [SerializeField] private CS_EquipmentPickWindow _pickWindow;
 
+    // パーティメンバー選択ボタン(人数分だけ動的に生成する。固定2人決め打ちにしないことで
+    // パーティ人数が変わってもシーン側の修正なしに対応できる)
+    [SerializeField] private Button _memberButtonPrefab;
+    [SerializeField] private Transform _memberButtonParent;
+
     // 選択中メンバー名・3スロットの装備名・ステータスプレビューをまとめて1つのテキストに表示する
     [SerializeField] private TextMeshProUGUI _infoText;
 
@@ -26,6 +31,51 @@ public class CS_EquipmentMenu : MonoBehaviour
         _playerMove = GameObject.FindAnyObjectByType<CS_PlayerMove>();
         _pickWindow.onEquipmentSelected += HandleEquipmentSelected;
         _pickWindow.onCancelled += RefreshUI;
+        BuildMemberButtons();
+    }
+
+    private const float MEMBER_BUTTON_WIDTH = 130f;
+    private const float MEMBER_BUTTON_HEIGHT = 50f;
+    private const float MEMBER_BUTTON_SPACING = 140f;
+    private const float MEMBER_BUTTON_Y = 251f;
+
+    /// <summary>
+    /// パーティメンバーの人数分だけ選択ボタンを横一列に並べて生成する。
+    /// 人数に応じて中央揃えになるよう配置位置を計算するので、人数が変わっても崩れない
+    /// </summary>
+    private void BuildMemberButtons()
+    {
+        foreach (Transform child in _memberButtonParent)
+        {
+            Destroy(child.gameObject);
+        }
+
+        int count = _playerPartyData.Count;
+        float startX = -(count - 1) * MEMBER_BUTTON_SPACING / 2f;
+
+        for (int i = 0; i < count; i++)
+        {
+            int capturedIndex = i;
+            Button button = Instantiate(_memberButtonPrefab, _memberButtonParent);
+            button.GetComponentInChildren<TextMeshProUGUI>().text = _playerPartyData[i].characterName;
+            button.onClick.AddListener(() => SelectMember(capturedIndex));
+
+            // _memberButtonPrefab(SkillButtonPrefab)は本来レイアウトグループ配下で使う前提のため、
+            // 4倍スケール・左上アンカーのまま持っている。ここには置かないので明示的に基準を揃え直す
+            RectTransform rect = button.GetComponent<RectTransform>();
+            rect.localScale = Vector3.one;
+            rect.anchorMin = new Vector2(0.5f, 0.5f);
+            rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.sizeDelta = new Vector2(MEMBER_BUTTON_WIDTH, MEMBER_BUTTON_HEIGHT);
+            rect.anchoredPosition = new Vector2(startX + i * MEMBER_BUTTON_SPACING, MEMBER_BUTTON_Y);
+        }
+    }
+
+    private void SelectMember(int index)
+    {
+        _selectedIndex = index;
+        RefreshUI();
     }
 
     private void Update()
@@ -50,18 +100,6 @@ public class CS_EquipmentMenu : MonoBehaviour
         {
             RefreshUI();
         }
-    }
-
-    public void OnSelectMember0Clicked()
-    {
-        _selectedIndex = 0;
-        RefreshUI();
-    }
-
-    public void OnSelectMember1Clicked()
-    {
-        _selectedIndex = 1;
-        RefreshUI();
     }
 
     public void OnChangeWeaponClicked() => OpenPicker(CSE_EquipmentSlot.Weapon);
