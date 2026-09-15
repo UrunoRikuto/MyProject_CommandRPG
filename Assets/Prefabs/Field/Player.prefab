@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 7706835351359257490}
   - component: {fileID: 1915893279532821520}
   - component: {fileID: 8131518369736063319}
+  - component: {fileID: 8131518369736063320}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -112,6 +113,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CS_PlayerMove
   _moveSpeed: 3
+--- !u!114 &8131518369736063320
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5417144683562165816}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 853308dab4ec42aaa6ef7e3a760948c4, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::CS_PartyTrail
+  _partyRoster:
+  - {fileID: 11400000, guid: dcfca8acc136432499f0a2e1c07073b9, type: 2}
+  - {fileID: 11400000, guid: 0d6db534cc55451797b93c461df0e945, type: 2}
+  - {fileID: 11400000, guid: 2dcbad3b69284925bda99ddf7bd1f700, type: 2}
+  - {fileID: 11400000, guid: 4e46f1d61a4644ca97534838a922bc7a, type: 2}
+  - {fileID: 11400000, guid: 5c8cd99f9b564a6981bdedd6f26cf766, type: 2}
+  _followSpacing: 0.6
+  _recordInterval: 0.05
+  _followSpeed: 4
 --- !u!1 &6675215256657528602
 GameObject:
   m_ObjectHideFlags: 0
