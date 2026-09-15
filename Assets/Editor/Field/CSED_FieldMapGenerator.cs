@@ -22,7 +22,8 @@ public class CSED_FieldMapGenerator : EditorWindow
 
     private Theme _theme = Theme.Grassland;
     private int _seed = 42;
-    private int _encounterZoneCount = 8;
+    private int _encounterZoneCount = 0;
+    private int _wanderingMonsterCount = 12;
     private int _chestCount = 2;
 
     private System.Random _rand;
@@ -43,7 +44,8 @@ public class CSED_FieldMapGenerator : EditorWindow
         EditorGUILayout.Space();
         _theme = (Theme)EditorGUILayout.EnumPopup("テーマ", _theme);
         _seed = EditorGUILayout.IntField("Seed", _seed);
-        _encounterZoneCount = Mathf.Max(0, EditorGUILayout.IntField("エンカウントエリアの数", _encounterZoneCount));
+        _wanderingMonsterCount = Mathf.Max(0, EditorGUILayout.IntField("徘徊モンスターの数", _wanderingMonsterCount));
+        _encounterZoneCount = Mathf.Max(0, EditorGUILayout.IntField("エンカウントエリアの数(モンスターハウス用、通常0)", _encounterZoneCount));
         _chestCount = Mathf.Max(0, EditorGUILayout.IntField("宝箱の数", _chestCount));
 
         EditorGUILayout.BeginHorizontal();
@@ -53,12 +55,12 @@ public class CSED_FieldMapGenerator : EditorWindow
         }
         if (GUILayout.Button("生成", GUILayout.Height(28)))
         {
-            Generate(_theme, _seed, _encounterZoneCount, _chestCount);
+            Generate(_theme, _seed, _encounterZoneCount, _wanderingMonsterCount, _chestCount);
         }
         EditorGUILayout.EndHorizontal();
     }
 
-    private void Generate(Theme theme, int seed, int encounterZoneCount, int chestCount)
+    private void Generate(Theme theme, int seed, int encounterZoneCount, int wanderingMonsterCount, int chestCount)
     {
         Grid grid = FindAnyObjectByType<Grid>();
         if (grid == null)
@@ -104,7 +106,7 @@ public class CSED_FieldMapGenerator : EditorWindow
         // マップの外周を障害物で塞ぎ、プレイヤーがエリア外(何もない空間)へ出られないようにする
         PaintBorder(obstacleTilemap, borderTile);
 
-        PlaceEncounterZonesAndChests(grid, obstacleTilemap, encounterZoneCount, chestCount, theme);
+        PlaceFieldObjects(grid, obstacleTilemap, encounterZoneCount, wanderingMonsterCount, chestCount, theme);
 
         EditorUtility.SetDirty(groundTilemap);
         EditorUtility.SetDirty(obstacleTilemap);
@@ -132,16 +134,18 @@ public class CSED_FieldMapGenerator : EditorWindow
     private static readonly Vector3 CHEST_SCALE = new Vector3(1f, 1f, 1f); // マス目1つ分に収まる大きさ
 
     /// <summary>
-    /// エンカウントシンボル・宝箱を指定数ぴったりに揃えた上で、障害物の無い位置へ配置する。
+    /// エンカウントシンボル・徘徊モンスター・宝箱を指定数ぴったりに揃えた上で、障害物の無い位置へ配置する。
     /// 地形をテーマ別に再生成すると元の座標が岩・木・水などと重なる可能性があるため、
     /// 障害物Tilemapを直接参照して空いているマスだけを探す。オブジェクト同士も一定距離離す
     /// </summary>
-    private void PlaceEncounterZonesAndChests(Grid grid, Tilemap obstacleTilemap, int encounterZoneCount, int chestCount, Theme theme)
+    private void PlaceFieldObjects(Grid grid, Tilemap obstacleTilemap, int encounterZoneCount, int wanderingMonsterCount, int chestCount, Theme theme)
     {
         Transform fieldEnvironment = grid.transform.parent != null ? grid.transform.parent : grid.transform;
         Transform encounterParent = FindOrCreateChild(fieldEnvironment, "EncountAreaParent");
+        Transform monsterParent = FindOrCreateChild(fieldEnvironment, "FieldMonsterParent");
 
         var symbols = EnsureEncounterSymbols(encounterParent, encounterZoneCount, theme);
+        var fieldMonsters = EnsureFieldMonsters(monsterParent, wanderingMonsterCount, theme);
         var chests = EnsureTreasureChests(fieldEnvironment, chestCount);
         var fieldExit = EnsureFieldExit(fieldEnvironment);
 
@@ -212,6 +216,22 @@ public class CSED_FieldMapGenerator : EditorWindow
             else
             {
                 Debug.LogWarning($"{symbol.name} の配置場所が見つかりませんでした。");
+            }
+        }
+
+        foreach (var monster in fieldMonsters)
+        {
+            float radius = Mathf.Max(monster.transform.localScale.x, monster.transform.localScale.y) / 2f + 0.5f;
+            if (TryFindPosition(radius, out Vector2 pos))
+            {
+                Vector3 local = monster.transform.localPosition;
+                monster.transform.localPosition = new Vector3(pos.x, pos.y, local.z);
+                placed.Add(pos);
+                EditorUtility.SetDirty(monster);
+            }
+            else
+            {
+                Debug.LogWarning($"{monster.name} の配置場所が見つかりませんでした。");
             }
         }
 
@@ -314,6 +334,104 @@ public class CSED_FieldMapGenerator : EditorWindow
         }
 
         return symbols.ToArray();
+    }
+
+    /// <summary>
+    /// 徘徊モンスターの数を指定数ぴったりに揃える(不足分は新規作成、超過分は末尾から削除)。
+    /// テーマの地域専用データ(Common/Mid/Elite)を、おおよそ5:4:3の比率で割り当てる。
+    /// 既存・新規を問わず全個体へ設定し直す(EnsureEncounterSymbolsと同じ「常に最新化」の方針)
+    /// </summary>
+    private CS_FieldMonster[] EnsureFieldMonsters(Transform parent, int count, Theme theme)
+    {
+        var monsters = new List<CS_FieldMonster>(
+            UnityEngine.Object.FindObjectsByType<CS_FieldMonster>(FindObjectsInactive.Include, FindObjectsSortMode.None));
+
+        while (monsters.Count > count)
+        {
+            CS_FieldMonster last = monsters[monsters.Count - 1];
+            monsters.RemoveAt(monsters.Count - 1);
+            Undo.DestroyObjectImmediate(last.gameObject);
+        }
+
+        while (monsters.Count < count)
+        {
+            GameObject go = new GameObject($"FieldMonster_{monsters.Count + 1}");
+            Undo.RegisterCreatedObjectUndo(go, "Create Field Monster");
+            go.transform.SetParent(parent, false);
+            go.transform.localScale = Vector3.one;
+
+            // 見た目(SpriteRenderer)は当たり判定と別の子オブジェクトに持たせる。
+            // キャラクターアイコンはタイル用スプライトよりPixels Per Unitがかなり大きく、
+            // ルート(コライダー基準)を等倍のまま子だけを実寸サイズへ縮小することで、
+            // 当たり判定の大きさを変えずに見た目だけ調整できるようにする
+            GameObject visualGo = new GameObject("Visual");
+            visualGo.transform.SetParent(go.transform, false);
+            visualGo.AddComponent<SpriteRenderer>();
+
+            // 壁で止まる物理衝突用と、プレイヤー接触検知用(トリガー)の2つのコライダーを持たせる
+            CircleCollider2D bodyCollider = go.AddComponent<CircleCollider2D>();
+            bodyCollider.radius = 0.4f;
+
+            CircleCollider2D triggerCollider = go.AddComponent<CircleCollider2D>();
+            triggerCollider.radius = 0.5f;
+            triggerCollider.isTrigger = true;
+
+            Rigidbody2D rb = go.AddComponent<Rigidbody2D>();
+            rb.gravityScale = 0f;
+            rb.freezeRotation = true;
+            rb.interpolation = RigidbodyInterpolation2D.Interpolate;
+
+            CS_FieldMonster monster = go.AddComponent<CS_FieldMonster>();
+
+            SerializedObject newSo = new SerializedObject(monster);
+            newSo.FindProperty("_bodyCollider").objectReferenceValue = bodyCollider;
+            newSo.FindProperty("_triggerCollider").objectReferenceValue = triggerCollider;
+            newSo.ApplyModifiedPropertiesWithoutUndo();
+
+            monsters.Add(monster);
+        }
+
+        string[] dataPaths = GetEncounterDataPaths(theme);
+        CSO_EncounterData[] tiers =
+        {
+            AssetDatabase.LoadAssetAtPath<CSO_EncounterData>(dataPaths[0]),
+            AssetDatabase.LoadAssetAtPath<CSO_EncounterData>(dataPaths[1]),
+            AssetDatabase.LoadAssetAtPath<CSO_EncounterData>(dataPaths[2]),
+        };
+        int commonCount = Mathf.RoundToInt(count * 5f / 12f);
+        int midCount = Mathf.RoundToInt(count * 4f / 12f);
+
+        // キャラクターアイコンの実寸(Pixels Per Unit依存)に関わらず、見た目上ここに収まるサイズへ揃える
+        const float FIELD_MONSTER_VISUAL_SIZE = 0.9f;
+
+        for (int i = 0; i < monsters.Count; i++)
+        {
+            int tierIndex = i < commonCount ? 0 : (i < commonCount + midCount ? 1 : 2);
+            CSO_EncounterData data = tiers[tierIndex];
+
+            SerializedObject so = new SerializedObject(monsters[i]);
+            so.FindProperty("_encounterData").objectReferenceValue = data;
+            so.ApplyModifiedPropertiesWithoutUndo();
+
+            SpriteRenderer spriteRenderer = monsters[i].GetComponentInChildren<SpriteRenderer>();
+            Sprite icon = (data != null && data.enemyDataList.Count > 0) ? data.enemyDataList[0].characterIcon : null;
+            if (spriteRenderer != null && icon != null)
+            {
+                spriteRenderer.sprite = icon;
+
+                // アスペクト比を保ったまま、長辺がFIELD_MONSTER_VISUAL_SIZEに収まるよう縮小する
+                Vector2 nativeSize = icon.bounds.size;
+                float longestSide = Mathf.Max(nativeSize.x, nativeSize.y);
+                float scale = longestSide > 0f ? FIELD_MONSTER_VISUAL_SIZE / longestSide : 1f;
+                spriteRenderer.transform.localScale = new Vector3(scale, scale, 1f);
+
+                EditorUtility.SetDirty(spriteRenderer);
+            }
+
+            EditorUtility.SetDirty(monsters[i]);
+        }
+
+        return monsters.ToArray();
     }
 
     /// <summary>
