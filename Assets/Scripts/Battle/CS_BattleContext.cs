@@ -1,6 +1,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// 戦闘全体で共有する状態(味方/敵パーティ、行動順キュー、決着結果)と、
+/// ターゲティング用の共通ヘルパー(GetOpposingParty/PickRandomLivingTarget)を持つ
+/// </summary>
 public class CS_BattleContext
 {
     // 味方の状態(全員ボタン操作で行動を決定する)

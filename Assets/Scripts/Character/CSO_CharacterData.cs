@@ -5,7 +5,7 @@ using UnityEngine;
 /// 属性1つ分の耐性倍率。1=等倍、1より大きい=弱点、1より小さい=耐性、0=無効
 /// </summary>
 [System.Serializable]
-public class CSE_ElementResistance
+public class CS_ElementResistance
 {
     public CSE_ElementType element;
     public float multiplier = 1f;
@@ -15,7 +15,7 @@ public class CSE_ElementResistance
 /// ドロップ品1件分。itemIdはCS_ItemDatabaseで解決するアイテム/装備のID、dropChanceは0〜1
 /// </summary>
 [System.Serializable]
-public class CSE_DropEntry
+public class CS_DropEntry
 {
     public string itemId;
     [Range(0f, 1f)] public float dropChance = 1f;
@@ -105,15 +105,15 @@ public class CSO_CharacterData : ScriptableObject
     public int mpRegenPerTurn => _mpRegenPerTurn;
 
     [Header("属性耐性(リストに無い属性は等倍)")]
-    [SerializeField] private List<CSE_ElementResistance> _elementResistances = new List<CSE_ElementResistance>();
+    [SerializeField] private List<CS_ElementResistance> _elementResistances = new List<CS_ElementResistance>();
 
     [Header("撃破時にドロップする可能性のあるアイテム")]
-    [SerializeField] private List<CSE_DropEntry> _itemDrops = new List<CSE_DropEntry>();
-    public IReadOnlyList<CSE_DropEntry> itemDrops => _itemDrops;
+    [SerializeField] private List<CS_DropEntry> _itemDrops = new List<CS_DropEntry>();
+    public IReadOnlyList<CS_DropEntry> itemDrops => _itemDrops;
 
     [Header("撃破時にドロップする可能性のある装備")]
-    [SerializeField] private List<CSE_DropEntry> _equipmentDrops = new List<CSE_DropEntry>();
-    public IReadOnlyList<CSE_DropEntry> equipmentDrops => _equipmentDrops;
+    [SerializeField] private List<CS_DropEntry> _equipmentDrops = new List<CS_DropEntry>();
+    public IReadOnlyList<CS_DropEntry> equipmentDrops => _equipmentDrops;
 
     /// <summary>
     /// 指定した属性のダメージ倍率を返す。設定が無ければ等倍(1)

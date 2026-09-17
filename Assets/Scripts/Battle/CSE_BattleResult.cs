@@ -1,3 +1,6 @@
+/// <summary>
+/// 1回の戦闘の決着状態
+/// </summary>
 public enum CSE_BattleResult
 {
     /// <summary>

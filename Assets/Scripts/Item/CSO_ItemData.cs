@@ -1,6 +1,9 @@
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "DB_", menuName = "Scriptable Objects/DB_ItemData")]
+/// <summary>
+/// 使い切りアイテム1件分の定義データ(回復/攻撃などの効果種別・効果量・対象を持つ)
+/// </summary>
 public class CSO_ItemData : ScriptableObject
 {
     [Header("セーブデータ・実行時解決用の一意キー")]

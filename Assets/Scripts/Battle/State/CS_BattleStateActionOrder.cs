@@ -1,6 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
 
+/// <summary>
+/// 行動順を決めるステート。入力順とは別に、素早さ降順(同速はプレイヤー側優先)で
+/// actionQueueを並べ替えてからACTION_EXECUTEへ進む
+/// </summary>
 public class CS_BattleStateActionOrder : IBattleState
 {
     public void Enter(CS_BattleContext context, CS_BattleStateMachine machine)

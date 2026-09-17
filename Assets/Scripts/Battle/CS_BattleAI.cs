@@ -1,5 +1,9 @@
 using UnityEngine;
 
+/// <summary>
+/// 敵の行動決定ロジック。attackWeight/skillWeights(MP不足のスキルは除外)による
+/// 重み付き抽選で「たたかう」かスキルかを一発で決める(リトライ無し)
+/// </summary>
 public static class CS_BattleAI
 {
     public static IBattleCommand DecideCommand(CS_CharacterState actor)

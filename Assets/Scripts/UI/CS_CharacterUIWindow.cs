@@ -1,6 +1,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// 味方/敵パーティ分のCS_CharacterUIアイコンをまとめて生成・中央揃え配置する。
+/// CS_CharacterState→CS_CharacterUIの対応を保持し、行動選択中のキャラクターに
+/// ターンマーカーを表示する
+/// </summary>
 public class CS_CharacterUIWindow : MonoBehaviour
 {
     [SerializeField]

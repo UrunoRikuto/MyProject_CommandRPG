@@ -2,6 +2,10 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "DB_", menuName = "Scriptable Objects/DB_EquipmentData")]
+/// <summary>
+/// 装備品1件分の定義データ(武器/防具/装飾品)。ステータスボーナス・属性耐性補正・
+/// 攻撃属性の上書き(毒武器など)を持つ
+/// </summary>
 public class CSO_EquipmentData : ScriptableObject
 {
     [Header("セーブデータ・実行時解決用の一意キー")]
@@ -41,7 +45,7 @@ public class CSO_EquipmentData : ScriptableObject
     public int speedBonus => _speedBonus;
 
     [Header("属性耐性補正(キャラ本体の倍率に乗算でスタックする)")]
-    [SerializeField] private List<CSE_ElementResistance> _elementResistances = new List<CSE_ElementResistance>();
+    [SerializeField] private List<CS_ElementResistance> _elementResistances = new List<CS_ElementResistance>();
 
     [Header("たたかうの属性を上書きする(None=上書きしない。毒武器などに使用)")]
     [SerializeField] private CSE_ElementType _attackElementOverride = CSE_ElementType.None;

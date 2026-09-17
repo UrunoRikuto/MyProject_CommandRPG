@@ -1,3 +1,6 @@
+/// <summary>
+/// 戦闘中の1アクション(たたかう/スキル/にげる/どうぐ)が実装する共通インターフェース
+/// </summary>
 public interface IBattleCommand
 {
     /// <summary>表示用のコマンド名</summary>

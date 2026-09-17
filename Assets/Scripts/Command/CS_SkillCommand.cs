@@ -1,5 +1,8 @@
 using UnityEngine;
 
+/// <summary>
+/// スキル使用コマンド。インデックス指定で対象のスキルを引き、MPを消費してダメージを与える
+/// </summary>
 public class CS_SkillCommand : IBattleCommand
 {
     public string commandName => "スキル使用";

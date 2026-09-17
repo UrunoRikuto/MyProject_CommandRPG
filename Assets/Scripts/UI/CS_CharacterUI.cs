@@ -1,6 +1,10 @@
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// 戦闘中のキャラクターアイコン1体分。HP/MPバーを滑らかに追従させ、戦闘不能時は
+/// グレーアウトする。SetTeamSideで敵側だけバー配置を反転する
+/// </summary>
 [RequireComponent(typeof(Image))]
 public class CS_CharacterUI : MonoBehaviour
 {

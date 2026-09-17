@@ -4,6 +4,10 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// ターゲット選択ウィンドウ。開くたびに生存している対象一覧をボタンとして動的生成し、
+/// ScrollRectで縦スクロール表示する(CS_SkillSelectWindowと同じ構造)
+/// </summary>
 public class CS_TargetSelectWindow : MonoBehaviour
 {
     [SerializeField] private Button _targetButtonPrefab;

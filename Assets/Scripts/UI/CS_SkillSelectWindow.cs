@@ -4,6 +4,10 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// スキル選択ウィンドウ。開くたびに使用可能なスキル一覧をボタンとして動的生成し、
+/// ScrollRectで縦スクロール表示する
+/// </summary>
 public class CS_SkillSelectWindow : MonoBehaviour
 {
     [SerializeField] private Button _skillButtonPrefab;

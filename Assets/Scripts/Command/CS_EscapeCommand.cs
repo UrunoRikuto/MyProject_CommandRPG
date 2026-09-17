@@ -1,5 +1,9 @@
 using UnityEngine;
 
+/// <summary>
+/// 「にげる」コマンド。基礎成功率を自分と相手の素早さ比で補正し、成功したら
+/// context.resultをEscapeにして戦闘を終わらせる
+/// </summary>
 public class CS_EscapeCommand : IBattleCommand
 {
     public string commandName => "にげる";

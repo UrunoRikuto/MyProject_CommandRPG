@@ -1,5 +1,9 @@
 using UnityEngine;
 
+/// <summary>
+/// BattleSceneに配置。CS_BattleStateMachine.onBattleEndを購読し、勝敗に応じて
+/// 経験値付与・ドロップ抽選・クエスト進捗更新・フィールド/町への帰還を行う
+/// </summary>
 public class CS_BattleResultHandler : MonoBehaviour
 {
     [SerializeField]

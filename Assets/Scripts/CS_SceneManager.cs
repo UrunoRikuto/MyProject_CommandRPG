@@ -2,6 +2,10 @@ using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+/// <summary>
+/// UnityEngine.SceneManagementをラップする薄いシングルトン。通常のシーン切り替え(Single)と、
+/// コールバック付きのAdditiveロード/アンロードを提供する
+/// </summary>
 public class CS_SceneManager
 {
     private static CS_SceneManager _instance;

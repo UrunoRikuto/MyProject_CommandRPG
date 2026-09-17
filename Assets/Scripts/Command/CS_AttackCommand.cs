@@ -1,5 +1,8 @@
 using UnityEngine;
 
+/// <summary>
+/// 「たたかう」コマンド。使用者のcurrentAttackをそのままダメージ量として与える
+/// </summary>
 public class CS_AttackCommand : IBattleCommand
 {
     public string commandName => "たたかう";

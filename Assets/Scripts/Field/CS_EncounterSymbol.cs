@@ -1,6 +1,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// 不可視のエンカウントエリア。プレイヤーが接触するたびに確率+クールタイムで戦闘を抽選する。
+/// 徘徊モンスター(CS_FieldMonster)導入後は主なエンカウント手段ではなく、
+/// 将来のモンスターハウス的なエリアのために温存している
+/// </summary>
 [RequireComponent(typeof(Collider2D))]
 public class CS_EncounterSymbol : MonoBehaviour
 {

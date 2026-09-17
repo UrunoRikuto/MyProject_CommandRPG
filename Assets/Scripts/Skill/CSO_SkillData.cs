@@ -1,6 +1,9 @@
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "DB_", menuName = "Scriptable Objects/DB_SkillData")]
+/// <summary>
+/// スキル1件分の定義データ(MPコスト・攻撃力倍率・属性)
+/// </summary>
 public class CSO_SkillData : ScriptableObject
 {
     [Header("名前")]

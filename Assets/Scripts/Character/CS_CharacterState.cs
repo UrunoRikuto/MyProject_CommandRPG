@@ -1,6 +1,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// キャラクター1体分の実行時状態。CSO_CharacterData(基礎値)とレベル・装備から最大ステータスを
+/// 算出し、現在HP/MP・被ダメージ計算・MP消費・経験値/レベルアップ・スキル所持を管理する
+/// </summary>
 public class CS_CharacterState
 {
     public const int MAX_LEVEL = 100;
@@ -70,8 +74,8 @@ public class CS_CharacterState
     public int expReward => _characterData.expReward * _level;
 
     // 撃破された際にドロップする可能性のあるアイテム/装備
-    public IReadOnlyList<CSE_DropEntry> itemDrops => _characterData.itemDrops;
-    public IReadOnlyList<CSE_DropEntry> equipmentDrops => _characterData.equipmentDrops;
+    public IReadOnlyList<CS_DropEntry> itemDrops => _characterData.itemDrops;
+    public IReadOnlyList<CS_DropEntry> equipmentDrops => _characterData.equipmentDrops;
 
     /// <summary>
     /// 指定した属性に対するこのキャラクターの耐性倍率(1=等倍)。装備の補正は乗算でスタックする

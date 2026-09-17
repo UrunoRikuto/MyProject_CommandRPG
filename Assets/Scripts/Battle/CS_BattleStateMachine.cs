@@ -2,6 +2,11 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// 戦闘の状態パターン本体。単一/混成エンカウントのどちらからでもStartBattleでき、
+/// ChangeStateは再入防止+ループで実装しているため決着まで何ラウンドかかっても
+/// 呼び出しスタックが一定の深さで済む
+/// </summary>
 public class CS_BattleStateMachine : MonoBehaviour
 {
     [SerializeField]

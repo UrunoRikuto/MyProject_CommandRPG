@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// 戦闘のコマンド入力UI(たたかう/スキル/どうぐ/にげる)。入力待ちの味方がいる間だけ表示され、
+/// サブウィンドウ(スキル/対象/どうぐ選択)を開いている間はCanvasGroupで操作を無効化する
+/// </summary>
 [RequireComponent(typeof(CanvasGroup))]
 public class CS_CommandButtonInput : MonoBehaviour
 {

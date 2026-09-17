@@ -2,6 +2,9 @@ using UnityEngine;
 using System.Collections.Generic;
 
 [CreateAssetMenu(fileName = "DB_", menuName = "Scriptable Objects/DB_EncounterData")]
+/// <summary>
+/// 1つのエンカウント/徘徊モンスターが表す「出現する敵のリスト+出現レベル範囲」の定義データ
+/// </summary>
 public class CSO_EncounterData : ScriptableObject
 {
     [Header("エンカウントする敵のデータリスト")]

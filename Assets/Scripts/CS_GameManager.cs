@@ -2,6 +2,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+/// <summary>
+/// シーンをまたぐ橋渡し役(DontDestroyOnLoadシングルトン)。フィールド⇔戦闘の仲介、
+/// パーティ状態・所持品・クエスト・セーブ/ロード・シーン間のプレイヤー配置(sceneLoaded経由)を
+/// 一元管理する
+/// </summary>
 public class CS_GameManager : MonoBehaviour
 {
     public static CS_GameManager Instance { get; private set; }
