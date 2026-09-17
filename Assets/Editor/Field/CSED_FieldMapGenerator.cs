@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using TMPro;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using UnityEngine.UI;
 
 /// <summary>
 /// FieldSceneのマップ(60x40)を、地面(歩行可)と障害物(衝突あり)の2枚のTilemapへ
@@ -27,6 +29,10 @@ public class CSED_FieldMapGenerator : EditorWindow
     private int _commonRatioPercent = 67; // 徘徊モンスターのうちCommonが占める割合(%)。Eliteは常に1体固定で、残りをこの割合でCommon/Midに按分する
     private int _chestCount = 2;
 
+    // 直近にOnGUIで確認したシーン名。シーンが切り替わった(このシーンを開き直した)瞬間だけ、
+    // 保存済みのSeedを_seedへ読み込み直す(そうしないと入力中のSeedが毎フレーム上書きされてしまう)
+    private string _lastCheckedSceneName;
+
     private System.Random _rand;
 
     [MenuItem("Tools/Field/Field Map Generator")]
@@ -43,6 +49,28 @@ public class CSED_FieldMapGenerator : EditorWindow
             MessageType.Info);
 
         EditorGUILayout.Space();
+
+        Grid activeGrid = FindAnyObjectByType<Grid>();
+        CS_FieldMapInfo savedInfo = activeGrid != null ? activeGrid.GetComponent<CS_FieldMapInfo>() : null;
+        string activeSceneName = activeGrid != null ? activeGrid.gameObject.scene.name : null;
+
+        // シーンを開き直した(前回確認した時と違うシーンになった)瞬間だけ、保存済みのSeedを
+        // 自動で読み込む。同じシーンを開いたままの間は、入力中のSeedを上書きしない
+        if (activeSceneName != null && activeSceneName != _lastCheckedSceneName)
+        {
+            _lastCheckedSceneName = activeSceneName;
+            if (savedInfo != null)
+            {
+                _seed = savedInfo.seed;
+            }
+        }
+
+        if (activeSceneName != null)
+        {
+            string seedLabel = savedInfo != null ? savedInfo.seed.ToString() : "(このシーンはまだ生成されていません)";
+            EditorGUILayout.HelpBox($"「{activeSceneName}」の前回生成時のSeed: {seedLabel}", MessageType.None);
+        }
+
         _theme = (Theme)EditorGUILayout.EnumPopup("テーマ", _theme);
         _seed = EditorGUILayout.IntField("Seed", _seed);
         _wanderingMonsterCount = Mathf.Max(0, EditorGUILayout.IntField("徘徊モンスターの数", _wanderingMonsterCount));
@@ -109,12 +137,29 @@ public class CSED_FieldMapGenerator : EditorWindow
         PaintBorder(obstacleTilemap, borderTile);
 
         PlaceFieldObjects(grid, obstacleTilemap, encounterZoneCount, wanderingMonsterCount, commonRatioPercent, chestCount, theme);
+        EnsureTownCompass();
+        EnsureInteractionPrompt();
+        SaveFieldMapInfo(grid, seed);
 
         EditorUtility.SetDirty(groundTilemap);
         EditorUtility.SetDirty(obstacleTilemap);
         EditorSceneManager.MarkSceneDirty(grid.gameObject.scene);
 
         Debug.Log($"{theme}のフィールドマップを生成しました(Seed: {seed})。シーンの保存をお忘れなく。");
+    }
+
+    /// <summary>
+    /// 使ったSeedをシーンに記録しておく(次回このシーンを開いた時に同じSeedを提示・再利用するため)
+    /// </summary>
+    private void SaveFieldMapInfo(Grid grid, int seed)
+    {
+        CS_FieldMapInfo info = grid.GetComponent<CS_FieldMapInfo>();
+        if (info == null)
+        {
+            info = grid.gameObject.AddComponent<CS_FieldMapInfo>();
+        }
+        info.seed = seed;
+        EditorUtility.SetDirty(info);
     }
 
     /// <summary>
@@ -561,6 +606,99 @@ public class CSED_FieldMapGenerator : EditorWindow
         }
 
         return exits[0];
+    }
+
+    private const string TOWN_COMPASS_NAME = "TownCompassCanvas";
+
+    /// <summary>
+    /// 町へ戻る出入口の方向を指す画面上のコンパス矢印を用意する。既存の物は毎回作り直す
+    /// (対象の参照はCS_TownCompass側が実行時にFindAnyObjectByTypeで解決するため、
+    /// ここでは見た目の構築だけでよい)
+    /// </summary>
+    private void EnsureTownCompass()
+    {
+        GameObject existing = GameObject.Find(TOWN_COMPASS_NAME);
+        if (existing != null)
+        {
+            Undo.DestroyObjectImmediate(existing);
+        }
+
+        GameObject canvasGo = new GameObject(TOWN_COMPASS_NAME, typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
+        Undo.RegisterCreatedObjectUndo(canvasGo, "Create Town Compass");
+        Canvas canvas = canvasGo.GetComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        CanvasScaler scaler = canvasGo.GetComponent<CanvasScaler>();
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = new Vector2(1280, 720);
+
+        GameObject arrowGo = new GameObject("Arrow", typeof(RectTransform), typeof(Image));
+        arrowGo.transform.SetParent(canvasGo.transform, false);
+        RectTransform arrowRect = arrowGo.GetComponent<RectTransform>();
+        // 中央基準にしておく。実際の画面端への配置・追従はCS_TownCompassが毎フレーム計算する
+        arrowRect.anchorMin = arrowRect.anchorMax = new Vector2(0.5f, 0.5f);
+        arrowRect.pivot = new Vector2(0.5f, 0.5f);
+        arrowRect.sizeDelta = new Vector2(48f, 48f);
+        arrowRect.anchoredPosition = Vector2.zero;
+
+        Image arrowImage = arrowGo.GetComponent<Image>();
+        arrowImage.sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprites/UI/UI_TurnArrow.png");
+        // 戦闘中のターンマーカー(同じスプライト)と見分けやすいよう金色に着色する
+        arrowImage.color = new Color(1f, 0.85f, 0.2f);
+
+        CS_TownCompass compass = canvasGo.AddComponent<CS_TownCompass>();
+        SerializedObject so = new SerializedObject(compass);
+        so.FindProperty("_arrow").objectReferenceValue = arrowRect;
+        so.ApplyModifiedPropertiesWithoutUndo();
+    }
+
+    private const string INTERACTION_PROMPT_CANVAS_NAME = "InteractionPromptCanvas";
+
+    /// <summary>
+    /// 「Fキーで〜」プロンプトの画面下部UIを用意する。町へ戻る出入口(CS_SceneEntrance)が
+    /// 実行時にFindAnyObjectByTypeで見つけて使う。既存の物があれば何もしない
+    /// </summary>
+    private void EnsureInteractionPrompt()
+    {
+        GameObject existing = GameObject.Find(INTERACTION_PROMPT_CANVAS_NAME);
+        if (existing != null) return;
+
+        GameObject canvasGo = new GameObject(INTERACTION_PROMPT_CANVAS_NAME, typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
+        Undo.RegisterCreatedObjectUndo(canvasGo, "Create Interaction Prompt");
+        Canvas canvas = canvasGo.GetComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        CanvasScaler scaler = canvasGo.GetComponent<CanvasScaler>();
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = new Vector2(1280, 720);
+
+        GameObject panelGo = new GameObject("PromptPanel", typeof(RectTransform), typeof(Image));
+        panelGo.transform.SetParent(canvasGo.transform, false);
+        RectTransform panelRect = panelGo.GetComponent<RectTransform>();
+        panelRect.anchorMin = panelRect.anchorMax = new Vector2(0.5f, 0f);
+        panelRect.pivot = new Vector2(0.5f, 0f);
+        panelRect.sizeDelta = new Vector2(360f, 50f);
+        panelRect.anchoredPosition = new Vector2(0f, 70f);
+        Image panelImage = panelGo.GetComponent<Image>();
+        panelImage.sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprites/UI/UI_Window.png");
+        panelImage.type = Image.Type.Sliced;
+
+        GameObject textGo = new GameObject("PromptText", typeof(RectTransform), typeof(TextMeshProUGUI));
+        textGo.transform.SetParent(panelGo.transform, false);
+        RectTransform textRect = textGo.GetComponent<RectTransform>();
+        textRect.anchorMin = Vector2.zero;
+        textRect.anchorMax = Vector2.one;
+        textRect.sizeDelta = Vector2.zero;
+        TextMeshProUGUI text = textGo.GetComponent<TextMeshProUGUI>();
+        text.alignment = TextAlignmentOptions.Center;
+        text.color = Color.white;
+        text.fontSize = 22;
+
+        CS_InteractionPrompt prompt = canvasGo.AddComponent<CS_InteractionPrompt>();
+        SerializedObject promptSo = new SerializedObject(prompt);
+        promptSo.FindProperty("_promptPanel").objectReferenceValue = panelGo;
+        promptSo.FindProperty("_promptText").objectReferenceValue = text;
+        promptSo.ApplyModifiedPropertiesWithoutUndo();
+
+        panelGo.SetActive(false);
     }
 
     private Tilemap GetOrCreateGroundTilemap(Grid grid)

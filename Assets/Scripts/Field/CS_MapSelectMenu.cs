@@ -34,8 +34,13 @@ public class CS_MapSelectMenu : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 選んだフィールドへ移動する。フィールド側の「町へ戻る出入口」の位置に出現させる
+    /// (そこに戻ればすぐ町へ帰れる、行き来の起点を出入口に揃える)
+    /// </summary>
     private void GoToField(string sceneName)
     {
+        CS_GameManager.Instance.RequestSpawnAtFieldExit(sceneName);
         CS_GameManager.Instance.SaveGame();
         CS_SceneManager.Instance.LoadScene(sceneName);
     }

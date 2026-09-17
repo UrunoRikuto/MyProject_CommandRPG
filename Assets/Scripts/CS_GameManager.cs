@@ -19,6 +19,13 @@ public class CS_GameManager : MonoBehaviour
 
     private List<CS_PartyMemberState> _partyState;
     private Vector3? _pendingPlayerPosition;
+    // _pendingPlayerPosition/_spawnAtFieldExitがどのシーン向けかを覚えておく。異なるシーンに
+    // 誤って適用してしまう(例: フィールドの座標を町にそのまま適用して町の範囲外に出現する)のを防ぐ
+    private string _pendingPlayerPositionScene;
+    // 町からマップ選択で選んだフィールドへ向かう場合、そのフィールドの「町へ戻る出入口」
+    // (CS_SceneEntrance)の位置にプレイヤーを配置する。座標は町側では分からない
+    // (対象のフィールドを読み込むまで存在しない)ため、フラグだけ持たせて読み込み後に解決する
+    private bool _spawnAtFieldExit;
 
     // 「つづきから」で復帰するシーン名(セーブ対象。はじめからは常にTownSceneへ直接遷移する)
     private string _currentSceneName = "TownScene";
@@ -51,6 +58,10 @@ public class CS_GameManager : MonoBehaviour
             DontDestroyOnLoad(gameObject); // シーンが切り替わっても破棄されないようにする
 
             LoadGameOnStartup();
+            // DontDestroyOnLoadで永続化されるオブジェクトのStart()はゲーム起動時に一度しか
+            // 呼ばれない(2回目以降のシーン遷移では発火しない)ため、プレイヤー位置の復元は
+            // Start()ではなくシーンが切り替わるたびに発火するsceneLoadedイベント側で行う
+            SceneManager.sceneLoaded += OnSceneLoaded;
         }
         else
         {
@@ -58,20 +69,47 @@ public class CS_GameManager : MonoBehaviour
         }
     }
 
-    private void Start()
+    /// <summary>
+    /// シーンが読み込まれるたびに呼ばれる。読み込まれたシーンが、予約しておいたプレイヤー配置の
+    /// 対象と一致する場合のみ適用する(シーン名の一致を確認しないと、別シーン向けの座標や
+    /// 出入口を誤って適用してしまい、範囲外に出現する不具合につながる)
+    /// </summary>
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        if (!_pendingPlayerPosition.HasValue)
+        if (mode != LoadSceneMode.Single) return; // 戦闘のAdditiveロードは対象外
+        if (scene.name != _pendingPlayerPositionScene) return;
+
+        var player = GameObject.FindAnyObjectByType<CS_PlayerMove>();
+        if (player == null) return; // プレイヤーがいないシーン(タイトル等)では消費せず持ち越す
+
+        if (_spawnAtFieldExit)
         {
+            var entrance = GameObject.FindAnyObjectByType<CS_SceneEntrance>();
+            if (entrance != null)
+            {
+                player.transform.position = entrance.transform.position;
+            }
+            _spawnAtFieldExit = false;
+            _pendingPlayerPositionScene = null;
             return;
         }
 
-        var player = GameObject.FindAnyObjectByType<CS_PlayerMove>();
-        if (player != null)
-        {
-            player.transform.position = _pendingPlayerPosition.Value;
-        }
+        if (!_pendingPlayerPosition.HasValue) return;
 
+        player.transform.position = _pendingPlayerPosition.Value;
         _pendingPlayerPosition = null;
+        _pendingPlayerPositionScene = null;
+    }
+
+    /// <summary>
+    /// 町からマップ選択でフィールドへ向かう際に呼ぶ。そのフィールドの「町へ戻る出入口」の
+    /// 位置にプレイヤーを配置する予約をする(実際の配置はそのフィールドの読み込み完了後)
+    /// </summary>
+    public void RequestSpawnAtFieldExit(string sceneName)
+    {
+        _spawnAtFieldExit = true;
+        _pendingPlayerPosition = null;
+        _pendingPlayerPositionScene = sceneName;
     }
 
     /// <summary>
@@ -93,6 +131,8 @@ public class CS_GameManager : MonoBehaviour
         _boardQuests = saveData.boardQuests ?? new List<CS_QuestData>();
         _activeQuests = saveData.activeQuests ?? new List<CS_QuestData>();
         _currentSceneName = string.IsNullOrEmpty(saveData.currentSceneName) ? "TownScene" : saveData.currentSceneName;
+        // この位置はcurrentSceneName(=保存時にいたシーン)向けのものなので、紐付けて覚えておく
+        _pendingPlayerPositionScene = _currentSceneName;
     }
 
     /// <summary>
@@ -132,6 +172,8 @@ public class CS_GameManager : MonoBehaviour
     {
         _partyState = null;
         _pendingPlayerPosition = null;
+        _pendingPlayerPositionScene = null;
+        _spawnAtFieldExit = false;
         _ownedItems = new List<CS_ItemStack>();
         _ownedEquipment = new List<CS_ItemStack>();
         _openedChestIds = new List<string>();
@@ -156,6 +198,37 @@ public class CS_GameManager : MonoBehaviour
             _partyState[i].currentMP = allyParty[i].currentMP;
             _partyState[i].level = allyParty[i].level;
             _partyState[i].exp = allyParty[i].currentExp;
+        }
+    }
+
+    /// <summary>
+    /// パーティ全員の体力・MPを最大値まで回復する(街の泉用)。
+    /// 装備込みの最大値をCS_EquipmentMenu.BuildStatPreviewと同じ式で算出し直す
+    /// (戦闘中と違い、町にいる間はCS_CharacterStateが存在しないため直接計算する)
+    /// </summary>
+    public void HealPartyToFull(List<CSO_CharacterData> playerPartyData)
+    {
+        List<CS_PartyMemberState> partyState = GetOrInitializePartyState(playerPartyData);
+
+        for (int i = 0; i < partyState.Count && i < playerPartyData.Count; i++)
+        {
+            CSO_CharacterData data = playerPartyData[i];
+            CS_PartyMemberState member = partyState[i];
+            int levelBonus = member.level - 1;
+
+            int maxHealth = data.baseHealth + data.healthGrowth * levelBonus;
+            int maxMP = data.baseMP + data.mpGrowth * levelBonus;
+
+            foreach (string equipmentId in new[] { member.equippedWeaponId, member.equippedArmorId, member.equippedAccessoryId })
+            {
+                CSO_EquipmentData equipment = CS_ItemDatabase.GetEquipment(equipmentId);
+                if (equipment == null) continue;
+                maxHealth += equipment.healthBonus;
+                maxMP += equipment.mpBonus;
+            }
+
+            member.currentHealth = maxHealth;
+            member.currentMP = maxMP;
         }
     }
 
@@ -507,6 +580,8 @@ public class CS_GameManager : MonoBehaviour
 
             // 次にロードされるTownSceneでプレイヤーを町の初期位置へ配置する
             _pendingPlayerPosition = TOWN_SPAWN_POSITION;
+            _pendingPlayerPositionScene = "TownScene";
+            _spawnAtFieldExit = false;
 
             // シーンをまたぐキャッシュは全てこのフィールド固有のものなので破棄する
             _player = null;

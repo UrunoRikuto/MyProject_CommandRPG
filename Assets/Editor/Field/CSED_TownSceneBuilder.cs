@@ -21,6 +21,16 @@ public class CSED_TownSceneBuilder : EditorWindow
     private const int TOWN_H = 16;
     private static readonly Vector3 TOWN_CENTER = new Vector3(8f, 6f, 0f);
 
+    // 現在のプレイヤーパーティ5人(BattleScene/各CS_EquipmentMenuと同じ構成)。泉の回復機能で使う
+    private static readonly string[] PLAYER_PARTY_DATA_PATHS =
+    {
+        "Assets/Data/Character/Paladin/DB_Char_Paladin.asset",
+        "Assets/Data/Character/Warlock/DB_Char_Warlock.asset",
+        "Assets/Data/Character/Ranger/DB_Char_Ranger.asset",
+        "Assets/Data/Character/Cleric/DB_Char_Cleric.asset",
+        "Assets/Data/Character/Engineer/DB_Char_Engineer.asset",
+    };
+
     [MenuItem("Tools/Field/Build Town Scene")]
     public static void ShowWindow()
     {
@@ -157,13 +167,15 @@ public class CSED_TownSceneBuilder : EditorWindow
         // 家はpipo-map001の一軒家スプライト(屋根・壁・扉が1枚に収まった完成品)を建物の footprint
         // 全体(手前の行も含む)にそのまま引き伸ばして使う。手前だけ別素材の壁+扉を重ねると、
         // 素材のテイストが混ざって二重の壁に見えてしまうため、正面用の壁タイル・扉は使わない
-        CreateRoof(parent.transform, "House_Wood", houseWood, 2, 6, 7, 10);
-        CreateRoof(parent.transform, "House_Orange", houseOrange, 13, 17, 7, 10);
+        // レイアウト: 家2棟を上端寄りに並べ、その手前(下)に噴水+花壇の広場、
+        // クエスト板(石碑)はオレンジの家の下・右寄りに配置する
+        CreateRoof(parent.transform, "House_Wood", houseWood, 2, 6, 11, 14);
+        CreateRoof(parent.transform, "House_Orange", houseOrange, 13, 17, 11, 14);
 
-        CreateDecoration(parent.transform, "Fountain", fountain, new Vector3(10.5f, 9.5f, 0f), Vector2.one, true, new Vector2(1.4f, 1.4f));
-        CreateDecoration(parent.transform, "Grave", grave, new Vector3(1.5f, 12.5f, 0f), Vector2.one, true, null);
-        CreateDecoration(parent.transform, "FlowerPot_1", flowerPot, new Vector3(8.5f, 9.5f, 0f), Vector2.one, true, null);
-        CreateDecoration(parent.transform, "FlowerPot_2", flowerPot, new Vector3(12.5f, 9.5f, 0f), Vector2.one, true, null);
+        CreateDecoration(parent.transform, "Fountain", fountain, new Vector3(10.5f, 8.5f, 0f), Vector2.one, true, new Vector2(1.4f, 1.4f));
+        CreateDecoration(parent.transform, "Grave", grave, new Vector3(16.5f, 8.5f, 0f), Vector2.one, true, null);
+        CreateDecoration(parent.transform, "FlowerPot_1", flowerPot, new Vector3(8.5f, 8.5f, 0f), Vector2.one, true, null);
+        CreateDecoration(parent.transform, "FlowerPot_2", flowerPot, new Vector3(12.5f, 8.5f, 0f), Vector2.one, true, null);
 
         // 石碑(Grave)をクエスト板として使う。装飾用の当たり判定(物理ブロック)はそのまま残し、
         // 別途プレイヤーの近接検知用のトリガーコライダー+CS_QuestBoardを追加する
@@ -183,6 +195,36 @@ public class CSED_TownSceneBuilder : EditorWindow
         else
         {
             Debug.LogWarning("Graveオブジェクトが見つからず、クエスト板を設定できませんでした。");
+        }
+
+        // 泉(Fountain)に近づいてFキーを押すとパーティを全回復するCS_TownFountainを追加する。
+        // 装飾用の当たり判定(物理ブロック)はそのまま残し、Grave/QuestBoardと同様に
+        // 別途プレイヤーの近接検知用のトリガーコライダーを追加する
+        GameObject fountainObject = parent.transform.Find("Fountain")?.gameObject;
+        if (fountainObject != null)
+        {
+            CS_TownFountain townFountain = fountainObject.GetComponent<CS_TownFountain>();
+            if (townFountain == null)
+            {
+                BoxCollider2D fountainProximityCollider = fountainObject.AddComponent<BoxCollider2D>();
+                fountainProximityCollider.isTrigger = true;
+                fountainProximityCollider.size = new Vector2(2.2f, 2.2f);
+                townFountain = fountainObject.AddComponent<CS_TownFountain>();
+            }
+
+            SerializedObject fountainSo = new SerializedObject(townFountain);
+            SerializedProperty partyProp = fountainSo.FindProperty("_playerPartyData");
+            string[] partyPaths = PLAYER_PARTY_DATA_PATHS;
+            partyProp.arraySize = partyPaths.Length;
+            for (int i = 0; i < partyPaths.Length; i++)
+            {
+                partyProp.GetArrayElementAtIndex(i).objectReferenceValue = AssetDatabase.LoadAssetAtPath<CSO_CharacterData>(partyPaths[i]);
+            }
+            fountainSo.ApplyModifiedPropertiesWithoutUndo();
+        }
+        else
+        {
+            Debug.LogWarning("Fountainオブジェクトが見つからず、泉の回復機能を設定できませんでした。");
         }
 
         // 既存のTownGate(以前のバージョンで見た目なしのまま作られたもの)に看板テクスチャを補完する
@@ -208,6 +250,8 @@ public class CSED_TownSceneBuilder : EditorWindow
                 menuObject.SetActive(true);
             }
         }
+
+        EnsureInteractionPrompt(townScene);
 
         if (questBoard != null)
         {
@@ -659,6 +703,56 @@ public class CSED_TownSceneBuilder : EditorWindow
         monsterText.alignment = TextAlignmentOptions.Center;
         monsterText.color = new Color(0.8f, 0.8f, 0.85f);
         monsterText.fontSize = 16;
+    }
+
+    private const string INTERACTION_PROMPT_CANVAS_NAME = "InteractionPromptCanvas";
+
+    /// <summary>
+    /// 「Fキーで〜」プロンプトの画面下部UIを用意する。泉・クエスト板・町の出入口が
+    /// 実行時にFindAnyObjectByTypeで見つけて使う。既存の物があれば何もしない
+    /// </summary>
+    private void EnsureInteractionPrompt(Scene townScene)
+    {
+        GameObject existing = FindRootByName(townScene, INTERACTION_PROMPT_CANVAS_NAME);
+        if (existing != null) return;
+
+        GameObject canvasGo = new GameObject(INTERACTION_PROMPT_CANVAS_NAME, typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
+        SceneManager.MoveGameObjectToScene(canvasGo, townScene);
+        Canvas canvas = canvasGo.GetComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        CanvasScaler scaler = canvasGo.GetComponent<CanvasScaler>();
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = new Vector2(1280, 720);
+
+        GameObject panelGo = new GameObject("PromptPanel", typeof(RectTransform), typeof(Image));
+        panelGo.transform.SetParent(canvasGo.transform, false);
+        RectTransform panelRect = panelGo.GetComponent<RectTransform>();
+        panelRect.anchorMin = panelRect.anchorMax = new Vector2(0.5f, 0f);
+        panelRect.pivot = new Vector2(0.5f, 0f);
+        panelRect.sizeDelta = new Vector2(360f, 50f);
+        panelRect.anchoredPosition = new Vector2(0f, 70f);
+        Image panelImage = panelGo.GetComponent<Image>();
+        panelImage.sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprites/UI/UI_Window.png");
+        panelImage.type = Image.Type.Sliced;
+
+        GameObject textGo = new GameObject("PromptText", typeof(RectTransform), typeof(TextMeshProUGUI));
+        textGo.transform.SetParent(panelGo.transform, false);
+        RectTransform textRect = textGo.GetComponent<RectTransform>();
+        textRect.anchorMin = Vector2.zero;
+        textRect.anchorMax = Vector2.one;
+        textRect.sizeDelta = Vector2.zero;
+        TextMeshProUGUI text = textGo.GetComponent<TextMeshProUGUI>();
+        text.alignment = TextAlignmentOptions.Center;
+        text.color = Color.white;
+        text.fontSize = 22;
+
+        CS_InteractionPrompt prompt = canvasGo.AddComponent<CS_InteractionPrompt>();
+        SerializedObject so = new SerializedObject(prompt);
+        so.FindProperty("_promptPanel").objectReferenceValue = panelGo;
+        so.FindProperty("_promptText").objectReferenceValue = text;
+        so.ApplyModifiedPropertiesWithoutUndo();
+
+        panelGo.SetActive(false);
     }
 
     private const string QUEST_BOARD_CANVAS_NAME = "QuestBoardCanvas";
